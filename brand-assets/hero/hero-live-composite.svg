@@ -1,0 +1,228 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600" fill="none">
+  <style>
+    /* Audio waveform bars pulsing */
+    .wv { transform-origin: center; animation: wv 1.1s ease-in-out infinite; }
+    .wv:nth-child(1) { animation-delay: 0.00s; }
+    .wv:nth-child(2) { animation-delay: 0.08s; }
+    .wv:nth-child(3) { animation-delay: 0.16s; }
+    .wv:nth-child(4) { animation-delay: 0.24s; }
+    .wv:nth-child(5) { animation-delay: 0.32s; }
+    .wv:nth-child(6) { animation-delay: 0.40s; }
+    .wv:nth-child(7) { animation-delay: 0.48s; }
+    .wv:nth-child(8) { animation-delay: 0.56s; }
+    .wv:nth-child(9) { animation-delay: 0.64s; }
+    .wv:nth-child(10) { animation-delay: 0.72s; }
+    .wv:nth-child(11) { animation-delay: 0.80s; }
+    .wv:nth-child(12) { animation-delay: 0.88s; }
+    .wv:nth-child(13) { animation-delay: 0.96s; }
+    .wv:nth-child(14) { animation-delay: 1.04s; }
+    @keyframes wv {
+      0%, 100% { transform: scaleY(0.25); }
+      50% { transform: scaleY(1); }
+    }
+
+    /* Transcription text typing effect */
+    .transcript-line {
+      opacity: 0;
+      animation: fadeInText 6s ease-in-out infinite;
+    }
+    .t1 { animation-delay: 0.2s; }
+    .t2 { animation-delay: 1.4s; }
+    .t3 { animation-delay: 2.6s; }
+    @keyframes fadeInText {
+      0% { opacity: 0; transform: translateX(-8px); }
+      8%, 70% { opacity: 1; transform: translateX(0); }
+      80%, 100% { opacity: 0; transform: translateX(0); }
+    }
+
+    /* Stat card materialization */
+    .stat-card {
+      opacity: 0;
+      transform-origin: center;
+      animation: statIn 6s ease-out infinite;
+      animation-delay: 3.2s;
+    }
+    @keyframes statIn {
+      0%, 50% { opacity: 0; transform: translateY(20px) scale(0.95); }
+      60%, 90% { opacity: 1; transform: translateY(0) scale(1); }
+      95%, 100% { opacity: 0; transform: translateY(0) scale(1); }
+    }
+
+    /* Connection beams flowing left to right */
+    .beam {
+      stroke-dasharray: 6 12;
+      animation: flow 2s linear infinite;
+    }
+    @keyframes flow { to { stroke-dashoffset: -36; } }
+
+    /* Latency counter pulsing */
+    .latency {
+      animation: latency 6s ease-in-out infinite;
+      animation-delay: 3.4s;
+    }
+    @keyframes latency {
+      0%, 50% { opacity: 0; }
+      60%, 95% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+
+    /* Live dot */
+    .live-dot { animation: livedot 1.4s ease-in-out infinite; }
+    @keyframes livedot {
+      0%, 100% { opacity: 0.4; }
+      50% { opacity: 1; }
+    }
+
+    /* Pipeline stage labels */
+    .stage-label {
+      font-family: 'IBM Plex Mono', ui-monospace, monospace;
+      fill: #525252;
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      font-weight: 700;
+    }
+  </style>
+
+  <!-- Background grid (subtle) -->
+  <defs>
+    <pattern id="hero-grid" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#141414" stroke-width="0.5"/>
+    </pattern>
+    <linearGradient id="beam-grad" x1="0%" x2="100%">
+      <stop offset="0%" stop-color="#EF4444" stop-opacity="0"/>
+      <stop offset="50%" stop-color="#EF4444" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#EF4444" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="600" fill="#050505"/>
+  <rect width="1200" height="600" fill="url(#hero-grid)"/>
+
+  <!-- ===== STAGE 1: AUDIO INPUT ===== -->
+  <g transform="translate(80 220)">
+    <text class="stage-label" x="0" y="-20">01 / LISTEN</text>
+    <rect x="0" y="0" width="240" height="160" rx="8" fill="#0A0A0A" stroke="#1F1F1F"/>
+
+    <!-- Mic icon top -->
+    <g transform="translate(20 20)" stroke="#737373" stroke-width="1.25" fill="none" stroke-linecap="round">
+      <rect x="3" y="0" width="8" height="12" rx="4"/>
+      <path d="M0 8v1a7 7 0 0 0 14 0V8"/>
+      <path d="M7 16v3"/>
+    </g>
+    <text x="44" y="29" font-family="'IBM Plex Mono', ui-monospace, monospace" font-size="10" fill="#737373" letter-spacing="0.1em">BROADCAST_AUDIO.wav</text>
+
+    <!-- Live dot -->
+    <circle class="live-dot" cx="220" cy="24" r="3" fill="#EF4444"/>
+
+    <!-- Waveform -->
+    <g transform="translate(20 70)" fill="#FAFAFA">
+      <rect class="wv" x="0"   y="14" width="3" height="28" rx="1.5"/>
+      <rect class="wv" x="14"  y="14" width="3" height="28" rx="1.5"/>
+      <rect class="wv" x="28"  y="14" width="3" height="28" rx="1.5"/>
+      <rect class="wv" x="42"  y="14" width="3" height="28" rx="1.5"/>
+      <rect class="wv" x="56"  y="14" width="3" height="28" rx="1.5"/>
+      <rect class="wv" x="70"  y="14" width="3" height="28" rx="1.5"/>
+      <rect class="wv" x="84"  y="14" width="3" height="28" rx="1.5"/>
+      <rect class="wv" x="98"  y="14" width="3" height="28" rx="1.5"/>
+      <rect class="wv" x="112" y="14" width="3" height="28" rx="1.5"/>
+      <rect class="wv" x="126" y="14" width="3" height="28" rx="1.5"/>
+      <rect class="wv" x="140" y="14" width="3" height="28" rx="1.5"/>
+      <rect class="wv" x="154" y="14" width="3" height="28" rx="1.5"/>
+      <rect class="wv" x="168" y="14" width="3" height="28" rx="1.5"/>
+      <rect class="wv" x="182" y="14" width="3" height="28" rx="1.5"/>
+    </g>
+
+    <text x="20" y="140" font-family="'IBM Plex Mono', ui-monospace, monospace" font-size="9" fill="#525252" letter-spacing="0.05em">Whisper • on-device • 16kHz</text>
+  </g>
+
+  <!-- Connection beam 1 -->
+  <line class="beam" x1="320" y1="300" x2="430" y2="300" stroke="url(#beam-grad)" stroke-width="1.5"/>
+
+  <!-- ===== STAGE 2: CONTEXT EXTRACTION ===== -->
+  <g transform="translate(430 220)">
+    <text class="stage-label" x="0" y="-20">02 / UNDERSTAND</text>
+    <rect x="0" y="0" width="320" height="160" rx="8" fill="#0A0A0A" stroke="#1F1F1F"/>
+
+    <!-- Gemma 4 badge -->
+    <rect x="20" y="16" width="110" height="20" rx="4" fill="#141414" stroke="#262626"/>
+    <circle cx="30" cy="26" r="3" fill="#8B5CF6"/>
+    <text x="40" y="30" font-family="'IBM Plex Mono', ui-monospace, monospace" font-size="9" fill="#A3A3A3" letter-spacing="0.1em">GEMMA 4 • CACTUS</text>
+
+    <!-- Transcription lines -->
+    <g transform="translate(20 58)">
+      <g class="transcript-line t1">
+        <rect x="0" y="0" width="60" height="12" rx="2" fill="#171717"/>
+        <text x="6" y="9" font-family="'IBM Plex Mono', ui-monospace, monospace" font-size="8" fill="#525252" letter-spacing="0.05em">00:08</text>
+        <text x="72" y="9" font-family="'IBM Plex Mono', ui-monospace, monospace" font-size="10" fill="#A3A3A3">"touchdown by Mahomes..."</text>
+      </g>
+      <g class="transcript-line t2" transform="translate(0 22)">
+        <rect x="0" y="0" width="60" height="12" rx="2" fill="#171717"/>
+        <text x="6" y="9" font-family="'IBM Plex Mono', ui-monospace, monospace" font-size="8" fill="#525252" letter-spacing="0.05em">00:09</text>
+        <text x="72" y="9" font-family="'IBM Plex Mono', ui-monospace, monospace" font-size="10" fill="#A3A3A3">"that's his third of the game"</text>
+      </g>
+      <g class="transcript-line t3" transform="translate(0 44)">
+        <rect x="0" y="0" width="60" height="12" rx="2" fill="#171717"/>
+        <text x="6" y="9" font-family="'IBM Plex Mono', ui-monospace, monospace" font-size="8" fill="#10B981" letter-spacing="0.05em">EXTRACT</text>
+        <text x="72" y="9" font-family="'IBM Plex Mono', ui-monospace, monospace" font-size="10" fill="#10B981">{player: "Mahomes", event: "TD"}</text>
+      </g>
+    </g>
+
+    <text x="20" y="140" font-family="'IBM Plex Mono', ui-monospace, monospace" font-size="9" fill="#525252" letter-spacing="0.05em">Context extracted • routing stat query</text>
+  </g>
+
+  <!-- Connection beam 2 -->
+  <line class="beam" x1="750" y1="300" x2="860" y2="300" stroke="url(#beam-grad)" stroke-width="1.5"/>
+
+  <!-- ===== STAGE 3: STAT CARD SURFACED ===== -->
+  <g transform="translate(860 220)">
+    <text class="stage-label" x="0" y="-20">03 / SURFACE</text>
+
+    <g class="stat-card">
+      <rect x="0" y="0" width="260" height="160" rx="8" fill="#0A0A0A" stroke="#EF4444" stroke-opacity="0.3"/>
+      <rect x="0" y="0" width="260" height="160" rx="8" fill="none" stroke="#EF4444" stroke-opacity="0.15" stroke-width="3"/>
+
+      <!-- Header row -->
+      <circle cx="20" cy="22" r="3" fill="#EF4444"/>
+      <text x="30" y="26" font-family="'IBM Plex Mono', ui-monospace, monospace" font-size="9" font-weight="700" fill="#A3A3A3" letter-spacing="0.15em">LIVE • Q3 8:42</text>
+
+      <!-- Player name -->
+      <text x="20" y="62" font-family="'IBM Plex Mono', ui-monospace, monospace" font-size="10" fill="#737373" letter-spacing="0.1em">PATRICK MAHOMES</text>
+
+      <!-- Main stat -->
+      <text x="20" y="92" font-family="'IBM Plex Mono', ui-monospace, monospace" font-size="17" font-weight="700" fill="#FAFAFA" letter-spacing="-0.01em">12 TDs, 0 INTs</text>
+      <text x="20" y="113" font-family="'IBM Plex Mono', ui-monospace, monospace" font-size="17" font-weight="700" fill="#FAFAFA" letter-spacing="-0.01em">in December</text>
+
+      <!-- Source badge -->
+      <g transform="translate(20 132)">
+        <circle cx="6" cy="6" r="5.5" fill="#10B981" fill-opacity="0.12" stroke="#10B981" stroke-width="0.75"/>
+        <path d="M3.5 6.25l1.75 1.75 3.25-3.5" stroke="#10B981" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <text x="18" y="10" font-family="'IBM Plex Mono', ui-monospace, monospace" font-size="9" fill="#10B981" letter-spacing="0.05em">Sportradar</text>
+      </g>
+
+      <!-- Latency chip -->
+      <g class="latency" transform="translate(178 130)">
+        <rect width="66" height="16" rx="3" fill="#EF4444" fill-opacity="0.1" stroke="#EF4444" stroke-opacity="0.3"/>
+        <text x="33" y="12" font-family="'IBM Plex Mono', ui-monospace, monospace" font-size="9" font-weight="700" fill="#EF4444" letter-spacing="0.1em" text-anchor="middle">142ms</text>
+      </g>
+    </g>
+  </g>
+
+  <!-- ===== BOTTOM META BAR ===== -->
+  <g transform="translate(80 500)">
+    <line x1="0" y1="0" x2="1040" y2="0" stroke="#1A1A1A"/>
+    <text x="0" y="32" font-family="'IBM Plex Mono', ui-monospace, monospace" font-size="10" fill="#525252" letter-spacing="0.15em">END-TO-END LATENCY</text>
+    <text x="0" y="58" font-family="'IBM Plex Mono', ui-monospace, monospace" font-size="22" font-weight="700" fill="#FAFAFA" letter-spacing="-0.02em">&lt; 200<tspan font-size="14" fill="#737373">ms</tspan></text>
+
+    <text x="260" y="32" font-family="'IBM Plex Mono', ui-monospace, monospace" font-size="10" fill="#525252" letter-spacing="0.15em">INFERENCE</text>
+    <text x="260" y="58" font-family="'IBM Plex Mono', ui-monospace, monospace" font-size="22" font-weight="700" fill="#FAFAFA" letter-spacing="-0.02em">ON-DEVICE</text>
+
+    <text x="480" y="32" font-family="'IBM Plex Mono', ui-monospace, monospace" font-size="10" fill="#525252" letter-spacing="0.15em">SOURCE</text>
+    <text x="480" y="58" font-family="'IBM Plex Mono', ui-monospace, monospace" font-size="22" font-weight="700" fill="#FAFAFA" letter-spacing="-0.02em">100% CITED</text>
+
+    <text x="700" y="32" font-family="'IBM Plex Mono', ui-monospace, monospace" font-size="10" fill="#525252" letter-spacing="0.15em">MODE</text>
+    <text x="700" y="58" font-family="'IBM Plex Mono', ui-monospace, monospace" font-size="22" font-weight="700" fill="#FAFAFA" letter-spacing="-0.02em">NON-INTRUSIVE</text>
+
+    <text x="940" y="32" font-family="'IBM Plex Mono', ui-monospace, monospace" font-size="10" fill="#525252" letter-spacing="0.15em">STACK</text>
+    <text x="940" y="58" font-family="'IBM Plex Mono', ui-monospace, monospace" font-size="22" font-weight="700" fill="#FAFAFA" letter-spacing="-0.02em">GEMMA 4</text>
+  </g>
+</svg>

@@ -1,0 +1,12 @@
+.DS_Store
+Thumbs.db
+node_modules/
+.expo/
+.expo-shared/
+*.log
+.env
+.env.local
+ios/Pods/
+android/.gradle/
+dist/
+build/
