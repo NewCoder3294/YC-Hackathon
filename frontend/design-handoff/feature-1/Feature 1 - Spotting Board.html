@@ -1,0 +1,484 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>BroadcastBrain · Feature 1 · Spotting Board</title>
+<meta name="viewport" content="width=1440, initial-scale=1"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+  html, body { margin: 0; padding: 0; background: #f5efe3; font-family: 'IBM Plex Mono', ui-monospace, monospace; color: #1a1614; }
+  * { box-sizing: border-box; }
+  .scroll-hide::-webkit-scrollbar { display: none; }
+  .scroll-hide { scrollbar-width: none; }
+  @keyframes bb-pulse { 0%,100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.25); opacity: 0.6; } }
+</style>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel" src="frame.jsx"></script>
+<script type="text/babel" src="f1-components.jsx"></script>
+<script type="text/babel" src="design-canvas.jsx"></script>
+
+<script type="text/babel">
+const { useState } = React;
+
+// ─── Scale iPad (1366×1024) so two fit across a row comfortably ─────
+const FRAME_SCALE = 0.58;
+const SCALED_W = IPAD.W * FRAME_SCALE;
+const SCALED_H = IPAD.H * FRAME_SCALE;
+
+function FrameCard({ label, subtitle, notes = [], quote, who, children, width }) {
+  return (
+    <div style={{ position: 'relative', flexShrink: 0, width: width || 'auto' }}>
+      <div style={{
+        position: 'absolute', bottom: 'calc(100% + 8px)', left: 0,
+        display: 'flex', alignItems: 'baseline', gap: 10, whiteSpace: 'nowrap',
+      }}>
+        <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.22em', color: 'rgba(60,50,40,0.9)' }}>{label}</span>
+        <span style={{ fontSize: 11, color: 'rgba(60,50,40,0.55)', letterSpacing: '0.08em' }}>{subtitle}</span>
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+        <div>{children}</div>
+        <div style={{
+          maxWidth: 560,
+          background: '#fff',
+          border: '1px solid rgba(60,50,40,0.12)',
+          borderRadius: 8,
+          padding: '14px 16px',
+          fontFamily: "'IBM Plex Mono', ui-monospace, monospace",
+          fontSize: 11, lineHeight: 1.5, color: '#1a1614',
+        }}>
+          {notes.map((n, i) => (
+            <div key={i} style={{ display: 'grid', gridTemplateColumns: '90px 1fr', gap: 10, padding: '4px 0', borderTop: i === 0 ? 'none' : '1px solid rgba(60,50,40,0.08)' }}>
+              <span style={{ fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'rgba(60,50,40,0.6)' }}>{n.k}</span>
+              <span style={{ color: 'rgba(30,25,20,0.85)' }}>{n.v}</span>
+            </div>
+          ))}
+          {quote && (
+            <div style={{ marginTop: 10, padding: '10px 12px', background: 'rgba(250,245,235,0.6)', borderLeft: '3px solid #EF4444' }}>
+              <div style={{ fontStyle: 'italic', color: 'rgba(30,25,20,0.9)', lineHeight: 1.45 }}>"{quote}"</div>
+              <div style={{ marginTop: 6, fontSize: 10, letterSpacing: '0.14em', color: 'rgba(60,50,40,0.55)' }}>— {who}</div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ScaledFrame({ children, hero = false }) {
+  const s = hero ? 0.78 : FRAME_SCALE;
+  return (
+    <div style={{
+      width: IPAD.W * s,
+      height: IPAD.H * s,
+      overflow: 'hidden',
+      boxShadow: '0 2px 8px rgba(0,0,0,0.12), 0 16px 40px rgba(0,0,0,0.22)',
+      borderRadius: 14,
+      background: '#000',
+    }}>
+      <div style={{ transform: `scale(${s})`, transformOrigin: 'top left' }}>
+        {children}
+      </div>
+    </div>
+  );
+}
+
+// ─── DATA ───
+const MESSI_STATS = { n:'10', pos:'FW · ARG', name:'LIONEL MESSI',
+  xg: '5.2', xa: '3.1', prog: 47, pressures: 22, shotAcc: '38%', rank: 'TOP-3 WC xG' };
+const MESSI_STORY = { n:'10', pos:'FW · ARG', name:'LIONEL MESSI', age: 35,
+  storyHero: '5th & final World Cup.',
+  storyLines: [
+    "Closes the circle after 2014 loss to Germany.",
+    "First & only player scoring in all 4 knockout rounds this tournament.",
+    "Mother Celia in the stands — flew in for this match only.",
+  ] };
+const MESSI_TACTICAL = { n:'10', pos:'FW · ARG', name:'LIONEL MESSI',
+  formationRole: '4-3-3 · FREE 10',
+  role: 'Drops off Álvarez — occupies right half-space. Drags Tchouaméni out of line.',
+  defActions: 3, keyPasses: 18, pressingMap: 'PASSIVE' };
+
+const MBAPPE_STATS = { n:'10', pos:'FW · FRA', name:'KYLIAN MBAPPÉ',
+  xg: '4.7', xa: '1.8', prog: 34, pressures: 14, shotAcc: '41%', rank: 'GOLDEN BOOT LEAD' };
+const MBAPPE_STORY = { n:'10', pos:'FW · FRA', name:'KYLIAN MBAPPÉ', age: 23,
+  storyHero: 'Chasing the Golden Boot.',
+  storyLines: [
+    "5 goals in 6 matches — one ahead of Messi.",
+    "Hasn't scored vs Argentina since 2018 R16 (age 19).",
+    "Teammate at PSG — knows Otamendi's turning foot.",
+  ] };
+const MBAPPE_TACTICAL = { n:'10', pos:'FW · FRA', name:'KYLIAN MBAPPÉ',
+  formationRole: '4-2-3-1 · LW WIDE',
+  role: 'Holds width left. Isolates 1v1 on Molina. Inside only in final third.',
+  defActions: 7, keyPasses: 11, pressingMap: 'HIGH · LEFT HALF' };
+
+const ARG_STORY = [
+  MESSI_STORY,
+  { n:'11', pos:'MF · ARG', name:'ÁNGEL DI MARÍA', age: 34, storyHero: 'Back from injury — starts on left.',
+    storyLines: ["Scored in 2008 Olympic final, 2021 Copa final. Third final goal?"] },
+  { n:'22', pos:'FW · ARG', name:'LAUTARO MARTÍNEZ', age: 25, storyHero: '0 goals · confidence wobble.',
+    storyLines: ["Starts the final with a duck — Messi publicly defended him Thursday."] },
+  { n:'23', pos:'GK · ARG', name:'EMILIANO MARTÍNEZ', age: 30, storyHero: 'Shoot-out specialist.',
+    storyLines: ["4 clean sheets · 1 shoot-out won (NED QF).", "Yellow card carried from SF — one more = suspension."] },
+];
+const FRA_STORY = [
+  MBAPPE_STORY,
+  { n:'9',  pos:'FW · FRA', name:'OLIVIER GIROUD', age: 36, storyHero: "France's all-time top scorer.",
+    storyLines: ["Passed Henry mid-tournament — 53 goals in Les Bleus shirt."] },
+  { n:'7',  pos:'MF · FRA', name:'ANTOINE GRIEZMANN', age: 31, storyHero: 'Engine, not scorer.',
+    storyLines: ["Team-high 5 assists · 0 goals. Dropped deep behind Mbappé — the real tactical shift."] },
+  { n:'4',  pos:'DF · FRA', name:'RAPHAËL VARANE', age: 29, storyHero: 'Has played 3 WC finals.',
+    storyLines: ["Veteran calm. Communicates shape shifts on set pieces."] },
+];
+
+// ─── FRAMES ───
+function Frame1_Ready() {
+  return (
+    <IPadFrame>
+      <SplitLayout
+        left={<BoardEmptyState/>}
+        right={<div style={{ height:'100%', display:'flex', flexDirection:'column',
+          alignItems:'center', justifyContent:'center', padding:30 }}>
+          <ModePickerCard/>
+          <div style={{ marginTop: 22, fontSize: 9, color: TOKENS.textSubtle, letterSpacing:'0.18em', textAlign:'center', lineHeight:1.5 }}>
+            LAST BUILD · 02:14 AM LOCAL · 186MB CACHED · AIRPLANE-MODE READY<br/>
+            <span style={{ color: TOKENS.verified }}>Sportradar ✓</span> · GEMMA 4 ON-DEVICE · 184 STORY PROMPTS · 46 TACTICAL MODELS
+          </div>
+        </div>}
+      />
+    </IPadFrame>
+  );
+}
+
+function ModeColumn({ title, tag, players, mode, body }) {
+  return (
+    <div style={{ flex:1, minWidth:0, borderRight: `1px solid ${TOKENS.border}`,
+      background: TOKENS.bgBase, display:'flex', flexDirection:'column' }}>
+      <div style={{ padding:'12px 16px', background: TOKENS.bgRaised,
+        borderBottom:`1px solid ${TOKENS.borderSoft}`, display:'flex', flexDirection:'column', gap:4 }}>
+        <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+          <span style={{ fontSize:11, fontWeight:700, letterSpacing:'0.18em', color: TOKENS.text }}>{title}</span>
+          <span style={{ fontSize:8, letterSpacing:'0.18em', fontWeight:700,
+            color: TOKENS.verified, padding:'2px 6px',
+            background:'rgba(16,185,129,0.08)', border:'1px solid rgba(16,185,129,0.3)', borderRadius:3 }}>{tag}</span>
+        </div>
+        <span style={{ fontSize:9, color: TOKENS.textSubtle, lineHeight:1.45 }}>{body}</span>
+      </div>
+      <div style={{ padding:12, display:'flex', flexDirection:'column', gap:10, overflow:'hidden' }}>
+        <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+          <div style={{ width:3, height:16, background: TOKENS.text, borderRadius:2 }}/>
+          <span style={{ fontSize:10, fontWeight:700, letterSpacing:'0.14em', color: TOKENS.text }}>ARG</span>
+          {mode === 'TACTICAL' && <span style={{
+            padding:'1px 6px', fontSize:8, fontWeight:700, letterSpacing:'0.18em',
+            background: TOKENS.bgSubtle, border:`1px solid ${TOKENS.border}`, borderRadius:3, color: TOKENS.esoteric,
+          }}>4-3-3</span>}
+        </div>
+        {mode === 'TACTICAL' && <MiniPitch formation="4-3-3" nation="ARG"/>}
+        <PlayerCell mode={mode} {...players[0]}/>
+        <div style={{ display:'flex', alignItems:'center', gap:8, marginTop:4 }}>
+          <div style={{ width:3, height:16, background: TOKENS.textMuted, borderRadius:2 }}/>
+          <span style={{ fontSize:10, fontWeight:700, letterSpacing:'0.14em', color: TOKENS.text }}>FRA</span>
+          {mode === 'TACTICAL' && <span style={{
+            padding:'1px 6px', fontSize:8, fontWeight:700, letterSpacing:'0.18em',
+            background: TOKENS.bgSubtle, border:`1px solid ${TOKENS.border}`, borderRadius:3, color: TOKENS.esoteric,
+          }}>4-2-3-1</span>}
+        </div>
+        {mode === 'TACTICAL' && <MiniPitch formation="4-2-3-1" nation="FRA"/>}
+        <PlayerCell mode={mode} {...players[1]}/>
+      </div>
+    </div>
+  );
+}
+
+function Frame2_ThreeModes() {
+  return (
+    <IPadFrame>
+      <div style={{ height:'100%', display:'flex', flexDirection:'column' }}>
+        <div style={{ padding:'12px 22px', borderBottom:`1px solid ${TOKENS.borderSoft}`,
+          display:'flex', alignItems:'center', justifyContent:'space-between', background: TOKENS.bgRaised }}>
+          <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+            <span style={{ fontSize:10, letterSpacing:'0.22em', color: TOKENS.textSubtle, fontWeight:700 }}>ONE CELL · THREE LENSES</span>
+            <span style={{ fontSize:10, color: TOKENS.textSubtle, fontStyle:'italic' }}>
+              "Stories are woven organically — I don't want numbers leading." — Pat McCarthy
+            </span>
+          </div>
+          <div style={{ display:'flex', gap:8, fontSize:10, color: TOKENS.textSubtle, letterSpacing:'0.14em', alignItems:'center' }}>
+            <span>#10 MESSI · #10 MBAPPÉ</span><span>·</span><SportradarBadge small/>
+          </div>
+        </div>
+        <div style={{ flex:1, display:'flex', overflow:'hidden' }}>
+          <ModeColumn title="STATS-FIRST" tag="BOB HEUSSLER" mode="STATS"
+            body="Numerical charts up front. xG / xA / progressive carries lead."
+            players={[MESSI_STATS, MBAPPE_STATS]}/>
+          <ModeColumn title="STORY-FIRST" tag="PAT McCARTHY" mode="STORY"
+            body="Narrative arc leads. Hero line, italic beats. Numbers support, don't lead."
+            players={[MESSI_STORY, MBAPPE_STORY]}/>
+          <ModeColumn title="TACTICAL" tag="EURO / WC FOOTBALL" mode="TACTICAL"
+            body="Formation role leads. Pressing map, positional brief, key-pass volume."
+            players={[MESSI_TACTICAL, MBAPPE_TACTICAL]}/>
+        </div>
+      </div>
+    </IPadFrame>
+  );
+}
+
+function Frame3_Personalized() {
+  return (
+    <IPadFrame>
+      <div style={{ height:'100%', display:'flex', flexDirection:'column', position:'relative' }}>
+        <BoardHeader mode="STORY-FIRST" showModeChip savedStyle/>
+        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', borderBottom:`1px solid ${TOKENS.borderSoft}` }}>
+          <TeamHeaderF1 nation="ARGENTINA" code="ARG" formation="4-3-3" count={23} accent={TOKENS.text} showFormation/>
+          <TeamHeaderF1 nation="FRANCE" code="FRA" formation="4-2-3-1" count={23} accent={TOKENS.textMuted} showFormation/>
+        </div>
+        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', flex:1, overflow:'hidden' }}>
+          <div style={{ padding:12, display:'flex', flexDirection:'column', gap:10, borderRight:`1px solid ${TOKENS.borderSoft}` }}>
+            <PlayerCell mode="STORY" {...MESSI_STORY} highlight pinnedByCommentator
+              annotation={'if Celia is in camera → "mama" callback — Drury move'}/>
+            <PlayerCell mode="STORY" {...ARG_STORY[1]}/>
+            <PlayerCell mode="STORY" {...ARG_STORY[2]}/>
+            <PlayerCell mode="STORY" {...ARG_STORY[3]}/>
+          </div>
+          <div style={{ padding:12, display:'flex', flexDirection:'column', gap:10 }}>
+            <PlayerCell mode="STORY" {...MBAPPE_STORY}/>
+            <PlayerCell mode="STORY" {...FRA_STORY[1]}/>
+            <PlayerCell mode="STORY" {...FRA_STORY[2]}/>
+            <PlayerCell mode="STORY" {...FRA_STORY[3]}/>
+          </div>
+        </div>
+        <Callout n="1" top={70} right={30}
+          text="MODE CHIP · Switch lens at half-time. Saved preferences carry over, same skeleton."/>
+        <Callout n="2" top={70} left={340}
+          text="DENSITY SLIDER · Compact for busy phases. Names + numbers still hit peripheral glance."/>
+        <Callout n="3" top={340} left={28}
+          text="STICKY NOTE · Handwritten. Long-press any cell to add. Persists per-player match-to-match."/>
+        <Callout n="4" top={240} left={500}
+          text="📌 PINNED · This stat is what YOU care about. Feature 2 defers to it on live events."/>
+        <Callout n="5" top={560} left={280}
+          text="ITALIC BEATS · Supporting arcs. Max 3. STT dims them when you mention them on-air."/>
+        <div style={{ padding:'10px 22px', borderTop:`1px solid ${TOKENS.borderSoft}`,
+          background: TOKENS.bgRaised, display:'flex', justifyContent:'space-between', alignItems:'center',
+          fontSize:10, color: TOKENS.textSubtle, letterSpacing:'0.14em' }}>
+          <span>46 PLAYERS CACHED · <span style={{ color: TOKENS.verified }}>AIRPLANE-MODE SAFE</span></span>
+          <span>BUILT OVERNIGHT · 02:14 AM · GEMMA 4 ON-DEVICE</span>
+        </div>
+      </div>
+    </IPadFrame>
+  );
+}
+
+function Frame4_Hero() {
+  return (
+    <IPadFrame>
+      <div style={{ height:'100%', display:'flex', flexDirection:'column' }}>
+        <BoardHeader mode="STORY-FIRST" showModeChip savedStyle/>
+        <div style={{ padding:'14px 22px',
+          display:'flex', alignItems:'center', justifyContent:'space-between',
+          borderBottom:`1px solid ${TOKENS.borderSoft}`,
+          background: `radial-gradient(120% 200% at 50% -40%, rgba(239,68,68,0.08), transparent 60%)` }}>
+          <div style={{ display:'flex', alignItems:'center', gap:14 }}>
+            <div style={{ padding:'4px 10px', borderRadius:3, background: TOKENS.bgSubtle,
+              border:`1px solid ${TOKENS.border}`, fontSize:10, letterSpacing:'0.22em',
+              color: TOKENS.textMuted, fontWeight:700 }}>PRE-MATCH · T-16 MIN</div>
+            <span style={{ fontSize:18, fontWeight:700, letterSpacing:'0.02em', color: TOKENS.text }}>
+              ARGENTINA <span style={{ color: TOKENS.textSubtle }}>vs</span> FRANCE
+            </span>
+            <span style={{ fontSize:10, color: TOKENS.textSubtle, letterSpacing:'0.14em' }}>
+              FIFA WORLD CUP FINAL · 18 DEC 2022 · LUSAIL
+            </span>
+          </div>
+          <div style={{ display:'flex', alignItems:'center', gap:10 }}>
+            <SportradarBadge/>
+            <span style={{ fontSize:10, color: TOKENS.verified, letterSpacing:'0.14em' }}>· 184 STORYLINES READY</span>
+          </div>
+        </div>
+        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', borderBottom:`1px solid ${TOKENS.borderSoft}` }}>
+          <TeamHeaderF1 nation="ARGENTINA" code="ARG · 4-3-3" formation="4-3-3" count={23} accent={TOKENS.text} showFormation/>
+          <TeamHeaderF1 nation="FRANCE" code="FRA · 4-2-3-1" formation="4-2-3-1" count={23} accent={TOKENS.textMuted} showFormation/>
+        </div>
+        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', borderBottom:`1px solid ${TOKENS.borderSoft}`, background: TOKENS.bgRaised }}>
+          <div style={{ padding:'14px 22px', display:'flex', alignItems:'center', gap:18 }}>
+            <MiniPitch formation="4-3-3" nation="ARG"/>
+            <div>
+              <div style={{ fontSize:10, letterSpacing:'0.18em', color: TOKENS.textSubtle, fontWeight:700 }}>SHAPE</div>
+              <div style={{ fontSize:11, color: TOKENS.text, marginTop:3, lineHeight:1.4 }}>Fluid. <span style={{ color: TOKENS.live }}>Messi roams.</span><br/>De Paul shields.</div>
+            </div>
+          </div>
+          <div style={{ padding:'14px 22px', display:'flex', alignItems:'center', gap:18, borderLeft:`1px solid ${TOKENS.borderSoft}` }}>
+            <MiniPitch formation="4-2-3-1" nation="FRA"/>
+            <div>
+              <div style={{ fontSize:10, letterSpacing:'0.18em', color: TOKENS.textSubtle, fontWeight:700 }}>SHAPE</div>
+              <div style={{ fontSize:11, color: TOKENS.text, marginTop:3, lineHeight:1.4 }}>Compact. <span style={{ color: TOKENS.live }}>Mbappé pinned wide.</span><br/>Tchouaméni anchors.</div>
+            </div>
+          </div>
+        </div>
+        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', flex:1, overflow:'hidden' }}>
+          <div style={{ padding:14, display:'flex', flexDirection:'column', gap:10, borderRight:`1px solid ${TOKENS.borderSoft}` }}>
+            <PlayerCell mode="STORY" {...MESSI_STORY} highlight pinnedByCommentator
+              annotation="5th & final WC · closes the circle after 2014 loss"/>
+            <PlayerCell mode="STORY" {...ARG_STORY[1]}/>
+            <PlayerCell mode="STORY" {...ARG_STORY[2]}/>
+            <PlayerCell mode="STORY" {...ARG_STORY[3]}/>
+          </div>
+          <div style={{ padding:14, display:'flex', flexDirection:'column', gap:10 }}>
+            <PlayerCell mode="STORY" {...MBAPPE_STORY} highlight/>
+            <PlayerCell mode="STORY" {...FRA_STORY[1]}/>
+            <PlayerCell mode="STORY" {...FRA_STORY[2]}/>
+            <PlayerCell mode="STORY" {...FRA_STORY[3]}/>
+          </div>
+        </div>
+        <div style={{ padding:'10px 22px', borderTop:`1px solid ${TOKENS.borderSoft}`,
+          background: TOKENS.bgRaised, display:'flex', justifyContent:'space-between', alignItems:'center',
+          fontSize:10, color: TOKENS.textSubtle, letterSpacing:'0.14em' }}>
+          <span>46 CACHED LOCALLY · <span style={{ color: TOKENS.verified }}>AIRPLANE-MODE SAFE</span> · <span style={{ color: TOKENS.text }}>MY STYLE · SAVED</span></span>
+          <span>OVERNIGHT BUILD · 02:14 AM · GEMMA 4 ON-DEVICE</span>
+        </div>
+      </div>
+    </IPadFrame>
+  );
+}
+
+function LegendSwatch({ color, title, desc, border }) {
+  return (
+    <div style={{ display:'flex', alignItems:'flex-start', gap:10 }}>
+      <div style={{ width:14, height:14, borderRadius:3, background: color, flexShrink:0, marginTop:2,
+        border: border ? `1px solid ${border}` : 'none' }}/>
+      <div>
+        <div style={{ fontSize:10, fontWeight:700, letterSpacing:'0.16em' }}>{title}</div>
+        <div style={{ fontSize:10, color:'rgba(60,50,40,0.7)', marginTop:2, lineHeight:1.4 }}>{desc}</div>
+      </div>
+    </div>
+  );
+}
+
+function App() {
+  return (
+    <DesignCanvas>
+      <div style={{ padding:'0 60px 24px', maxWidth: 1200 }}>
+        <div style={{ fontSize:11, letterSpacing:'0.25em', color:'rgba(60,50,40,0.55)', fontWeight:600 }}>
+          BROADCASTBRAIN · YC CACTUS × GEMMA 4 · iPAD LANDSCAPE
+        </div>
+        <div style={{ fontSize:30, fontWeight:700, color:'#1a1614', marginTop:8, letterSpacing:-0.5 }}>
+          Feature 1 · Pre-match Auto Spotting Board
+        </div>
+        <div style={{ fontSize:14, color:'rgba(60,50,40,0.7)', marginTop:6, maxWidth:760, lineHeight:1.5 }}>
+          Overnight auto-build of the ARG vs FRA 2022 Final board. One cell skeleton, three commentator lenses
+          (Stats / Story / Tactical). Personalization affordances let broadcasters conduct their own research —
+          without hiring a researcher or opening ChatGPT.
+        </div>
+      </div>
+
+      <div style={{ padding:'0 60px 28px', maxWidth: 1200 }}>
+        <div style={{ padding:'14px 18px', background:'#fff', border:'1px solid rgba(60,50,40,0.12)',
+          borderRadius:10, display:'grid', gridTemplateColumns:'repeat(4, 1fr)', gap:18, fontSize:11, color:'#1a1614' }}>
+          <LegendSwatch color="#EF4444" title="RED · HOT"         desc="streak live · record in reach · pinned priority"/>
+          <LegendSwatch color="#FAFAFA" title="WHITE · NEUTRAL"    desc="standard stat · formation / numbers" border="rgba(60,50,40,0.3)"/>
+          <LegendSwatch color="#10B981" title="GREEN · ACHIEVEMENT" desc="Sportradar source · saved style · mode choice confirmed"/>
+          <LegendSwatch color="#F59E0B" title="AMBER · TACTICAL / NUDGE" desc="formation chip · tactical keyword"/>
+        </div>
+      </div>
+
+      <DCPostIt top={28} right={60} rotate={3} width={240}>
+        <strong>LOCKED:</strong><br/>
+        only #EF4444 / #10B981 / #F59E0B accents · IBM Plex Mono only · Sportradar ✓ on every stat or "—"
+      </DCPostIt>
+
+      <DCSection
+        title="① Overnight build ready → pick your commentator style"
+        subtitle='Instead of dumping 46 cards on a broadcaster, we ask "how do you call it?" The skeleton is identical; data + emphasis differ by mode. Stats-first / Story-first / Tactical. RECOMMENDED flag is learned from the last 3 matches. Save once, never re-pick.'
+      >
+        <FrameCard
+          label="FRAME 1"
+          subtitle="READY · mode picker"
+          notes={[
+            { k:'animation', v:'Picker card slides in from right on load (420ms). RECOMMENDED chip pulses green once (single soft), then stills. Empty-state build button on left pulses red 1x to signal action.' },
+            { k:'haptic', v:'Light tap on mode row hover. Medium tap on selection — signals commitment without feeling modal.' },
+            { k:'source', v:'Built overnight at 02:14 AM. 186MB cached. Sportradar ✓. 184 Gemma-generated storylines, 46 tactical models — all local.' },
+          ]}
+          quote='…only use about 25% of their notes; great value in technology that helps announcers think faster and access "dynamic" storylines in real-time.'
+          who="Trey Redfield · Syracuse-trained play-by-play"
+        >
+          <ScaledFrame><Frame1_Ready/></ScaledFrame>
+        </FrameCard>
+      </DCSection>
+
+      <DCSection
+        title="② One cell, three lenses — answer Pat's worry directly"
+        subtitle='Same cell skeleton across all three modes; only data + emphasis change. "One product, three lenses." This is the question every interview surfaced: STATS guy (Bob) wants numbers leading, STORY guy (Pat) wants arcs, SOCCER guy needs tactical shape. Switch at half-time without losing your pins.'
+      >
+        <FrameCard
+          label="FRAME 2"
+          subtitle="MESSI + MBAPPÉ rendered three ways"
+          width={IPAD.W * FRAME_SCALE}
+          notes={[
+            { k:'animation', v:'Mode columns cross-fade when the user re-picks (220ms). Cell skeleton stays put — hero number morphs in place, body re-composes. Zero layout jump between modes.' },
+            { k:'haptic', v:'None on mode switch (visual-only). Tap on hero number → drill-in overlay (0.4s slide).' },
+            { k:'source', v:'Same Sportradar payload, three projections. Tactical pressing map from Sportradar event data. Story lines Gemma-generated from match history, all cited.' },
+          ]}
+          quote="Stories are naturally woven into the broadcast organically — I don't want numbers leading."
+          who="Pat McCarthy · NY Mets"
+        >
+          <ScaledFrame><Frame2_ThreeModes/></ScaledFrame>
+        </FrameCard>
+      </DCSection>
+
+      <DCSection
+        title="③ Personalization — 'conducting your own research'"
+        subtitle={`Rich Ackerman's concern: spotting boards from outside researchers don't resonate on-air. So we make the board editable in broadcaster-native ways. Long-press → sticky-note annotations. Tap star → pin the stat Feature 2 should defer to. Density slider. Saved style per-account.`}
+      >
+        <FrameCard
+          label="FRAME 3"
+          subtitle="Story mode · Messi annotated + pinned"
+          width={IPAD.W * FRAME_SCALE}
+          notes={[
+            { k:'animation', v:'Long-press (550ms) reveals a yellow sticky-note that rotates in with a subtle tilt (-1.2°). Pin badge fades in on commit. Amber callout numbers are canvas-only, removed in prod.' },
+            { k:'haptic', v:'Long-press triggers medium haptic at 550ms threshold — same primitive iOS uses for contextual menus. Pin commit: light tap.' },
+            { k:'source', v:'Annotations stored on-device (airplane safe), sync opportunistically. Pins feed Feature 2 — this is how "your style" persists into the live pane.' },
+          ]}
+          quote="…conducting his own research and creating his own spotting boards, as he feels this makes the information resonate better and flow more naturally during a broadcast."
+          who="Rich Ackerman · 30yrs WFAN / CBS Sports Radio"
+        >
+          <ScaledFrame><Frame3_Personalized/></ScaledFrame>
+        </FrameCard>
+      </DCSection>
+
+      <DCSection
+        title="④ Hero — the deck frame · ARG vs FRA pre-match"
+        subtitle="The single frame we lead with in the submission deck. Full context strip, formation mini-pitches per team, Story mode board, Messi annotated with the user's own note. Airplane-mode safe, overnight-built, pinned to the user's style."
+      >
+        <FrameCard
+          label="HERO"
+          subtitle="T-16 min · pre-match · Story-first"
+          width={IPAD.W * 0.78}
+          notes={[
+            { k:'animation', v:'Hero frame has no motion — this is the still shot for the deck cover. The mini-pitches breathe subtly (0.4 opacity → 1.0 on the highlighted player, 2s). Status bar airplane-mode glyph is solid, not pulsing — it\'s a fact, not a feature.' },
+            { k:'haptic', v:'n/a (deck frame).' },
+            { k:'source', v:'Every cell Sportradar ✓. Hero annotation is user-authored ("5th & final WC · closes the circle after 2014 loss") — a commentator\'s actual voice over a machine-built board.' },
+          ]}
+          quote="…spends hours creating detailed handwritten charts, numerical charts, and storyline outlines for every player to ensure he can recognize them visually by body type or hair."
+          who="Bob Heussler · Brooklyn Nets radio play-by-play"
+        >
+          <ScaledFrame hero><Frame4_Hero/></ScaledFrame>
+        </FrameCard>
+      </DCSection>
+
+      <DCPostIt top={420} right={40} rotate={-2} width={240}>
+        <strong>SKIP-CHATGPT RATIONALE:</strong><br/>
+        Sticky notes + pins + saved style = broadcaster voice, on-device. ChatGPT can't pin, can't persist, can't cite. This can.
+      </DCPostIt>
+    </DesignCanvas>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>
