@@ -1,5 +1,12 @@
 # BroadcastBrain — Design Brief (inline pack · iPad · Arg vs Fra 2022)
 
+> **HISTORICAL SNAPSHOT.** This primer was written when the product had 3 features.
+> The product has since collapsed to 2 features — Feature 3 "Voice Query" was merged
+> into Feature 2 as its "voice-commanded" input path. For the canonical 2-feature
+> spec, read [`SPEC.md`](../SPEC.md). Use this primer only as a record of how the
+> Feature 1 design was briefed; do not use it as the source of truth for any new
+> design work.
+
 Claude Design can't accept folders/zips in my setup, so the full context pack is inline below.
 I'll also attach 6 SVG files individually: logo-mark.svg, logo-wordmark.svg, icon-live.svg,
 icon-verified.svg, icon-waveform-live.svg, icon-timer.svg.

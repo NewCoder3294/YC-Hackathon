@@ -13,7 +13,7 @@ On-device voice AI for sports broadcasters. Always-on co-pilot that listens to t
 
 | If you are... | Read... |
 |---|---|
-| New to the project | [`SPEC.md`](./SPEC.md) — the canonical 3-feature build spec |
+| New to the project | [`SPEC.md`](./SPEC.md) — the canonical 2-feature build spec |
 | Building UI / designing | [`docs/CLAUDE_DESIGN_PRIMER.md`](./docs/CLAUDE_DESIGN_PRIMER.md) and [`brand-assets/`](./brand-assets/) |
 | Planning the sprint | [`docs/SPRINT_PLAN.xlsx`](./docs/SPRINT_PLAN.xlsx) — 11-sprint, 4-track schedule |
 | Pitching the startup | [`docs/BroadcastBrain_1Pager.pdf`](./docs/BroadcastBrain_1Pager.pdf) |
@@ -22,11 +22,12 @@ On-device voice AI for sports broadcasters. Always-on co-pilot that listens to t
 
 ---
 
-## The 3 features
+## The 2 features
 
 1. **Overnight Auto-Build + Commentator Modes** — Gemma 4 on-device generates a dense spotting board overnight. Commentator picks a mode (Stats-first / Story-first / Tactical) and personalizes every cell. Learns "my style" over time.
-2. **Live Co-Pilot Board** — always-on. Autonomous 3-card stacks on key events (stat + precedent + counter-narrative), plus voice-commanded widgets the commentator builds on the fly. Running score, story queue, streak alerts auto-maintained.
-3. **Voice Commands + Queries** — single press-to-talk button routes by phrasing: "Show me…" → widget; "How does…" → sourced answer; ungrounded → "I don't have verified data on that." Same button pre-match, mid-match, post-match.
+2. **Live Co-Pilot** — always-on, two input modes on one canvas:
+   - **Autonomous** (AI-initiated): 3-card stacks on key events (stat + precedent + counter-narrative), plus running score, story queue, streak alerts auto-maintained.
+   - **Voice-commanded** (commentator-initiated, press-to-talk): "Show me…" → widget; "How does…" → sourced answer + TTS; ungrounded → "I don't have verified data on that." Works pre-match, mid-match, post-match.
 
 ---
 
@@ -39,7 +40,7 @@ On-device voice AI for sports broadcasters. Always-on co-pilot that listens to t
 - **Data:** Sportradar (or StatsBomb Open Data for 2022 WC archive) — pre-cached as `match_cache.json`
 - **State:** Zustand event bus
 - **Audio:** expo-av (rolling capture + press-to-talk)
-- **TTS:** expo-speech (Feature 3 opt-in only)
+- **TTS:** expo-speech (opt-in only, voice-command path)
 
 ---
 
@@ -67,7 +68,7 @@ On-device voice AI for sports broadcasters. Always-on co-pilot that listens to t
 YC-Hackathon/
 ├── README.md                     ← original hackathon template (Cactus setup)
 ├── BROADCASTBRAIN.md             ← you are here
-├── SPEC.md                       ← 3-feature build spec (v2, canonical)
+├── SPEC.md                       ← 2-feature build spec (v2, canonical)
 ├── docs/
 │   ├── SPEC_v1_full_vision.md    ← original full-vision spec (context only)
 │   ├── SPRINT_PLAN.xlsx          ← 11-sprint 4-track schedule

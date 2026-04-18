@@ -155,7 +155,7 @@ type EventBusMessage =
   | { type: 'transcript';      text: string; confidence: number }
   | { type: 'story_tick';      story_id: string }                          // STT detected commentator mentioned it
 
-  // Voice-commanded (Feature 3)
+  // Voice-commanded (Feature 2 · commentator-initiated path)
   | { type: 'voice_command';   raw: string; classified_as: 'widget' | 'query' | 'unclear' }
   | { type: 'widget_built';    widget: WidgetSpec }                        // pin-to-pane widget
   | { type: 'answer_card';     question: string; answer: string; source: string; confidence_high: boolean; latency_ms: number }
@@ -215,7 +215,7 @@ type CommentatorProfile = {
 
 ## 5. `askGemma` — the single integration contract
 
-All three features call this. See `SPEC.md §Shared Architecture` for full pipeline.
+Both features call this. See `SPEC.md §Shared Architecture` for full pipeline.
 
 ```ts
 askGemma(

@@ -4,7 +4,7 @@
 **Team:** 4 generalists (no iOS) · **Budget:** ~22 hours
 **Target tracks:** Best On-Device Enterprise Agent (B2B) + Deepest Technical Integration
 
-This supersedes `SPEC.md` for the hackathon build. The v1 SPEC is the full vision; this is the focused 3-feature MVP we ship on the clock.
+This supersedes `SPEC.md` for the hackathon build. The v1 SPEC is the full vision; this is the focused 2-feature MVP we ship on the clock. (Collapsed from 3 features when it became clear that Feature 3 "Voice Query" was just the commentator-initiated entry point to Feature 2's Live Co-Pilot — same canvas, same Gemma 4 contract, same function toolbox.)
 
 ---
 
@@ -47,7 +47,7 @@ A voice-powered AI employee for sports broadcasters. Listens to the match, knows
 
 ---
 
-## The 3 Features
+## The 2 Features
 
 ### Feature 1 — Pre-match Auto Spotting Board *(the wedge, validated by all 4 interviews)*
 
@@ -104,9 +104,19 @@ If a field is missing, output "—".
 
 ---
 
-### Feature 2 — Live Stat Whisper *(the money shot, validated by Pat + Trey)*
+### Feature 2 — Live Co-Pilot *(always-on autonomous + voice-commanded, validated by Pat + Trey)*
 
-During the match, the iPad listens continuously. When something stat-worthy happens, a card appears on screen — non-intrusive, never audio. Broadcaster glances, decides whether to use it, carries on.
+**Feature 2 is the always-on co-pilot during the match.** Two input modes, one shared canvas:
+
+1. **Autonomous (AI-initiated).** The iPad listens continuously; when something stat-worthy happens, the AI autonomously surfaces cards and updates ambient widgets (running score, xG ticker, story queue, streak alerts). Broadcaster is passive — glance, use or ignore, move on.
+2. **Voice-commanded (commentator-initiated, press-to-talk).** One button; works any time. Gemma 4 auto-routes phrasing:
+   - *"Show me / Pull up / Track …"* → **COMMAND** → widget materializes on the Live Pane (pinnable).
+   - *"How does / What's / Compare …"* → **QUERY** → sourced answer card + (if opt-in) TTS.
+   - Not grounded in verified data → **TRUST ESCAPE**: *"I don't have verified data on that."*
+
+Both input modes use the same `askGemma` contract, the same Gemma 4 function toolbox, and render into the same Live Pane. The split is just *who initiated*. See `frontend/DATA_CONTRACTS.md §3` for the Zustand event types: autonomous surfaces emit `stat_card` / `precedent` / `counter_narrative` / `running_score`; commentator-initiated surfaces emit `widget_built` / `answer_card` / `no_data`.
+
+During the match the iPad listens continuously. When something stat-worthy happens, a card appears on screen — non-intrusive, never audio. Broadcaster glances, decides whether to use it, carries on.
 
 **Research anchors:**
 - Pat McCarthy: wary of voice agents during live games, *"fearing sensory overload"* → the whisper is visual-only by design
@@ -188,27 +198,13 @@ SPEC v1 quoted 200ms — that was native iOS with a separate Whisper model. Real
 
 These are bonus. Don't add until Feature 2 base works end-to-end.
 
----
-
-### Feature 3 — Opt-in Voice Query *(the voice agent; statistician/analyst persona)*
-
-Broadcaster presses a button, speaks a question in plain English, gets a sourced answer on screen + spoken aloud in under 2 seconds. The "ask anything" escape hatch for moments when the proactive whisper doesn't cover it.
-
-**Research honesty:**
-- None of the four interviewees are soccer broadcasters, and none is a colour commentator. This feature's target persona (voice-first + natural dead air) was *inferred*.
-- Pat McCarthy explicitly *did not want* voice prompting mid-call.
-- Pat's own insight: *"the tool may be even more immediately effective for the statistician at the table than for the on-air talent directly."*
-- **Pitch framing:** lead with Pat's statistician-angle quote. Frame voice query as the tool the *statistician / analyst* uses to serve the on-air talent at 10× speed. Don't oversell as "every broadcaster wants this" — that's not what the research shows.
-
-**Why we're still building it:** this is a Voice Agents hackathon. Gemma 4's multimodal voice input is a core capability judges want to see demoed. Feature 2 is voice *sense* (audio → context → stat); Feature 3 is voice *ask* (user queries directly). Without Feature 3 we're demoing a listening app, not a voice agent.
-
-**UX (iPad):**
+**Voice-commanded UX — press-to-talk flow:**
 - Big press-to-talk button anchored along the bottom bezel of the iPad, both-thumbs-reach. No wake word (wake words cause accidental triggers mid-call — validated concern).
-- User presses and holds → soft *"ding"* → screen shows **"Listening…"** with a waveform animation filling the centre of the live panel.
+- User presses and holds → soft *"ding"* → screen shows **"Listening…"** with a waveform animation filling the centre of the Live Pane.
 - Speaks: *"How many goals has Mbappé scored in World Cups?"*
 - Releases button (or 8-second auto-cutoff).
 - **"Thinking…"** shimmer (~1.5s) while Gemma 4 transcribes + function-calls the local data.
-- Answer card appears on the live panel **and** plays through bluetooth earpiece if opt-in TTS is enabled:
+- Answer card appears on the Live Pane **and** plays through bluetooth earpiece if opt-in TTS is enabled:
   ```
   🎤 "How many goals has Mbappé scored in World Cups?"
 
@@ -219,18 +215,23 @@ Broadcaster presses a button, speaks a question in plain English, gets a sourced
   ```
 - If Gemma 4 can't ground the answer (e.g., *"what's his favourite food?"*), the app responds: **"I don't have verified data on that."** This is a *trust feature*, not a failure mode. Validated by Bob Heussler's "devil's advocate on accuracy" concern — a broadcaster would rather hear "I don't know" than a confident wrong answer.
 
-**Data flow (same on-device Gemma 4 multimodal pipeline as Feature 2):**
+**Voice-command routing (Gemma 4 decides by phrasing):**
 ```
 Button press → audio capture (expo-av, up to 8s)
     ↓
-Gemma 4 multimodal (Cactus): transcribe + function-call → { stat_text, source, confidence }
+Gemma 4 multimodal (Cactus): transcribe → classify intent
     ↓
-Live panel renders answer card + (if opt-in) expo-speech reads it aloud
+  ┌── COMMAND ("Show me...") → function-calls → widget_built event → Live Pane widget
+  ├── QUERY   ("How does...") → function-calls → answer_card event → Live Pane card + TTS
+  └── UNGROUNDED              → no_data event  → Live Pane trust-escape card
 ```
+All three paths share the same function toolbox as autonomous surfaces. No live network calls during the demo.
 
-**Function calls exposed to Gemma 4** — same toolbox as Feature 2, all resolved against the pre-cached `match_cache.json`. No live network calls during the demo.
-
-**Accuracy rule:** every answer cites `Sportradar ✓`. If confidence is `medium`, card shows `~` prefix and is **not** spoken via TTS (spoken answers = high-confidence only).
+**Voice-mode target persona (research honesty):**
+- None of the four interviewees are soccer broadcasters or colour commentators. The "voice-first, has natural dead air" persona is *inferred*.
+- Pat McCarthy explicitly *did not want* voice prompting mid-call for himself.
+- Pat's own insight: *"the tool may be even more immediately effective for the statistician at the table than for the on-air talent directly."*
+- **Pitch framing:** lead with Pat's statistician-angle quote. Frame voice commands as the tool the *statistician / analyst* uses to serve the on-air talent at 10× speed. Don't oversell as "every broadcaster wants this" — that's not what the research shows.
 
 ---
 
@@ -241,7 +242,7 @@ Live panel renders answer card + (if opt-in) expo-speech reads it aloud
 │                                                                      │
 │  UI (React Native, landscape-primary, split-pane)                   │
 │    ├─ SpottingBoardPane (left ~60%) ← Feature 1                     │
-│    └─ LiveDashboardPane (right ~40%) ← Features 2 + 3               │
+│    └─ LiveDashboardPane (right ~40%) ← Feature 2               │
 │                                                                      │
 │  State (Zustand event bus)                                          │
 │    ├─ stat_card, transcript, context  (emitted by pipeline)         │
@@ -261,11 +262,11 @@ Live panel renders answer card + (if opt-in) expo-speech reads it aloud
 │  Data                                                                │
 │    └─ assets/match_cache.json (pre-fetched Arg vs Fra 2022 bundle)  │
 │                                                                      │
-│  TTS: expo-speech (Feature 3 opt-in only)                           │
+│  TTS: expo-speech (opt-in only, voice-command path)                 │
 └──────────────────────────────────────────────────────────────────────┘
 ```
 
-**Single integration contract** (all three features call this):
+**Single integration contract** (both features call this):
 ```ts
 askGemma(input: { prompt?: string, audio?: ArrayBuffer }, context: object, routing: 'auto'|'local'|'cloud')
   → Promise<{
@@ -274,7 +275,7 @@ askGemma(input: { prompt?: string, audio?: ArrayBuffer }, context: object, routi
       confidence: 'high' | 'medium',
       player?: string,
       latency_ms: number,
-      transcript?: string,    // Feature 3: what the user said
+      transcript?: string,    // voice-command path: what the user said
     }>
 ```
 
@@ -282,11 +283,11 @@ askGemma(input: { prompt?: string, audio?: ArrayBuffer }, context: object, routi
 
 ---
 
-## Shared UX Rules (apply to all three features)
+## Shared UX Rules (apply to both features)
 
 1. **Source citation is non-negotiable.** Every stat shows `Sportradar ✓`. If data is unavailable, `—` not a guess.
 2. **Confidence markers.** `high` renders normally. `medium` gets a `~` prefix and is **never spoken** via TTS.
-3. **Airplane mode from demo second 0.** All three features work offline because the match data is bundled. Only cloud routing (Gemini for complex historical queries) needs network, and we route around that for the demo.
+3. **Airplane mode from demo second 0.** Both features work offline because the match data is bundled. Only cloud routing (Gemini for complex historical queries) needs network, and we route around that for the demo.
 4. **Latency counter visible only in demo mode.** Bottom-right corner, tiny. Real measured ms. Real numbers beat marketed numbers with YC partners.
 5. **One-handed, peripheral-vision-friendly type.** Booth lighting is dim. The iPad competes with a paper team-sheet and a scoreboard.
 6. **Never interrupt the call.** Visual-first, silent. Voice output only when explicitly opted in via button. Pat McCarthy's validated constraint.
@@ -319,7 +320,7 @@ Explicitly deferred from SPEC v1, don't touch unless hours 18–20 are uneventfu
 | 0:00–0:30 | Problem + research. "Broadcasters spend hours on prep, use 25%. We talked to 4 of them — NY Mets, Brooklyn Nets, CBS Sports Radio, local markets. Every one of them hand-builds a spotting board." Show one Pat McCarthy quote on screen. |
 | 0:30–1:30 | **Feature 1.** Open the pre-built spotting board for Argentina vs France 2022. Scroll Messi's card — tournament stats, storyline ("Seeking his first World Cup at 35"), matchup note. Tap-expand to full profile. "This took zero minutes. Built overnight. Gemma 4 on Cactus, on-device." |
 | 1:30–3:00 | **Feature 2 — money shot.** Play the Peter Drury audio from Messi's 23rd-minute penalty (*"Argentina are ahead…"*). ~1 second later, stat card lands: *"6th of tournament · 1st player to score in every WC knockout round."* Latency counter visible. "Gemma 4 multimodal — audio in, function-calls local data, stat out. No internet. This is airplane mode." Then play Mbappé's 80th-minute strike — another card, another real number on the counter. |
-| 3:00–4:00 | **Feature 3.** Press the voice button. *"How many goals has Mbappé scored in World Cups?"* Answer on screen + spoken in ~1.5s. Follow up with *"What about his favourite food?"* → *"I don't have verified data on that."* "Statistician's new best friend. We say 'I don't know' instead of guessing — that's how we earn broadcaster trust." |
+| 3:00–4:00 | **Feature 2 — voice-commanded beat.** Press the voice button. *"How many goals has Mbappé scored in World Cups?"* Answer on screen + spoken in ~1.5s. Follow up with *"Show me every Argentine penalty in WC finals"* → widget materializes on the Live Pane. Follow with *"What about his favourite food?"* → *"I don't have verified data on that."* "Statistician's new best friend. Same co-pilot, two input modes — we listen, we answer, we refuse to guess." |
 | 4:00–5:00 | Pitch close. "Broadcasters today. Live field reporters next. Every professional who needs the right context in the moment after that. The on-device story isn't a feature — it's the latency and trust requirement. Kill-the-WiFi is our moat." |
 
 **Three things judges will remember:**
@@ -352,7 +353,7 @@ broadcastbrain/
 │   │   └── MatchScreen.tsx          # Single split-pane iPad landscape screen
 │   ├── panes/
 │   │   ├── SpottingBoardPane.tsx    # Feature 1 UI (left ~60%)
-│   │   └── LiveDashboardPane.tsx    # Features 2 + 3 UI (right ~40%)
+│   │   └── LiveDashboardPane.tsx    # Feature 2 UI (right ~40%)
 │   ├── components/
 │   │   ├── PlayerCard.tsx
 │   │   ├── LiveStatCard.tsx
@@ -371,7 +372,7 @@ broadcastbrain/
 
 - Feature 1: opens on iPad in airplane mode, shows both 23-player squads with stats + storylines + source badges, split landscape layout.
 - Feature 2: 30s Peter Drury clip of Messi's 23rd-minute penalty → stat card on right panel with measured latency < 1.5s, `Sportradar ✓` cited.
-- Feature 3: button press → voice question → sourced answer on right panel + spoken aloud in < 2s. Knows when to say "I don't have verified data on that."
+- Feature 2 voice-commanded path: button press → voice question → sourced answer on right panel + spoken aloud in < 2s; button press → voice command ("show me X") → widget materializes on right panel. Knows when to say "I don't have verified data on that."
 - Entire demo runs on the iPad in airplane mode, no cables to a laptop, no fallback.
 - Backup demo video recorded by hour 20 as insurance.
 
@@ -381,6 +382,6 @@ broadcastbrain/
 
 1. Cactus RN SDK — does it expose Gemma 4 multimodal audio input directly on iPad running Expo? **Spike this first.** If not, need the Expo config plugin + native module route.
 2. Which Sportradar / football data endpoints hold archived 2022 World Cup match data? Alternate source: StatsBomb Open Data (free, detailed event data for this match specifically).
-3. Hardware button for Feature 3 voice query — on-screen bottom-bezel button only, or optional external puck (Flic)? Recommend on-screen only for demo simplicity.
+3. Hardware button for Feature 2 voice command path — on-screen bottom-bezel button only, or optional external puck (Flic)? Recommend on-screen only for demo simplicity.
 4. Who is the dedicated "prompt tuner" in Track A — the prompts in SPEC.md §1.0, §1.3, §1.5 are v1 and will need 2–3 hours of iteration against the real Peter Drury audio fixtures.
 5. Which 3–4 audio clips (goals / key moments) do we bundle as live-pipeline fixtures? Candidates: Messi's 23rd-min pen, Di María's 36th-min finish, Mbappé's 80th+81st brace, Messi's extra-time goal, the penalty shoot-out sequence.

@@ -120,7 +120,7 @@ Read SPEC.md §Shared Architecture plus frontend/DATA_CONTRACTS.md §2 and §5.
 
 My job: wrap Cactus RN SDK into the askGemma(input, context, routing)
 contract in DATA_CONTRACTS §5. This is the single integration seam all
-three features call. Then wire the Gemma 4 function toolbox from §2 so
+both features call. Then wire the Gemma 4 function toolbox from §2 so
 Gemma 4 can call get_player_stat etc. locally against the bundled
 match_cache.json.
 
