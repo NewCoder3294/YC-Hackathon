@@ -2,20 +2,30 @@ import SwiftUI
 
 struct ContentView: View {
     @Environment(AppStore.self) private var store
+    @Environment(ThemeStore.self) private var theme
 
     var body: some View {
-        ZStack {
-            NavigationSplitView {
-                SidebarView()
-                    .navigationSplitViewColumnWidth(min: 220, ideal: 260)
-            } detail: {
-                detailView
-            }
-            .background(Color.bgBase)
+        @Bindable var bindable = store
 
+        Group {
             if store.showingSetup {
                 TeamSetupView()
                     .transition(.opacity)
+            } else {
+                HStack(spacing: 0) {
+                    SidebarView()
+                        .frame(width: theme.sidebarCollapsed ? 68 : 260)
+
+                    detailView
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                }
+                .ignoresSafeArea(.container, edges: .top)
+                .background(Color.bgBase)
+                .animation(.easeInOut(duration: 0.2), value: theme.sidebarCollapsed)
+                .sheet(isPresented: $bindable.showNewMatchSheet) {
+                    NewMatchSheet()
+                        .environment(store)
+                }
             }
         }
         .animation(.easeInOut(duration: 0.2), value: store.showingSetup)

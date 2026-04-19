@@ -10,8 +10,14 @@ struct TeamSetupView: View {
 
     var body: some View {
         ZStack {
-            Color.bgBase.ignoresSafeArea()
-            DottedGrid()
+            Color(hex: "#F7F7F6").ignoresSafeArea()
+
+            DottedGrid(
+                dotColor: Color(hex: "#0A0A0A").opacity(0.22),
+                spacing: 22,
+                dotSize: 2.2
+            )
+            .ignoresSafeArea()
 
             VStack(spacing: 0) {
                 Spacer()
@@ -20,6 +26,7 @@ struct TeamSetupView: View {
             }
             .padding(40)
         }
+        .preferredColorScheme(.light)
     }
 
     private var card: some View {

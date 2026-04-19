@@ -12,15 +12,17 @@ enum SpottingMode: String, CaseIterable, Identifiable {
 
     var label: String {
         switch self {
-        case .stats:    return "STATS"
-        case .story:    return "STORY"
+        case .stats: return "STATS"
+        case .story: return "STORY"
         case .tactical: return "TACTICAL"
         }
     }
 }
 
 enum LiveState: Equatable {
-    case idle, listening, processing
+    case idle
+    case listening
+    case processing
     case error(String)
 }
 
@@ -32,31 +34,36 @@ final class AppStore {
     var liveState: LiveState = .idle
     var partialTranscript: String = ""
     var lastLatencyMs: Int?
-    var spottingMode: SpottingMode? = nil
+    /// When true the ContentView presents NewMatchSheet. Driven by the sidebar
+    /// `+ New Session` button. Dismissed on Cancel or Create.
+    var showNewMatchSheet: Bool = false
+    /// Shows TeamSetupView full-screen when true (first launch or user-triggered refresh).
     var showingSetup: Bool = false
-    private(set) var matchCache: MatchCache?
+    var spottingMode: SpottingMode? = nil
 
     let sessionStore: SessionStore
     let cactus: CactusService
+    var matchCache: MatchCache?
     let playByPlayStore: PlayByPlayStore
-
-    // Saved cache location — overrides bundled resource after first user fetch
-    private static let savedCacheURL: URL = FileManager.default
-        .urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
-        .appendingPathComponent("BroadcastBrain/match_cache.json")
 
     init(sessionStore: SessionStore, cactus: CactusService, playByPlayStore: PlayByPlayStore) {
         self.sessionStore = sessionStore
         self.cactus = cactus
         self.playByPlayStore = playByPlayStore
 
-        // Only user-saved cache counts — no bundled fallback, so first launch always
-        // forces the team setup screen for a tailored experience.
-        let initialCache = Self.loadSavedCache()
-        self.matchCache = initialCache
+        if let url = Bundle.main.url(forResource: "match_cache", withExtension: "json"),
+           let data = try? Data(contentsOf: url),
+           let cache = try? JSONDecoder().decode(MatchCache.self, from: data) {
+            self.matchCache = cache
+        } else {
+            self.matchCache = nil
+        }
 
-        let title = initialCache?.title ?? "New Match"
+        // Seed the default hackathon match so first launch has something live.
+        let seededMatch = Match.sampleArgFra2022
+        let title = seededMatch.title
 
+        // Reuse an empty session for today's match if one already exists.
         let cal = Calendar.current
         if let reusable = sessionStore.sessions.first(where: { s in
             s.title == title
@@ -68,35 +75,13 @@ final class AppStore {
         }) {
             self.currentSession = reusable
         } else {
-            let fresh = Session(title: title)
+            let fresh = Session(title: title, match: seededMatch)
             self.currentSession = fresh
             sessionStore.save(fresh)
         }
 
+        // Sweep any stray empty duplicate sessions (from pre-fix launches)
         sessionStore.purgeEmptyDuplicates(except: self.currentSession.id)
-
-        // Show setup screen if there's no cache at all
-        if self.matchCache == nil {
-            self.showingSetup = true
-        }
-    }
-
-    // Called by TeamSetupView after a successful fetch
-    func loadMatchCache(_ cache: MatchCache) {
-        matchCache = cache
-        spottingMode = nil
-        showingSetup = false
-        Self.persistCache(cache)
-
-        // Start a fresh session for the new match
-        let fresh = Session(title: cache.title)
-        sessionStore.save(fresh)
-        currentSession = fresh
-        selectedSurface = .research
-    }
-
-    func presentSetup() {
-        showingSetup = true
     }
 
     func appendStatCard(_ card: StatCard) {
@@ -120,27 +105,48 @@ final class AppStore {
         sessionStore.save(currentSession)
     }
 
+    /// Triggered by the sidebar `+ New Session` button. Opens the match form.
+    /// The actual session is created when the user submits via `createSession(from:)`.
     func newSession() {
-        let title = matchCache?.title ?? "New Session"
-        let s = Session(title: title)
+        showNewMatchSheet = true
+    }
+
+    /// Called from NewMatchSheet when the user taps Create.
+    func createSession(from match: Match) {
+        let s = Session(title: match.title, match: match)
+        sessionStore.save(s)
+        currentSession = s
+        selectedArchiveId = nil
+        selectedSurface = .live
+        showNewMatchSheet = false
+    }
+
+    /// Used by endMatch — reuses the current match for a fresh session without
+    /// asking the commentator to re-enter match details.
+    func newSessionKeepingCurrentMatch() {
+        let reusedMatch = currentSession.match ?? Match.sampleArgFra2022
+        let s = Session(title: reusedMatch.title, match: reusedMatch)
         sessionStore.save(s)
         currentSession = s
         selectedArchiveId = nil
         selectedSurface = .live
     }
 
-    // MARK: - Cache persistence
+    /// Called by TeamSetupView after the fetch completes — swaps the in-memory
+    /// match cache and starts a fresh session for the new matchup.
+    func loadMatchCache(_ cache: MatchCache) {
+        matchCache = cache
+        showingSetup = false
 
-    private static func loadSavedCache() -> MatchCache? {
-        guard FileManager.default.fileExists(atPath: savedCacheURL.path),
-              let data = try? Data(contentsOf: savedCacheURL) else { return nil }
-        return try? JSONDecoder().decode(MatchCache.self, from: data)
+        let fresh = Session(title: cache.title)
+        sessionStore.save(fresh)
+        currentSession = fresh
+        selectedArchiveId = nil
+        selectedSurface = .research
     }
 
-    private static func persistCache(_ cache: MatchCache) {
-        let dir = savedCacheURL.deletingLastPathComponent()
-        try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
-        let enc = JSONEncoder(); enc.outputFormatting = [.prettyPrinted, .sortedKeys]
-        try? enc.encode(cache).write(to: savedCacheURL, options: .atomic)
+    /// Called by the sidebar "refresh" button to reopen the setup flow.
+    func presentSetup() {
+        showingSetup = true
     }
 }
