@@ -415,9 +415,6 @@ private struct SidebarFooterControls: View {
                            help: theme.mode == .dark ? "Light mode" : "Dark mode") {
                     theme.toggleMode()
                 }
-                IconButton(systemImage: "sidebar.left", help: "Expand sidebar") {
-                    theme.toggleSidebar()
-                }
             } else {
                 FooterPillButton(
                     systemImage: theme.mode == .dark ? "sun.max" : "moon",
