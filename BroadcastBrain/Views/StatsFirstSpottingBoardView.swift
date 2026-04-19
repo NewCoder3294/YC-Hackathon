@@ -18,11 +18,6 @@ struct StatsFirstSpottingBoardView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            StatusBarView(
-                matchTitle: store.currentSession.title,
-                isAirplane: true,
-                latencyMs: store.lastLatencyMs
-            )
             subHeader
             ZStack {
                 DottedGrid()
