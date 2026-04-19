@@ -495,6 +495,8 @@ function ListeningUI({
         Switch to another screen — I'll keep surfacing points in a floating window.
       </Text>
 
+      <LiveTranscriptStrip />
+
       <ScrollView
         style={{ flex: 1, marginTop: 24 }}
         contentContainerStyle={{ gap: 12, paddingBottom: 40 }}
@@ -502,7 +504,7 @@ function ListeningUI({
       >
         {points.length === 0 && (
           <Text style={{ fontFamily: FONT_MONO, fontSize: 12, color: tokens.textSubtle, fontStyle: 'italic' }}>
-            Warming up the transcriber…
+            Listening\u2026
           </Text>
         )}
         {points.map((p, i) => (
@@ -516,6 +518,34 @@ function ListeningUI({
           </Animated.View>
         ))}
       </ScrollView>
+    </View>
+  );
+}
+
+function LiveTranscriptStrip() {
+  const { transcripts } = useAgent();
+  if (transcripts.length === 0) return null;
+
+  return (
+    <View style={{ marginTop: 20, paddingTop: 14, borderTopWidth: 1, borderTopColor: tokens.borderSoft }}>
+      <Text style={{ fontFamily: FONT_MONO, fontSize: 9, letterSpacing: 2, color: tokens.textMuted, fontWeight: '700', marginBottom: 6 }}>
+        HEARING
+      </Text>
+      {transcripts.slice(0, 3).map((t, i) => (
+        <Text
+          key={t.id}
+          style={{
+            fontFamily: FONT_MONO,
+            fontSize: 12,
+            color: tokens.text,
+            opacity: Math.max(0.35, 1 - i * 0.28),
+            lineHeight: 17,
+          }}
+          numberOfLines={2}
+        >
+          {t.text}
+        </Text>
+      ))}
     </View>
   );
 }

@@ -1,5 +1,5 @@
 import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
-import { useEventBus, BusEvent } from '../cactus/state/eventBus';
+import { useEventBus, BusEvent, TranscriptEvent } from '../cactus/state/eventBus';
 import { useModelLoader } from '../cactus/state/modelLoader';
 
 export type AgentPoint = {
@@ -7,6 +7,13 @@ export type AgentPoint = {
   text: string;
   source?: string;
   category?: 'stat' | 'streak' | 'tactic' | 'story' | 'alert';
+  at: number;
+};
+
+export type TranscriptLine = {
+  id: string;
+  text: string;
+  confidence: number;
   at: number;
 };
 
@@ -32,6 +39,7 @@ export type MatchNote = {
 type AgentState = {
   active: boolean;
   points: AgentPoint[];
+  transcripts: TranscriptLine[];
   pipVisible: boolean;
   saving: boolean;
   sessions: ArchivedSession[];
@@ -48,7 +56,7 @@ type AgentState = {
 };
 
 const Ctx = createContext<AgentState>({
-  active: false, points: [], pipVisible: true, saving: false, sessions: [], notes: [],
+  active: false, points: [], transcripts: [], pipVisible: true, saving: false, sessions: [], notes: [],
   start: () => {}, stop: () => {}, toggle: () => {},
   hidePiP: () => {}, showPiP: () => {}, deleteSession: () => {},
   updateNote: () => {}, deleteNote: () => {}, addUserNote: () => {},
@@ -58,12 +66,13 @@ const CURRENT_MATCH = 'ARG vs FRA · 2022 WC Final';
 let counter = 0;
 
 export function AgentProvider({ children }: { children: React.ReactNode }) {
-  const [active, setActive]     = useState(false);
-  const [points, setPoints]     = useState<AgentPoint[]>([]);
-  const [pipVisible, setPipV]   = useState(true);
-  const [saving, setSaving]     = useState(false);
-  const [sessions, setSessions] = useState<ArchivedSession[]>([]);
-  const [notes, setNotes]       = useState<MatchNote[]>([]);
+  const [active, setActive]           = useState(false);
+  const [points, setPoints]           = useState<AgentPoint[]>([]);
+  const [transcripts, setTranscripts] = useState<TranscriptLine[]>([]);
+  const [pipVisible, setPipV]         = useState(true);
+  const [saving, setSaving]           = useState(false);
+  const [sessions, setSessions]       = useState<ArchivedSession[]>([]);
+  const [notes, setNotes]             = useState<MatchNote[]>([]);
   const startedRef = useRef<number>(0);
 
   const start = useCallback(() => {
@@ -87,6 +96,15 @@ export function AgentProvider({ children }: { children: React.ReactNode }) {
       const added = nextEvents.slice(prevEvents.length);
       prevEvents = nextEvents;
       for (const e of added) {
+        if (e.type === 'transcript') {
+          const te = e as TranscriptEvent;
+          const text = te.text?.trim();
+          if (!text) continue;
+          counter += 1;
+          const id = `t-${counter}`;
+          setTranscripts((prev) => [{ id, text, confidence: te.confidence, at: Date.now() }, ...prev].slice(0, 5));
+          continue;
+        }
         const mapped = mapBusEventToPoint(e);
         if (!mapped) continue;
         counter += 1;
@@ -101,6 +119,7 @@ export function AgentProvider({ children }: { children: React.ReactNode }) {
   // Stop drives the "saving to archive" animation before it actually commits.
   const stop = useCallback(() => {
     setActive(false);
+    setTranscripts([]);
     setSaving(true);
     const startedAt = startedRef.current;
     const endedAt = Date.now();
@@ -158,7 +177,7 @@ export function AgentProvider({ children }: { children: React.ReactNode }) {
   return (
     <Ctx.Provider
       value={{
-        active, points, pipVisible, saving, sessions, notes,
+        active, points, transcripts, pipVisible, saving, sessions, notes,
         start, stop, toggle, hidePiP, showPiP,
         deleteSession, updateNote, deleteNote, addUserNote,
       }}
