@@ -8,7 +8,7 @@ struct ResearchCenterView: View {
         VStack(spacing: 0) {
             StatusBarView(
                 matchTitle: store.currentSession.title,
-                isAirplane: true,
+                sport: store.currentSession.match?.sport,
                 latencyMs: store.lastLatencyMs
             ) {
                 if store.spottingMode != nil {

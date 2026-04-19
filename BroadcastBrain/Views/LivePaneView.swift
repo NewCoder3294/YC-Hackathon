@@ -8,7 +8,9 @@ struct LivePaneView: View {
     @State private var audio = AudioCaptureService()
     @State private var permState: PermissionState = .unknown
     @State private var debounceTask: Task<Void, Never>?
-    @State private var lastHandledSegment: String = ""
+    /// Dedups sentences shipped to `handleSegment`. Replaces the prefix-match
+    /// `lastHandledSegment` that was mis-emitting on STT revisions.
+    @State private var sentenceExtractor = SentenceExtractor()
     @State private var showEndConfirm: Bool = false
     @State private var whisperArmed: Bool = false
     @State private var recordingStartedAt: Date?
@@ -35,7 +37,7 @@ struct LivePaneView: View {
             VStack(spacing: 0) {
                 StatusBarView(
                     matchTitle: store.currentSession.title,
-                    isAirplane: true,
+                    sport: store.currentSession.match?.sport,
                     latencyMs: store.lastLatencyMs
                 )
 
@@ -213,6 +215,10 @@ struct LivePaneView: View {
                 permissionBanner(banner)
             }
 
+            if let warning = store.inferenceWarning {
+                inferenceBanner(warning)
+            }
+
             if case .error(let msg) = store.liveState {
                 StackCard(kind: .counter) {
                     Text(msg)
@@ -247,10 +253,17 @@ struct LivePaneView: View {
                     }
                     .padding(18)
                 }
-                .onChange(of: store.partialTranscript) { _, _ in
-                    withAnimation { proxy.scrollTo("__bottom__", anchor: .bottom) }
-                }
-                .onChange(of: store.currentSession.transcript) { _, _ in
+                // Both transcripts change together when a sentence commits
+                // (handleSegment appends to `transcript` and clears
+                // `partialTranscript`). Two separate onChange modifiers each
+                // firing a `withAnimation { scrollTo }` in the same frame
+                // triggers SwiftUI's "action tried to update multiple times
+                // per frame" warning. Collapse into a single signal keyed on
+                // the two lengths — one change → one animation.
+                .onChange(of: [
+                    store.currentSession.transcript.count,
+                    store.partialTranscript.count
+                ]) { _, _ in
                     withAnimation { proxy.scrollTo("__bottom__", anchor: .bottom) }
                 }
             }
@@ -584,6 +597,88 @@ struct LivePaneView: View {
                 .font(Typography.chip)
                 .foregroundStyle(whisperArmed ? Color.esoteric : Color.textSubtle)
                 .tracking(0.5)
+
+            agentWhisperChip
+            cactusSourcePill
+            whisperSkipFooter
+        }
+    }
+
+    /// Tiny label showing which CactusService is in use. Amber when the
+    /// service is unavailable — teammate can tell "agent running but Cactus
+    /// down" from "agent just hasn't fired yet."
+    private var cactusSourcePill: some View {
+        let healthy = store.cactus.isHealthy
+        return Text(store.cactus.sourceLabel)
+            .font(.system(size: 8, weight: .semibold, design: .monospaced))
+            .tracking(0.7)
+            .foregroundStyle(healthy ? Color.textMuted : Color.esoteric)
+            .padding(.horizontal, 6)
+            .padding(.vertical, 2)
+            .overlay(
+                Capsule()
+                    .stroke(healthy ? Color.bbBorder : Color.esoteric.opacity(0.6), lineWidth: 1)
+            )
+            .help(healthy
+                  ? "Cactus model loaded and answering."
+                  : "Cactus is not available — every whisper will fail. Install the Gemma weights.")
+    }
+
+    /// One-line footer under the AGENT pill: why the last tick produced no
+    /// card. Nil when the last tick shipped a card or the engine hasn't
+    /// ticked yet.
+    @ViewBuilder
+    private var whisperSkipFooter: some View {
+        if let reason = store.lastWhisperSkip, store.whisperEngine.isRunning {
+            Text(reason.displayText)
+                .font(.system(size: 8, weight: .regular, design: .monospaced))
+                .foregroundStyle(Color.textSubtle)
+                .lineLimit(2)
+                .frame(maxWidth: 140)
+                .multilineTextAlignment(.center)
+        }
+    }
+
+    /// Small pill that shows whether the always-on 30s whisper engine is
+    /// running. Tapping it toggles the engine while the mic is still open —
+    /// it does NOT stop the mic.
+    private var agentWhisperChip: some View {
+        let isListening = store.liveState == .listening
+        let running = store.whisperEngine.isRunning
+
+        return Button(action: toggleAgentWhisper) {
+            HStack(spacing: 5) {
+                Image(systemName: running ? "waveform.circle.fill" : "waveform.circle")
+                    .font(.system(size: 10))
+                    .foregroundStyle(running ? Color.verified : Color.textSubtle)
+                Text(running ? "AGENT · 30s" : "AGENT · OFF")
+                    .font(.system(size: 9, weight: .semibold, design: .monospaced))
+                    .tracking(0.6)
+                    .foregroundStyle(running ? Color.verified : Color.textSubtle)
+            }
+            .padding(.horizontal, 8)
+            .padding(.vertical, 4)
+            .background(
+                (running ? Color.verified.opacity(0.12) : Color.bgSubtle),
+                in: Capsule()
+            )
+            .overlay(
+                Capsule()
+                    .stroke(running ? Color.verified.opacity(0.5) : Color.bbBorder, lineWidth: 1)
+            )
+        }
+        .buttonStyle(.plain)
+        .disabled(!isListening)
+        .opacity(isListening ? 1 : 0.5)
+        .help("Auto-whisper: every 30 seconds the agent surfaces a stat useful for the next play.")
+    }
+
+    private func toggleAgentWhisper() {
+        guard store.liveState == .listening else { return }
+        if store.whisperEngine.isRunning {
+            store.whisperEngine.stop()
+        } else {
+            store.whisperEngine.start()
         }
     }
 
@@ -602,11 +697,13 @@ struct LivePaneView: View {
         // 1. Stop mic cleanly
         audio.stop()
         debounceTask?.cancel()
-        lastHandledSegment = ""
+        sentenceExtractor.reset()
         whisperArmed = false
         recordingStartedAt = nil
         store.liveState = .idle
         store.partialTranscript = ""
+        store.whisperEngine.stop()
+        store.speech.stop()
 
         // 2. Save any final transcript progress
         store.sessionStore.save(store.currentSession)
@@ -639,6 +736,31 @@ struct LivePaneView: View {
         if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?\(section)") {
             NSWorkspace.shared.open(url)
         }
+    }
+
+    private func inferenceBanner(_ text: String) -> some View {
+        HStack(alignment: .top, spacing: 10) {
+            Image(systemName: "exclamationmark.triangle.fill")
+                .font(.system(size: 12))
+                .foregroundStyle(Color.esoteric)
+            VStack(alignment: .leading, spacing: 4) {
+                Text("AI UNAVAILABLE")
+                    .font(Typography.sectionHead)
+                    .foregroundStyle(Color.esoteric)
+                    .tracking(0.5)
+                Text(text)
+                    .font(Typography.body)
+                    .foregroundStyle(Color.textMuted)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            Spacer()
+        }
+        .padding(12)
+        .background(Color.esoteric.opacity(0.08), in: RoundedRectangle(cornerRadius: 6))
+        .overlay(
+            RoundedRectangle(cornerRadius: 6)
+                .stroke(Color.esoteric.opacity(0.5), lineWidth: 1)
+        )
     }
 
     private func refreshPermissionState() {
@@ -686,6 +808,14 @@ struct LivePaneView: View {
                 audio.onPartial = { partial in
                     Task { @MainActor in
                         guard store.liveState == .listening else { return }
+                        // The speakers feed audio back into the mic — STT
+                        // happily transcribes our own TTS. Mark every sentence
+                        // captured while speaking as already-emitted, so once
+                        // TTS ends the echoed text can't re-enter Gemma.
+                        if store.speech.isEchoLikely {
+                            sentenceExtractor.suppress(cumulative: partial)
+                            return
+                        }
                         store.partialTranscript = partial
 
                         // Extract any COMPLETE sentences that ended since last
@@ -696,12 +826,18 @@ struct LivePaneView: View {
                 }
                 audio.onSegment = { segment in
                     Task { @MainActor in
+                        if store.speech.isEchoLikely {
+                            // Echoed TTS reached isFinal — mark everything in
+                            // this final segment as already-handled and bail.
+                            sentenceExtractor.suppress(cumulative: segment)
+                            return
+                        }
                         // SFSpeechRecognizer fired isFinal — treat whatever remains
                         // as a final sentence even if it doesn't end in punctuation.
+                        // Dedup in SentenceExtractor carries across task boundaries
+                        // so a final segment that repeats an already-shipped partial
+                        // is correctly suppressed. No per-task reset here.
                         await emitCompleteSentences(fromCumulative: segment, forceFinal: true)
-                        // Reset cumulative tracking; the next recognition task
-                        // starts fresh from char 0.
-                        lastHandledSegment = ""
                     }
                 }
                 audio.onError = { err in
@@ -716,6 +852,7 @@ struct LivePaneView: View {
                 store.liveState = .listening
                 store.partialTranscript = ""
                 if recordingStartedAt == nil { recordingStartedAt = Date() }
+                store.whisperEngine.start()
                 print("[live] LISTENING")
             } catch let e as AudioError {
                 print("[live] AudioError: \(e.localizedDescription)")
@@ -732,76 +869,22 @@ struct LivePaneView: View {
     private func stopListening() {
         audio.stop()
         debounceTask?.cancel()
-        lastHandledSegment = ""
+        sentenceExtractor.reset()
         store.liveState = .idle
         store.partialTranscript = ""
         recordingStartedAt = nil
+        store.whisperEngine.stop()
+        store.speech.stop()
     }
 
     /// Extract any complete sentences from the current cumulative transcript
-    /// and ship each as its own transcript line + Gemma call. Incomplete tail
-    /// stays unhandled until more audio completes the sentence — or, on
-    /// `forceFinal`, is emitted as-is.
+    /// and ship each as its own transcript line + Gemma call. Dedup lives in
+    /// `SentenceExtractor` — STT revisions (comma added/dropped, word
+    /// substituted) do not cause re-emission.
     @MainActor
     private func emitCompleteSentences(fromCumulative cumulative: String, forceFinal: Bool) async {
-        // Advance past whatever was already handled within this cumulative text.
-        var workingTail: String
-        if !lastHandledSegment.isEmpty, cumulative.hasPrefix(lastHandledSegment) {
-            workingTail = String(cumulative.dropFirst(lastHandledSegment.count))
-        } else {
-            workingTail = cumulative
-        }
-        workingTail = workingTail.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !workingTail.isEmpty else { return }
-
-        // Pull off each complete sentence (text up to `.`, `!`, or `?` followed
-        // by whitespace/end). The remainder is the incomplete tail.
-        var emitted: [String] = []
-        var buffer = ""
-        var chars = Array(workingTail)
-        var i = 0
-        while i < chars.count {
-            let ch = chars[i]
-            buffer.append(ch)
-            if ch == "." || ch == "!" || ch == "?" {
-                // Consume any trailing punctuation (e.g. "?!")
-                while i + 1 < chars.count, ["!", "?", "."].contains(chars[i + 1]) {
-                    i += 1
-                    buffer.append(chars[i])
-                }
-                // Sentence boundary only if followed by whitespace or end of text
-                let next = i + 1 < chars.count ? chars[i + 1] : nil
-                let boundary = next == nil || next!.isWhitespace
-                if boundary {
-                    let sentence = buffer.trimmingCharacters(in: .whitespacesAndNewlines)
-                    if sentence.count > 1 {
-                        emitted.append(sentence)
-                    }
-                    buffer = ""
-                }
-            }
-            i += 1
-        }
-
-        if forceFinal {
-            let tail = buffer.trimmingCharacters(in: .whitespacesAndNewlines)
-            if tail.count > 1 { emitted.append(tail) }
-            buffer = ""
-        }
-
-        guard !emitted.isEmpty else { return }
-
-        // Track the new cumulative position: everything in `cumulative` minus
-        // any still-incomplete trailing buffer. We advance lastHandledSegment so
-        // the next partial skips what we already emitted.
-        let incompleteTailLen = buffer.trimmingCharacters(in: .whitespacesAndNewlines).count
-        let totalLen = cumulative.count
-        let keepLen = max(0, totalLen - incompleteTailLen)
-        let prefixEnd = cumulative.index(cumulative.startIndex, offsetBy: keepLen)
-        lastHandledSegment = String(cumulative[..<prefixEnd])
-            .trimmingCharacters(in: .whitespacesAndNewlines)
-
-        for sentence in emitted {
+        let sentences = sentenceExtractor.ingest(cumulative: cumulative, forceFinal: forceFinal)
+        for sentence in sentences {
             await handleSegment(sentence)
         }
     }
@@ -822,7 +905,45 @@ struct LivePaneView: View {
 
         let started = Date()
 
-        let facts = store.matchCache?.facts.prefix(8).joined(separator: "\n- ") ?? ""
+        // Grounding sources, strongest first:
+        //   (a) live ESPN play-by-play — cached to
+        //       ~/Library/Application Support/BroadcastBrain/playbyplay/<league>/<gameId>.json
+        //       via PlayByPlayKit's LiveSession. PlayByPlayStore.plays mirrors
+        //       that JSON; we feed the whole thing to Gemma so score + minute
+        //       questions can be answered off the disk cache even for games
+        //       that have already finished polling.
+        let livePlays = store.playByPlayStore.plays
+        let compact = store.playByPlayStore.currentCompact
+        let playsBlock = WhisperEngine.renderPlays(livePlays, compact: compact)
+        let havePlays = !playsBlock.isEmpty
+
+        let cache = store.matchCacheForCurrentSession
+        let facts = cache?.facts.prefix(8).joined(separator: "\n- ") ?? ""
+        let haveFacts = !facts.isEmpty
+        let haveGrounding = havePlays || haveFacts
+
+        // Short-circuit whisper-armed queries when we have nothing to ground on.
+        // Gemma-1B will happily invent "Currently, the score is 0-0." from thin
+        // air — distinguish between "feed hasn't polled yet" and "no stream
+        // attached" so the commentator knows which one.
+        if forceWhisper && !haveGrounding {
+            let isLoading = store.playByPlayStore.isStreaming
+            let msg = isLoading
+                ? "The live feed is still loading — give it a few seconds and try again."
+                : "No live feed is attached to this session, so I can't answer that."
+            let card = StatCard(
+                kind: .whisper,
+                player: "Agent",
+                rawTranscript: transcript,
+                latencyMs: 0,
+                answer: msg
+            )
+            store.appendStatCard(card)
+            store.speech.speak(msg)
+            print("[live] whisper skipped — no grounding (streaming=\(isLoading))")
+            return
+        }
+
         let system = """
         You are a sports broadcast agent for a live football commentator. Route the
         commentator's last utterance to one of two output kinds — this is the
@@ -841,34 +962,192 @@ struct LivePaneView: View {
         If the utterance is prefixed with [BTW], the commentator explicitly
         triggered whisper mode — FORCE a whisper answer regardless of phrasing.
 
-        Answer ONLY from the verified match facts below. If no fact matches, return
-        {"no_verified_data":true}. Return ONLY JSON, no other text.
-        """
-        // Prefix [BTW] so both Gemma (via prompt directive) and MockResponder
-        // (via substring detection) force whisper routing.
-        let utterance = forceWhisper ? "[BTW] \(transcript)" : transcript
-        let user = """
-        Match facts:
-        - \(facts)
+        Ground every answer in the data block below. The "Recent plays" list is
+        the official ESPN feed — it is the authoritative source for live state
+        like the current score, minute, possession, goals, cards, and subs.
+        Match facts give pre-match context.
 
-        Commentator just said: "\(utterance)". Match: \(store.currentSession.title).
+        If BOTH the plays list and the facts list are missing or say "(no data)",
+        return {"no_verified_data":true}. Do NOT invent scores, minutes, or
+        stats. Return ONLY a single JSON object — no prose, no markdown fences.
+        """
+        // Prefix [BTW] so Gemma's system prompt routes this as a whisper
+        // regardless of phrasing.
+        let utterance = forceWhisper ? "[BTW] \(transcript)" : transcript
+        let factsBlock = haveFacts ? "- \(facts)" : "(no data)"
+        let playsRendered = havePlays ? playsBlock : "(no data — no live feed attached)"
+        let user = """
+        Match: \(store.currentSession.title).
+
+        Recent plays (most recent last, \(livePlays.count) total from ESPN feed):
+        \(playsRendered)
+
+        Match facts:
+        \(factsBlock)
+
+        Commentator just said: "\(utterance)".
         """
 
         do {
             let reply = try await store.cactus.complete(system: system, user: user)
             let latency = Int(Date().timeIntervalSince(started) * 1000)
             store.lastLatencyMs = latency
+            store.inferenceWarning = nil
 
             if let card = parseStatCard(reply, raw: transcript, latencyMs: latency) {
+                // A whisper-type card must be grounded in plays or facts. Gemma
+                // emits confident answers even when the data block is empty, so
+                // guard this here — appending an ungrounded whisper to the UI
+                // is worse than surfacing nothing.
+                if card.kind == .whisper && !haveGrounding {
+                    print("[live] whisper rejected — ungrounded answer=\((card.answer ?? "").prefix(80))")
+                    return
+                }
                 store.appendStatCard(card)
+                // Whisper answers are user-directed prose — speak them. Stat
+                // cards are visual only.
+                if card.kind == .whisper, let answer = card.answer, !answer.isEmpty {
+                    store.speech.speak(answer)
+                }
+            } else if forceWhisper {
+                // Gemma-1B frequently emits prose instead of JSON even when
+                // the system prompt forbids it. The prose is only trustworthy
+                // if we actually handed Gemma grounding data (plays or facts).
+                // Without grounding, any specific number it produces is a
+                // hallucination — refuse to speak it.
+                if !haveGrounding {
+                    let msg = "No live feed is attached to this session, so I can't answer that."
+                    let card = StatCard(
+                        kind: .whisper,
+                        player: "Agent",
+                        rawTranscript: transcript,
+                        latencyMs: latency,
+                        answer: msg
+                    )
+                    store.appendStatCard(card)
+                    store.speech.speak(msg)
+                    print("[live] whisper refused — no grounding; raw=\(reply.prefix(120))")
+                } else if let fallback = Self.proseFallbackAnswer(from: reply) {
+                    let card = StatCard(
+                        kind: .whisper,
+                        player: "Agent",
+                        rawTranscript: transcript,
+                        latencyMs: latency,
+                        answer: fallback
+                    )
+                    store.appendStatCard(card)
+                    store.speech.speak(fallback)
+                    print("[live] prose fallback whisper: \(fallback)")
+                } else {
+                    print("[live] whisper reply unusable, raw=\(reply.prefix(200))")
+                }
             }
         } catch {
             print("Gemma error on segment '\(transcript)': \(error)")
+            store.inferenceWarning = "Inference failed: \(error.localizedDescription)"
         }
     }
 
+    /// Best-effort conversion of a prose Gemma reply into a single-sentence
+    /// whisper answer. Strips markdown fences, drops any leading meta-chatter
+    /// ("Okay, let's break down…"), caps at ~220 chars for TTS sanity, and
+    /// returns `nil` when the final sentence is a first-person refusal
+    /// ("I don't have verified data on that.") — those answers leak Gemma's
+    /// inability into the broadcast instead of silently skipping the tick.
+    ///
+    /// Internal (not private) so `ProseFallbackTests` can drive it directly.
+    static func proseFallbackAnswer(from raw: String) -> String? {
+        let trimmed = raw.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return nil }
+        // Split on blank lines; prefer the first paragraph that isn't a
+        // Gemma-ism like "Please provide me with the context!".
+        let paragraphs = trimmed
+            .components(separatedBy: "\n\n")
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
+        let candidate = paragraphs.first(where: { !isMetaChatter($0) }) ?? paragraphs.first
+        guard var answer = candidate else { return nil }
+        // Strip common markdown artefacts.
+        answer = answer
+            .replacingOccurrences(of: "```json", with: "")
+            .replacingOccurrences(of: "```", with: "")
+            .replacingOccurrences(of: "**", with: "")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        // If the paragraph is itself a JSON-ish blob, drop it — the structured
+        // parser already had its shot.
+        if answer.hasPrefix("{") { return nil }
+        // Keep a single sentence for TTS sanity.
+        if let terminator = answer.firstIndex(where: { ".!?".contains($0) }) {
+            let end = answer.index(after: terminator)
+            answer = String(answer[..<end])
+        }
+        if answer.count > 220 {
+            answer = String(answer.prefix(220)) + "…"
+        }
+        let finalAnswer = answer.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !finalAnswer.isEmpty else { return nil }
+        // Final gate: never ship Gemma's refusals as a whisper answer. The
+        // commentator already knows we don't know — TTS'ing "I don't have
+        // verified data on that." is worse than staying silent.
+        if isRefusal(finalAnswer) { return nil }
+        return finalAnswer
+    }
+
+    /// Paragraph-level meta-chatter filter. Matches leading framing text Gemma
+    /// emits before getting to the actual answer.
+    static func isMetaChatter(_ paragraph: String) -> Bool {
+        let lower = paragraph.lowercased()
+        let metaPrefixes: [String] = [
+            "please provide",
+            "i need more information",
+            "as an ai",
+            "i am a large language model",
+            "i'm sorry",
+            "okay, let's"
+        ]
+        return metaPrefixes.contains(where: { lower.hasPrefix($0) })
+    }
+
+    /// First-person refusal detector. Refusals start with "I", "I'm", or
+    /// "My" AND contain a don't-have / don't-know / can't-answer phrase.
+    /// Requiring first-person lets sentences like "Messi doesn't have a
+    /// hat-trick yet." pass through (subject isn't the model).
+    static func isRefusal(_ sentence: String) -> Bool {
+        let lower = sentence.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+        let firstPerson = lower.hasPrefix("i ")
+            || lower.hasPrefix("i'")
+            || lower.hasPrefix("my ")
+            || lower == "i don't know."
+            || lower == "i don't know"
+        guard firstPerson else { return false }
+        let refusalPhrases: [String] = [
+            "verified data",
+            "don't have",
+            "dont have",
+            "do not have",
+            "don't know",
+            "dont know",
+            "do not know",
+            "can't answer",
+            "cannot answer",
+            "can't help",
+            "cannot help",
+            "unable to",
+            "have no information",
+            "have no data",
+            "am not sure",
+            "apologize",
+            "rather not"
+        ]
+        return refusalPhrases.contains(where: { lower.contains($0) })
+    }
+
     private func parseStatCard(_ json: String, raw: String, latencyMs: Int) -> StatCard? {
-        guard let data = json.data(using: .utf8),
+        // Gemma 1B often wraps JSON in prose or ```json fences. Scan for the
+        // first balanced {...} block instead of trusting the whole reply to
+        // parse.
+        guard let jsonBlock = Self.extractFirstJSON(json),
+              let data = jsonBlock.data(using: .utf8),
               let obj = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
         else { return nil }
         if obj["no_verified_data"] as? Bool == true { return nil }
@@ -896,6 +1175,15 @@ struct LivePaneView: View {
             let stat = obj["stat_value"] as? String,
             let ctx = obj["context_line"] as? String
         else { return nil }
+        // When we have a match-specific cache applied, refuse cards about
+        // players who aren't on that match's roster. This catches Gemma
+        // falling back to the seeded Argentina/France facts for unrelated
+        // games.
+        if let cache = store.matchCacheForCurrentSession,
+           !Self.playerIsInCache(player, cache: cache) {
+            print("[live] rejecting stat card — player '\(player)' not in cache for \(cache.title)")
+            return nil
+        }
         return StatCard(
             kind: .stat,
             player: player,
@@ -905,5 +1193,30 @@ struct LivePaneView: View {
             rawTranscript: raw,
             latencyMs: latencyMs
         )
+    }
+
+    private static func playerIsInCache(_ player: String, cache: MatchCache) -> Bool {
+        let p = player.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !p.isEmpty else { return false }
+        return cache.players.contains { cached in
+            let c = cached.name.lowercased()
+            return c == p || c.contains(p) || p.contains(c)
+        }
+    }
+
+    private static func extractFirstJSON(_ s: String) -> String? {
+        guard let firstBrace = s.firstIndex(of: "{") else { return nil }
+        var depth = 0
+        var end: String.Index?
+        for i in s[firstBrace...].indices {
+            let ch = s[i]
+            if ch == "{" { depth += 1 }
+            else if ch == "}" {
+                depth -= 1
+                if depth == 0 { end = i; break }
+            }
+        }
+        guard let e = end else { return nil }
+        return String(s[firstBrace...e])
     }
 }

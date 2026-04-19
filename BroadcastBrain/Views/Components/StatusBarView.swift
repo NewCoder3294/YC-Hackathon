@@ -2,14 +2,16 @@ import SwiftUI
 
 struct StatusBarView<Trailing: View>: View {
     let matchTitle: String
-    let isAirplane: Bool
+    /// Sport of the current session. When nil (e.g. on the Archive list
+    /// where no single sport applies), falls back to a generic icon.
+    let sport: Sport?
     let latencyMs: Int?
     @ViewBuilder let trailing: () -> Trailing
 
     var body: some View {
         HStack(spacing: 12) {
-            Image(systemName: "airplane")
-                .foregroundStyle(isAirplane ? Color.verified : Color.textSubtle)
+            Image(systemName: sport?.symbolName ?? "sportscourt.fill")
+                .foregroundStyle(Color.verified)
                 .font(.system(size: 12))
             Text(matchTitle)
                 .font(Typography.body)
@@ -34,9 +36,9 @@ struct StatusBarView<Trailing: View>: View {
 }
 
 extension StatusBarView where Trailing == EmptyView {
-    init(matchTitle: String, isAirplane: Bool, latencyMs: Int?) {
+    init(matchTitle: String, sport: Sport?, latencyMs: Int?) {
         self.matchTitle = matchTitle
-        self.isAirplane = isAirplane
+        self.sport = sport
         self.latencyMs = latencyMs
         self.trailing = { EmptyView() }
     }

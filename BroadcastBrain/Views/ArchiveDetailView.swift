@@ -5,7 +5,7 @@ struct ArchiveDetailView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            StatusBarView(matchTitle: session.title, isAirplane: true, latencyMs: nil)
+            StatusBarView(matchTitle: session.title, sport: session.match?.sport, latencyMs: nil)
 
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {

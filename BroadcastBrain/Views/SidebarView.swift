@@ -472,9 +472,6 @@ private struct SidebarFooterControls: View {
                 IconButton(systemImage: "globe", help: "View landing page") {
                     NSWorkspace.shared.open(Self.landingURL)
                 }
-                IconButton(systemImage: "sidebar.left", help: "Expand sidebar") {
-                    theme.toggleSidebar()
-                }
             } else {
                 FooterPillButton(
                     systemImage: theme.mode == .dark ? "sun.max" : "moon",

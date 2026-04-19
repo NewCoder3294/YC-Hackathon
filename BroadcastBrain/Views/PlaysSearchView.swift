@@ -10,7 +10,7 @@ struct PlaysSearchView: View {
         VStack(spacing: 0) {
             StatusBarView(
                 matchTitle: "Plays · ESPN feed",
-                isAirplane: false,
+                sport: nil,
                 latencyMs: nil
             )
 

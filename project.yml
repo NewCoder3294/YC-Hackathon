@@ -9,6 +9,9 @@ options:
 packages:
   PlayByPlayKit:
     path: PlayByPlayKit
+  ZIPFoundation:
+    url: https://github.com/weichsel/ZIPFoundation
+    from: "0.9.19"
 
 settings:
   base:
@@ -65,6 +68,8 @@ targets:
         optional: true
       - package: PlayByPlayKit
         product: PlayByPlayKit
+      - package: ZIPFoundation
+        product: ZIPFoundation
 
   BroadcastBrainTests:
     type: bundle.unit-test
@@ -86,8 +91,6 @@ schemes:
         BroadcastBrain: all
     run:
       config: Debug
-      environmentVariables:
-        MOCK_MODE: "1"
     test:
       config: Debug
       targets:

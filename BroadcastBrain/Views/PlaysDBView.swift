@@ -12,7 +12,7 @@ struct PlaysDBView: View {
         VStack(spacing: 0) {
             StatusBarView(
                 matchTitle: selected?.game.game.shortName ?? "Plays DB · ESPN cache",
-                isAirplane: false,
+                sport: nil,
                 latencyMs: nil
             )
 

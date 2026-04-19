@@ -21,4 +21,63 @@ final class CactusServiceTests: XCTestCase {
         XCTAssertFalse(reply.isEmpty, "Empty reply from Gemma")
         print("Gemma reply:", reply)
     }
+
+    // MARK: - extractContent envelope cases
+    //
+    // Cactus has shipped at least three envelope shapes for chat completions.
+    // If any of these regress, WhisperEngine.parseWhisper sees the raw wrapper
+    // JSON, fails to extract {"answer":...} and silently drops every tick.
+
+    func testExtractContentOpenAIEnvelope() {
+        let raw = #"{"choices":[{"message":{"content":"hello world"}}]}"#
+        XCTAssertEqual(RealCactusService.extractContent(from: raw), "hello world")
+    }
+
+    func testExtractContentLegacyContentKey() {
+        let raw = #"{"content":"hello"}"#
+        XCTAssertEqual(RealCactusService.extractContent(from: raw), "hello")
+    }
+
+    func testExtractContentFFIResponseEnvelope() {
+        let raw = #"{"success":true,"response":"hello","usage":{"tokens":10}}"#
+        XCTAssertEqual(RealCactusService.extractContent(from: raw), "hello")
+    }
+
+    func testExtractContentFFIResponseSurfacesEvenWhenSuccessFalse() {
+        // extractContent should still surface partial text; callers log the parse fail.
+        let raw = #"{"success":false,"response":"partial text"}"#
+        XCTAssertEqual(RealCactusService.extractContent(from: raw), "partial text")
+    }
+
+    func testExtractContentRawStringPassThrough() {
+        let raw = "not json at all"
+        XCTAssertEqual(RealCactusService.extractContent(from: raw), "not json at all")
+    }
+
+    func testExtractContentStripsJSONFence() {
+        let raw = """
+        {"response":"```json\\n{\\"answer\\":\\"yes\\"}\\n```"}
+        """
+        XCTAssertEqual(RealCactusService.extractContent(from: raw), #"{"answer":"yes"}"#)
+    }
+
+    func testStripCodeFencesRemovesJSONLabel() {
+        let input = "```json\n{\"a\":1}\n```"
+        XCTAssertEqual(RealCactusService.stripCodeFences(input), #"{"a":1}"#)
+    }
+
+    func testStripCodeFencesRemovesBareFence() {
+        let input = "```\nplain\n```"
+        XCTAssertEqual(RealCactusService.stripCodeFences(input), "plain")
+    }
+
+    func testStripCodeFencesNoopWhenAbsent() {
+        let input = "no fences here"
+        XCTAssertEqual(RealCactusService.stripCodeFences(input), "no fences here")
+    }
+
+    func testStripCodeFencesLeavesInteriorBackticksAlone() {
+        let input = "inline `code` sample"
+        XCTAssertEqual(RealCactusService.stripCodeFences(input), "inline `code` sample")
+    }
 }

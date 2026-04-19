@@ -18,6 +18,21 @@ enum Sport: String, Codable, CaseIterable, Identifiable {
         case .other: return "Other"
         }
     }
+
+    /// SF Symbol used in the live status bar. Cricket and rugby fall back to
+    /// `sportscourt.fill` — dedicated symbols don't ship on macOS 14.
+    var symbolName: String {
+        switch self {
+        case .soccer:            return "soccerball"
+        case .basketball:        return "basketball.fill"
+        case .baseball:          return "baseball.fill"
+        case .americanFootball:  return "football.fill"
+        case .hockey:            return "hockey.puck.fill"
+        case .tennis:            return "tennisball.fill"
+        case .cricket, .rugby:   return "sportscourt.fill"
+        case .other:             return "sportscourt.fill"
+        }
+    }
 }
 
 struct Match: Codable, Equatable {
@@ -27,6 +42,12 @@ struct Match: Codable, Equatable {
     var tournament: String
     var venue: String
     var matchDate: Date?
+    /// PlayByPlayKit `League.key` (e.g. "nba"). Nil when the commentator did
+    /// not pick a live ESPN feed — the whisper engine still runs but has no
+    /// plays context.
+    var leagueKey: String?
+    /// ESPN `Game.id` for the selected live game. Nil when no feed selected.
+    var gameId: String?
 
     /// "Home vs Away · Tournament · Venue"
     var title: String {
@@ -44,8 +65,46 @@ struct Match: Codable, Equatable {
         awayTeam: "France",
         tournament: "2022 WC Final",
         venue: "Lusail Stadium",
-        matchDate: nil
+        matchDate: nil,
+        leagueKey: nil,
+        gameId: nil
     )
+
+    enum CodingKeys: String, CodingKey {
+        case sport, homeTeam, awayTeam, tournament, venue, matchDate, leagueKey, gameId
+    }
+
+    init(
+        sport: Sport,
+        homeTeam: String,
+        awayTeam: String,
+        tournament: String,
+        venue: String,
+        matchDate: Date?,
+        leagueKey: String? = nil,
+        gameId: String? = nil
+    ) {
+        self.sport = sport
+        self.homeTeam = homeTeam
+        self.awayTeam = awayTeam
+        self.tournament = tournament
+        self.venue = venue
+        self.matchDate = matchDate
+        self.leagueKey = leagueKey
+        self.gameId = gameId
+    }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        sport = try c.decode(Sport.self, forKey: .sport)
+        homeTeam = try c.decode(String.self, forKey: .homeTeam)
+        awayTeam = try c.decode(String.self, forKey: .awayTeam)
+        tournament = try c.decode(String.self, forKey: .tournament)
+        venue = try c.decode(String.self, forKey: .venue)
+        matchDate = try c.decodeIfPresent(Date.self, forKey: .matchDate)
+        leagueKey = try c.decodeIfPresent(String.self, forKey: .leagueKey)
+        gameId = try c.decodeIfPresent(String.self, forKey: .gameId)
+    }
 }
 
 struct Session: Codable, Identifiable, Equatable {

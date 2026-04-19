@@ -42,24 +42,42 @@ struct StatCardView: View {
     }
 
     private var whisperBody: some View {
-        StackCard(kind: .precedent) {
+        let isAuto = card.rawTranscript.isEmpty
+        return StackCard(kind: .precedent) {
             VStack(alignment: .leading, spacing: 10) {
                 HStack(spacing: 6) {
-                    Image(systemName: "bubble.left.and.text.bubble.right")
+                    Image(systemName: isAuto
+                          ? "waveform.circle.fill"
+                          : "bubble.left.and.text.bubble.right")
                         .font(.system(size: 11))
                         .foregroundStyle(Color.esoteric)
-                    Text("WHISPER · \(card.player.uppercased())")
+                    Text(isAuto
+                         ? "AGENT WHISPER · NEXT 30s"
+                         : "WHISPER · \(card.player.uppercased())")
                         .font(Typography.sectionHead)
                         .foregroundStyle(Color.esoteric)
                     Spacer()
+                    if isAuto {
+                        Image(systemName: "speaker.wave.2.fill")
+                            .font(.system(size: 10))
+                            .foregroundStyle(Color.textSubtle)
+                            .help("Read aloud by the agent")
+                    }
                     SportradarBadge()
                 }
-                Text("You asked: \"\(card.rawTranscript)\"")
-                    .font(Typography.chip)
-                    .foregroundStyle(Color.textSubtle)
-                    .italic()
-                    .lineLimit(2)
-                    .fixedSize(horizontal: false, vertical: true)
+                if !isAuto {
+                    Text("You asked: \"\(card.rawTranscript)\"")
+                        .font(Typography.chip)
+                        .foregroundStyle(Color.textSubtle)
+                        .italic()
+                        .lineLimit(2)
+                        .fixedSize(horizontal: false, vertical: true)
+                } else if !card.player.isEmpty, card.player != "Agent" {
+                    Text(card.player.uppercased())
+                        .font(Typography.chip)
+                        .tracking(0.5)
+                        .foregroundStyle(Color.textMuted)
+                }
                 Text(card.answer ?? "—")
                     .font(Typography.body)
                     .foregroundStyle(Color.textPrimary)

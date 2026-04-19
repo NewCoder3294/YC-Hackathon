@@ -1,4 +1,5 @@
 import SwiftUI
+import PlayByPlayKit
 
 /// Modal form presented when the commentator starts a new match session.
 /// Captures sport, teams, tournament, and venue — saved as a `Match` on the
@@ -14,6 +15,8 @@ struct NewMatchSheet: View {
     @State private var venue: String = ""
     @State private var matchDate: Date = Date()
     @State private var hasDate: Bool = false
+    @State private var selectedLeague: League?
+    @State private var selectedGame: Game?
 
     var body: some View {
         VStack(spacing: 0) {
@@ -102,6 +105,15 @@ struct NewMatchSheet: View {
                     textField("France", text: $awayTeam)
                 }
             }
+
+            GamePickerSection(
+                selectedLeague: $selectedLeague,
+                selectedGame: $selectedGame,
+                homeTeam: $homeTeam,
+                awayTeam: $awayTeam,
+                tournament: $tournament,
+                venue: $venue
+            )
 
             field("TOURNAMENT") {
                 textField("2022 World Cup Final", text: $tournament)
@@ -232,8 +244,17 @@ struct NewMatchSheet: View {
             awayTeam: awayTeam.trimmingCharacters(in: .whitespaces),
             tournament: tournament.trimmingCharacters(in: .whitespaces),
             venue: venue.trimmingCharacters(in: .whitespaces),
-            matchDate: hasDate ? matchDate : nil
+            matchDate: hasDate ? matchDate : nil,
+            leagueKey: selectedLeague?.key,
+            gameId: selectedGame?.id
         )
+        // Kick off the stream right away so plays start flowing before the
+        // commentator hits the mic. createSession also calls this via
+        // startPlayByPlayIfNeeded — it's idempotent.
+        if let league = selectedLeague, let game = selectedGame {
+            store.playByPlayStore.selectLeague(league)
+            store.playByPlayStore.startStreaming(game)
+        }
         store.createSession(from: match)
         dismiss()
     }
