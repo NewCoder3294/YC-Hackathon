@@ -592,6 +592,43 @@ struct LivePaneView: View {
                 .tracking(0.5)
 
             agentWhisperChip
+            cactusSourcePill
+            whisperSkipFooter
+        }
+    }
+
+    /// Tiny label showing which CactusService is in use. Amber when the
+    /// service is unavailable — teammate can tell "agent running but Cactus
+    /// down" from "agent just hasn't fired yet."
+    private var cactusSourcePill: some View {
+        let healthy = store.cactus.isHealthy
+        return Text(store.cactus.sourceLabel)
+            .font(.system(size: 8, weight: .semibold, design: .monospaced))
+            .tracking(0.7)
+            .foregroundStyle(healthy ? Color.textMuted : Color.esoteric)
+            .padding(.horizontal, 6)
+            .padding(.vertical, 2)
+            .overlay(
+                Capsule()
+                    .stroke(healthy ? Color.bbBorder : Color.esoteric.opacity(0.6), lineWidth: 1)
+            )
+            .help(healthy
+                  ? "Cactus model loaded and answering."
+                  : "Cactus is not available — every whisper will fail. Install the Gemma weights.")
+    }
+
+    /// One-line footer under the AGENT pill: why the last tick produced no
+    /// card. Nil when the last tick shipped a card or the engine hasn't
+    /// ticked yet.
+    @ViewBuilder
+    private var whisperSkipFooter: some View {
+        if let reason = store.lastWhisperSkip, store.whisperEngine.isRunning {
+            Text(reason.displayText)
+                .font(.system(size: 8, weight: .regular, design: .monospaced))
+                .foregroundStyle(Color.textSubtle)
+                .lineLimit(2)
+                .frame(maxWidth: 140)
+                .multilineTextAlignment(.center)
         }
     }
 

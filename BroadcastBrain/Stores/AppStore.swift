@@ -40,6 +40,12 @@ final class AppStore {
     /// Set when Cactus isn't loaded or a completion fails. Nil when things
     /// are healthy.
     var inferenceWarning: String?
+    /// Why the autonomous whisper engine's most recent tick produced no card.
+    /// `nil` means the last tick either shipped a card or hasn't run yet.
+    /// Drives a small footer under the AGENT pill so the teammate can tell
+    /// "armed but waiting on plays" from "armed but Gemma refused" from
+    /// "armed but Cactus errored" at a glance. Cleared on successful emit.
+    var lastWhisperSkip: WhisperSkipReason?
     /// When true the ContentView presents NewMatchSheet. Driven by the sidebar
     /// `+ New Session` button. Dismissed on Cancel or Create.
     var showNewMatchSheet: Bool = false

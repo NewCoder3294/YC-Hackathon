@@ -81,6 +81,7 @@ final class WhisperEngine {
         // which spams the log and wastes an inference slot. Require plays.
         guard !plays.isEmpty else {
             log.debug("tick skip — no plays (no live feed attached)")
+            store.lastWhisperSkip = .noPlays
             return
         }
 
@@ -109,23 +110,28 @@ final class WhisperEngine {
             switch parsed {
             case .card(let card):
                 store.appendStatCard(card)
+                store.lastWhisperSkip = nil
                 if let answer = card.answer, !answer.isEmpty {
                     tts.speak(answer)
                 }
                 return
             case .noVerifiedData:
                 log.debug("tick skip — Gemma returned no_verified_data")
+                store.lastWhisperSkip = .noVerifiedData
                 return
             case .emptyAnswer:
                 log.debug("tick skip — Gemma JSON had empty answer; raw=\(reply.prefix(200), privacy: .public)")
+                store.lastWhisperSkip = .emptyAnswer
                 return
             case .unparseable:
                 log.debug("tick skip — could not extract JSON; raw=\(reply.prefix(200), privacy: .public)")
+                store.lastWhisperSkip = .unparseable
                 return
             }
         } catch {
             log.error("tick inference failed: \(error.localizedDescription, privacy: .public)")
             store.inferenceWarning = "Whisper engine: \(error.localizedDescription)"
+            store.lastWhisperSkip = .cactusError(message: error.localizedDescription)
         }
     }
 

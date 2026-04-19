@@ -30,6 +30,7 @@
 		5982407B776A2A4BF04125BA /* StatCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE64AD9C32691F3111C8595F /* StatCardView.swift */; };
 		668E3D8ECBB14F66D24A8041 /* ProseFallbackTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7F6464FB0E115048B55C10D /* ProseFallbackTests.swift */; };
 		67EED72EDEC3D8621574A4BC /* ResearchCenterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2268C5BB146969E1B046A49E /* ResearchCenterView.swift */; };
+		6BE3A2546DC025D95833AC70 /* WhisperSkipReasonTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 902EE6A3CCBEF8892C79DA93 /* WhisperSkipReasonTests.swift */; };
 		70BA18D24CCC880D502CADD7 /* SquadsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F4CA2B25FE5241CA80B742B /* SquadsView.swift */; };
 		70BC25E15A41151CA931A4B9 /* cactus-macos.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4132AE323E5FEB98D3E225B8 /* cactus-macos.xcframework */; };
 		73474C0EE14E2A4A9B79742C /* LivePaneView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01550DE4B92113B1173C6B2F /* LivePaneView.swift */; };
@@ -63,6 +64,7 @@
 		E62E673B7510F8836F233C33 /* GamePickerSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3FDFF807FEA6B6676655170 /* GamePickerSection.swift */; };
 		ED24D8E788873134C2FEEBCA /* SessionStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9F5FE8926459F794E4A039D /* SessionStore.swift */; };
 		EEFBFCCA69EEBE73B8C60048 /* WhisperEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2E07D63CC5BC4EF184BC54E /* WhisperEngine.swift */; };
+		F437225C32644C9A6999700D /* WhisperSkipReason.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B70ED90C7C37542D0CE02C3 /* WhisperSkipReason.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -102,6 +104,7 @@
 		449F32AE708B8F0B7E1572BA /* Fixture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Fixture.swift; sourceTree = "<group>"; };
 		46EAD55D55FDE50021FA38E3 /* SportradarBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SportradarBadge.swift; sourceTree = "<group>"; };
 		51919B20535309C89D4E15B9 /* Tokens.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tokens.swift; sourceTree = "<group>"; };
+		6B70ED90C7C37542D0CE02C3 /* WhisperSkipReason.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhisperSkipReason.swift; sourceTree = "<group>"; };
 		721C2BA2DE9BCD5F29F526F0 /* PlaysSearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaysSearchView.swift; sourceTree = "<group>"; };
 		74BDD1718E3C7B2706E4D9DB /* WhisperEngineDiagnosticTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhisperEngineDiagnosticTests.swift; sourceTree = "<group>"; };
 		757AB2F3C722DB4440337D1A /* PressToTalkButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PressToTalkButton.swift; sourceTree = "<group>"; };
@@ -113,6 +116,7 @@
 		8AE6D73A8667738DD33BAF2B /* LatencyTag.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LatencyTag.swift; sourceTree = "<group>"; };
 		8CC045EB8451818A6CD5A1ED /* ArchivesListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArchivesListView.swift; sourceTree = "<group>"; };
 		8F4CA2B25FE5241CA80B742B /* SquadsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SquadsView.swift; sourceTree = "<group>"; };
+		902EE6A3CCBEF8892C79DA93 /* WhisperSkipReasonTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhisperSkipReasonTests.swift; sourceTree = "<group>"; };
 		90487A3CA3F809A1CFB8ED20 /* BroadcastBrainApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BroadcastBrainApp.swift; sourceTree = "<group>"; };
 		90AFD39809B3E0BE8DF8644B /* CactusService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CactusService.swift; sourceTree = "<group>"; };
 		9AAA500ADFDDF5CAD7707BAD /* TranscriptOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptOverlay.swift; sourceTree = "<group>"; };
@@ -205,6 +209,7 @@
 				DC36DF2FCFDC28B51429E9F3 /* WhisperEngineBehaviorTests.swift */,
 				74BDD1718E3C7B2706E4D9DB /* WhisperEngineDiagnosticTests.swift */,
 				BA3B870DEFD9BD98A3095FDE /* WhisperEngineParsingTests.swift */,
+				902EE6A3CCBEF8892C79DA93 /* WhisperSkipReasonTests.swift */,
 			);
 			path = BroadcastBrainTests;
 			sourceTree = "<group>";
@@ -274,6 +279,7 @@
 				B6C9BEB6725DF3FCEF228A54 /* ModelInstaller.swift */,
 				417593F6AF33889059160790 /* SpeechSynthesisService.swift */,
 				C2E07D63CC5BC4EF184BC54E /* WhisperEngine.swift */,
+				6B70ED90C7C37542D0CE02C3 /* WhisperSkipReason.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -427,6 +433,7 @@
 				0E428B0EC28CFB5A54FCA9CC /* WhisperEngineBehaviorTests.swift in Sources */,
 				39C8F596B700D8D477A2FDAE /* WhisperEngineDiagnosticTests.swift in Sources */,
 				DC645883CE0EC00771D86B39 /* WhisperEngineParsingTests.swift in Sources */,
+				6BE3A2546DC025D95833AC70 /* WhisperSkipReasonTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -476,6 +483,7 @@
 				8597296F58177F87BE1CEE5E /* TranscriptOverlay.swift in Sources */,
 				4159423CA0FA24C223DB38E0 /* Waveform.swift in Sources */,
 				EEFBFCCA69EEBE73B8C60048 /* WhisperEngine.swift in Sources */,
+				F437225C32644C9A6999700D /* WhisperSkipReason.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -31,6 +31,9 @@ final class WhisperEngineBehaviorTests: XCTestCase {
             case .throwError(let e): throw e
             }
         }
+
+        var sourceLabel: String { "FAKE" }
+        var isHealthy: Bool { true }
     }
 
     /// Spy TTS — records calls without touching AVSpeechSynthesizer.

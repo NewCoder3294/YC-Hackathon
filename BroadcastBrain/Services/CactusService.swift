@@ -2,8 +2,21 @@ import Foundation
 
 /// Contract for the on-device LLM backend. Implemented by `RealCactusService`
 /// (Gemma on Cactus).
+///
+/// `sourceLabel` and `isHealthy` exist so the UI can display at a glance
+/// whether whispers are actually hitting Gemma or silently falling back.
+/// The teammate debugging the whisper agent had no way to tell which code
+/// path was running; the pill in the Live pane now makes this obvious.
 protocol CactusService: AnyObject {
     func complete(system: String, user: String) async throws -> String
+
+    /// Short human-readable label for the status pill. Short enough to fit
+    /// in ~12 chars of monospaced UI space.
+    var sourceLabel: String { get }
+
+    /// True when `complete(...)` has a realistic chance of returning useful
+    /// output. False for `UnavailableCactusService`. Drives the pill color.
+    var isHealthy: Bool { get }
 }
 
 /// Stand-in used when the Gemma model is missing or failed to initialize.
@@ -19,6 +32,9 @@ final class UnavailableCactusService: CactusService {
     func complete(system: String, user: String) async throws -> String {
         throw CactusError.initFailed(reason)
     }
+
+    var sourceLabel: String { "UNAVAILABLE" }
+    var isHealthy: Bool { false }
 }
 
 enum CactusError: Error, LocalizedError {
@@ -96,6 +112,9 @@ final class RealCactusService: CactusService {
 
         return Self.extractContent(from: raw)
     }
+
+    var sourceLabel: String { "REAL · GEMMA" }
+    var isHealthy: Bool { true }
 
     /// Cactus chat completions have shipped at least three envelope shapes:
     ///   - OpenAI-compatible:  `.choices[0].message.content`
