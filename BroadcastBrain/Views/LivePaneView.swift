@@ -809,12 +809,11 @@ struct LivePaneView: View {
                     Task { @MainActor in
                         guard store.liveState == .listening else { return }
                         // The speakers feed audio back into the mic — STT
-                        // happily transcribes our own TTS. Drop everything
-                        // captured while speaking (plus a short cooldown) and
-                        // advance the cumulative marker so the echoed text
-                        // never re-enters the pipeline once TTS ends.
+                        // happily transcribes our own TTS. Mark every sentence
+                        // captured while speaking as already-emitted, so once
+                        // TTS ends the echoed text can't re-enter Gemma.
                         if store.speech.isEchoLikely {
-                            lastHandledSegment = partial.trimmingCharacters(in: .whitespacesAndNewlines)
+                            sentenceExtractor.suppress(cumulative: partial)
                             return
                         }
                         store.partialTranscript = partial
@@ -828,8 +827,9 @@ struct LivePaneView: View {
                 audio.onSegment = { segment in
                     Task { @MainActor in
                         if store.speech.isEchoLikely {
-                            // Echoed TTS reached isFinal — discard it entirely.
-                            lastHandledSegment = ""
+                            // Echoed TTS reached isFinal — mark everything in
+                            // this final segment as already-handled and bail.
+                            sentenceExtractor.suppress(cumulative: segment)
                             return
                         }
                         // SFSpeechRecognizer fired isFinal — treat whatever remains

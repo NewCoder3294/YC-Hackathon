@@ -60,6 +60,18 @@ struct SentenceExtractor {
         return newlyEmitted
     }
 
+    /// Mark every sentence in `cumulative` as already-emitted without
+    /// returning it. Used when the mic captures our own TTS — STT transcribes
+    /// the echo, but we don't want those sentences to hit Gemma. After the
+    /// next real partial arrives, only genuinely new sentences emit.
+    mutating func suppress(cumulative: String) {
+        let candidates = Self.scanSentences(in: cumulative, forceFinal: true)
+        for sentence in candidates {
+            let key = Self.canonical(sentence)
+            if !key.isEmpty { emitted.insert(key) }
+        }
+    }
+
     // MARK: - Internals
 
     /// Break `text` on sentence-ending punctuation (`.`, `!`, `?`) followed by
