@@ -12,6 +12,7 @@
 		0CC48F247E683B3FB185A6FB /* PlayByPlayStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 846A697EC3777956030AC4C3 /* PlayByPlayStore.swift */; };
 		0E428B0EC28CFB5A54FCA9CC /* WhisperEngineBehaviorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC36DF2FCFDC28B51429E9F3 /* WhisperEngineBehaviorTests.swift */; };
 		0F02EBD664051BF052EF7012 /* ModelCodableTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2491DE25F4F75DA94526903 /* ModelCodableTests.swift */; };
+		0FA70BF69FB32BAA9788E22E /* SentenceExtractorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D874A533E0F018A9307A1ED9 /* SentenceExtractorTests.swift */; };
 		162B595396D5974D448E5A8C /* AppStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5C2E3CFAB5CA8C1AD68FB5B /* AppStore.swift */; };
 		164F7E394D28280CBD14A11D /* StackCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10B521A0B659765D883F5E4C /* StackCard.swift */; };
 		30702CFDAB6E91475D9965F5 /* ChatMessageRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4F1237976FCC7179733FC75 /* ChatMessageRow.swift */; };
@@ -43,6 +44,7 @@
 		A89965156588F66B60F4788A /* cactus-macos.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 4132AE323E5FEB98D3E225B8 /* cactus-macos.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		AE9607AB8A5E0C197FFB861E /* PlayerCellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 029080D103ECBCC33E9E38F8 /* PlayerCellView.swift */; };
 		B0DA6E09C0BD2DD22E1CCC99 /* match_cache.json in Resources */ = {isa = PBXBuildFile; fileRef = AF50D005DA852CAE53DC0E99 /* match_cache.json */; };
+		B1D89807067C08D7F055341A /* SentenceExtractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C549E020D2946804B2495198 /* SentenceExtractor.swift */; };
 		B28DD1DE6BE6197370BB602C /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAB90A6DC8002673826C8BD0 /* ContentView.swift */; };
 		B2FBCA5535B628A8827395B7 /* PlaysStreamView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C131AA2D56A147325E0E848 /* PlaysStreamView.swift */; };
 		B6F4346E4C192BF816F68EAA /* Cactus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82B9451069B6343C41C337AC /* Cactus.swift */; };
@@ -130,10 +132,12 @@
 		BAB90A6DC8002673826C8BD0 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		C2E07D63CC5BC4EF184BC54E /* WhisperEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhisperEngine.swift; sourceTree = "<group>"; };
 		C3A6A719D484016893C42760 /* MatchCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MatchCache.swift; sourceTree = "<group>"; };
+		C549E020D2946804B2495198 /* SentenceExtractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentenceExtractor.swift; sourceTree = "<group>"; };
 		C706D6F845EC11E12CA3B0F5 /* BroadcastBrain.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = BroadcastBrain.entitlements; sourceTree = "<group>"; };
 		C9F5FE8926459F794E4A039D /* SessionStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionStore.swift; sourceTree = "<group>"; };
 		CD1186F00AC31EE683675AE6 /* SessionStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionStoreTests.swift; sourceTree = "<group>"; };
 		D4AB5137E64A892F3AD5B6E2 /* ModelSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelSetupView.swift; sourceTree = "<group>"; };
+		D874A533E0F018A9307A1ED9 /* SentenceExtractorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentenceExtractorTests.swift; sourceTree = "<group>"; };
 		DC36DF2FCFDC28B51429E9F3 /* WhisperEngineBehaviorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhisperEngineBehaviorTests.swift; sourceTree = "<group>"; };
 		E5059B3472C8B2022AC33356 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		E714CFC5D1F7C7748D159C9D /* NewMatchSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewMatchSheet.swift; sourceTree = "<group>"; };
@@ -171,6 +175,7 @@
 				721C2BA2DE9BCD5F29F526F0 /* PlaysSearchView.swift */,
 				7C131AA2D56A147325E0E848 /* PlaysStreamView.swift */,
 				2268C5BB146969E1B046A49E /* ResearchCenterView.swift */,
+				C549E020D2946804B2495198 /* SentenceExtractor.swift */,
 				FD1F4DAD40C5C4BFB52EA58D /* SidebarView.swift */,
 				8F4CA2B25FE5241CA80B742B /* SquadsView.swift */,
 				576EFBB721C77F668145738B /* Components */,
@@ -192,6 +197,7 @@
 				AE192E5776E2B9A67F110CB8 /* CactusServiceTests.swift */,
 				449F32AE708B8F0B7E1572BA /* Fixture.swift */,
 				B2491DE25F4F75DA94526903 /* ModelCodableTests.swift */,
+				D874A533E0F018A9307A1ED9 /* SentenceExtractorTests.swift */,
 				CD1186F00AC31EE683675AE6 /* SessionStoreTests.swift */,
 				DC36DF2FCFDC28B51429E9F3 /* WhisperEngineBehaviorTests.swift */,
 				74BDD1718E3C7B2706E4D9DB /* WhisperEngineDiagnosticTests.swift */,
@@ -412,6 +418,7 @@
 				9336FDBA329EA3138DAC0282 /* CactusServiceTests.swift in Sources */,
 				D44BEC0D3D9840E6A3A7B4E8 /* Fixture.swift in Sources */,
 				0F02EBD664051BF052EF7012 /* ModelCodableTests.swift in Sources */,
+				0FA70BF69FB32BAA9788E22E /* SentenceExtractorTests.swift in Sources */,
 				034498E25A8850984493C9E2 /* SessionStoreTests.swift in Sources */,
 				0E428B0EC28CFB5A54FCA9CC /* WhisperEngineBehaviorTests.swift in Sources */,
 				39C8F596B700D8D477A2FDAE /* WhisperEngineDiagnosticTests.swift in Sources */,
@@ -450,6 +457,7 @@
 				B2FBCA5535B628A8827395B7 /* PlaysStreamView.swift in Sources */,
 				41B921C4FB590088E94910D6 /* PressToTalkButton.swift in Sources */,
 				67EED72EDEC3D8621574A4BC /* ResearchCenterView.swift in Sources */,
+				B1D89807067C08D7F055341A /* SentenceExtractor.swift in Sources */,
 				C2EC1CB5DC0D4914B540E12A /* Session.swift in Sources */,
 				ED24D8E788873134C2FEEBCA /* SessionStore.swift in Sources */,
 				053617CC8A80BFBB884CF402 /* SidebarView.swift in Sources */,

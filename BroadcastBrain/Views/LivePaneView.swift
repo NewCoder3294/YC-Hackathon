@@ -8,7 +8,9 @@ struct LivePaneView: View {
     @State private var audio = AudioCaptureService()
     @State private var permState: PermissionState = .unknown
     @State private var debounceTask: Task<Void, Never>?
-    @State private var lastHandledSegment: String = ""
+    /// Dedups sentences shipped to `handleSegment`. Replaces the prefix-match
+    /// `lastHandledSegment` that was mis-emitting on STT revisions.
+    @State private var sentenceExtractor = SentenceExtractor()
     @State private var showEndConfirm: Bool = false
     @State private var whisperArmed: Bool = false
     @State private var recordingStartedAt: Date?
@@ -651,7 +653,7 @@ struct LivePaneView: View {
         // 1. Stop mic cleanly
         audio.stop()
         debounceTask?.cancel()
-        lastHandledSegment = ""
+        sentenceExtractor.reset()
         whisperArmed = false
         recordingStartedAt = nil
         store.liveState = .idle
@@ -788,10 +790,10 @@ struct LivePaneView: View {
                         }
                         // SFSpeechRecognizer fired isFinal — treat whatever remains
                         // as a final sentence even if it doesn't end in punctuation.
+                        // Dedup in SentenceExtractor carries across task boundaries
+                        // so a final segment that repeats an already-shipped partial
+                        // is correctly suppressed. No per-task reset here.
                         await emitCompleteSentences(fromCumulative: segment, forceFinal: true)
-                        // Reset cumulative tracking; the next recognition task
-                        // starts fresh from char 0.
-                        lastHandledSegment = ""
                     }
                 }
                 audio.onError = { err in
@@ -823,7 +825,7 @@ struct LivePaneView: View {
     private func stopListening() {
         audio.stop()
         debounceTask?.cancel()
-        lastHandledSegment = ""
+        sentenceExtractor.reset()
         store.liveState = .idle
         store.partialTranscript = ""
         recordingStartedAt = nil
@@ -832,69 +834,13 @@ struct LivePaneView: View {
     }
 
     /// Extract any complete sentences from the current cumulative transcript
-    /// and ship each as its own transcript line + Gemma call. Incomplete tail
-    /// stays unhandled until more audio completes the sentence — or, on
-    /// `forceFinal`, is emitted as-is.
+    /// and ship each as its own transcript line + Gemma call. Dedup lives in
+    /// `SentenceExtractor` — STT revisions (comma added/dropped, word
+    /// substituted) do not cause re-emission.
     @MainActor
     private func emitCompleteSentences(fromCumulative cumulative: String, forceFinal: Bool) async {
-        // Advance past whatever was already handled within this cumulative text.
-        var workingTail: String
-        if !lastHandledSegment.isEmpty, cumulative.hasPrefix(lastHandledSegment) {
-            workingTail = String(cumulative.dropFirst(lastHandledSegment.count))
-        } else {
-            workingTail = cumulative
-        }
-        workingTail = workingTail.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !workingTail.isEmpty else { return }
-
-        // Pull off each complete sentence (text up to `.`, `!`, or `?` followed
-        // by whitespace/end). The remainder is the incomplete tail.
-        var emitted: [String] = []
-        var buffer = ""
-        var chars = Array(workingTail)
-        var i = 0
-        while i < chars.count {
-            let ch = chars[i]
-            buffer.append(ch)
-            if ch == "." || ch == "!" || ch == "?" {
-                // Consume any trailing punctuation (e.g. "?!")
-                while i + 1 < chars.count, ["!", "?", "."].contains(chars[i + 1]) {
-                    i += 1
-                    buffer.append(chars[i])
-                }
-                // Sentence boundary only if followed by whitespace or end of text
-                let next = i + 1 < chars.count ? chars[i + 1] : nil
-                let boundary = next == nil || next!.isWhitespace
-                if boundary {
-                    let sentence = buffer.trimmingCharacters(in: .whitespacesAndNewlines)
-                    if sentence.count > 1 {
-                        emitted.append(sentence)
-                    }
-                    buffer = ""
-                }
-            }
-            i += 1
-        }
-
-        if forceFinal {
-            let tail = buffer.trimmingCharacters(in: .whitespacesAndNewlines)
-            if tail.count > 1 { emitted.append(tail) }
-            buffer = ""
-        }
-
-        guard !emitted.isEmpty else { return }
-
-        // Track the new cumulative position: everything in `cumulative` minus
-        // any still-incomplete trailing buffer. We advance lastHandledSegment so
-        // the next partial skips what we already emitted.
-        let incompleteTailLen = buffer.trimmingCharacters(in: .whitespacesAndNewlines).count
-        let totalLen = cumulative.count
-        let keepLen = max(0, totalLen - incompleteTailLen)
-        let prefixEnd = cumulative.index(cumulative.startIndex, offsetBy: keepLen)
-        lastHandledSegment = String(cumulative[..<prefixEnd])
-            .trimmingCharacters(in: .whitespacesAndNewlines)
-
-        for sentence in emitted {
+        let sentences = sentenceExtractor.ingest(cumulative: cumulative, forceFinal: forceFinal)
+        for sentence in sentences {
             await handleSegment(sentence)
         }
     }
