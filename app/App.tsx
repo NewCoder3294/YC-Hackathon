@@ -1,5 +1,5 @@
 import '@expo/metro-runtime';
-import React from 'react';
+import React, { useState } from 'react';
 import {
   IBMPlexMono_400Regular,
   IBMPlexMono_600SemiBold,
@@ -9,7 +9,10 @@ import {
 import { Text, View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { FONT_MONO, tokens } from './src/theme/tokens';
+import { AppSidebar, ScreenId } from './src/navigation/AppSidebar';
+import { AgentScreen } from './src/screens/AgentScreen';
 import { SpottingBoardScreen } from './src/screens/SpottingBoardScreen';
+import { Feature2Screen } from './src/screens/Feature2Screen';
 
 export default function App() {
   const [fontsLoaded] = useFonts({
@@ -17,6 +20,8 @@ export default function App() {
     [`${FONT_MONO}-SemiBold`]: IBMPlexMono_600SemiBold,
     [`${FONT_MONO}-Bold`]: IBMPlexMono_700Bold,
   });
+
+  const [screen, setScreen] = useState<ScreenId>('F1');
 
   if (!fontsLoaded) {
     return (
@@ -27,9 +32,14 @@ export default function App() {
   }
 
   return (
-    <View style={{ flex: 1, backgroundColor: tokens.bgBase }}>
+    <View style={{ flex: 1, flexDirection: 'row', backgroundColor: tokens.bgBase }}>
       <StatusBar style="light" />
-      <SpottingBoardScreen />
+      <AppSidebar active={screen} onChange={setScreen} />
+      <View style={{ flex: 1 }}>
+        {screen === 'AGENT' && <AgentScreen />}
+        {screen === 'F1'    && <SpottingBoardScreen />}
+        {screen === 'F2'    && <Feature2Screen />}
+      </View>
     </View>
   );
 }
