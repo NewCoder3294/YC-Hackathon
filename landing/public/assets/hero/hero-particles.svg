@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice">
+  <style>
+    .p { animation: float 10s ease-in-out infinite; transform-origin: center; }
+    .p1 { animation-delay: 0s; animation-duration: 8s; }
+    .p2 { animation-delay: 1.2s; animation-duration: 11s; }
+    .p3 { animation-delay: 2.4s; animation-duration: 9s; }
+    .p4 { animation-delay: 0.8s; animation-duration: 12s; }
+    .p5 { animation-delay: 3.1s; animation-duration: 10s; }
+    .p6 { animation-delay: 1.8s; animation-duration: 13s; }
+    .p7 { animation-delay: 2.7s; animation-duration: 8s; }
+    .p8 { animation-delay: 4.2s; animation-duration: 11s; }
+    @keyframes float {
+      0%, 100% { transform: translate(0, 0); opacity: 0.15; }
+      50%      { transform: translate(15px, -20px); opacity: 0.5; }
+    }
+    .ping { animation: ping 4s ease-out infinite; transform-origin: center; transform-box: fill-box; }
+    .ping1 { animation-delay: 0s; }
+    .ping2 { animation-delay: 1.3s; }
+    .ping3 { animation-delay: 2.6s; }
+    @keyframes ping {
+      0%   { transform: scale(1); opacity: 0.6; }
+      100% { transform: scale(6); opacity: 0; }
+    }
+  </style>
+
+  <!-- Static dots -->
+  <g fill="#FAFAFA">
+    <circle class="p p1" cx="180"  cy="140" r="1.5" opacity="0.3"/>
+    <circle class="p p2" cx="340"  cy="80"  r="1"   opacity="0.25"/>
+    <circle class="p p3" cx="520"  cy="200" r="1.5" opacity="0.2"/>
+    <circle class="p p4" cx="780"  cy="120" r="1"   opacity="0.35"/>
+    <circle class="p p5" cx="1020" cy="180" r="1.5" opacity="0.25"/>
+    <circle class="p p6" cx="1240" cy="90"  r="1"   opacity="0.3"/>
+    <circle class="p p7" cx="1420" cy="200" r="1.5" opacity="0.2"/>
+    <circle class="p p8" cx="260"  cy="720" r="1"   opacity="0.3"/>
+    <circle class="p p1" cx="480"  cy="780" r="1.5" opacity="0.2"/>
+    <circle class="p p3" cx="720"  cy="700" r="1"   opacity="0.3"/>
+    <circle class="p p5" cx="980"  cy="770" r="1.5" opacity="0.25"/>
+    <circle class="p p7" cx="1300" cy="740" r="1"   opacity="0.2"/>
+  </g>
+
+  <!-- Signal pings (emanating rings like broadcast beacons) -->
+  <g fill="none" stroke="#EF4444" stroke-width="1">
+    <circle class="ping ping1" cx="200" cy="450" r="3"/>
+    <circle class="ping ping2" cx="800" cy="350" r="3"/>
+    <circle class="ping ping3" cx="1300" cy="500" r="3"/>
+  </g>
+
+  <!-- Origin dots for pings -->
+  <g fill="#EF4444">
+    <circle cx="200" cy="450" r="2" opacity="0.8"/>
+    <circle cx="800" cy="350" r="2" opacity="0.8"/>
+    <circle cx="1300" cy="500" r="2" opacity="0.8"/>
+  </g>
+</svg>

@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 300" fill="none">
+  <style>
+    .sig-ring { animation: ring 2s ease-out infinite; transform-origin: 195px 110px; }
+    .sr1 { animation-delay: 0s; }
+    .sr2 { animation-delay: 0.6s; }
+    .sr3 { animation-delay: 1.2s; }
+    @keyframes ring {
+      0%   { transform: scale(0.6); opacity: 0.8; }
+      100% { transform: scale(1.6); opacity: 0; }
+    }
+  </style>
+
+  <!-- Signal rings emanating from mic -->
+  <g fill="none" stroke="#EF4444" stroke-width="1.25">
+    <circle class="sig-ring sr1" cx="195" cy="110" r="10"/>
+    <circle class="sig-ring sr2" cx="195" cy="110" r="10"/>
+    <circle class="sig-ring sr3" cx="195" cy="110" r="10"/>
+  </g>
+
+  <!-- Head (profile, facing right) -->
+  <g fill="#0A0A0A" stroke="#FAFAFA" stroke-width="1.5" stroke-linejoin="round">
+    <!-- Head shape -->
+    <path d="M 130 70
+             C 105 70, 85 90, 85 115
+             L 85 145
+             C 85 160, 92 170, 100 175
+             L 100 195
+             L 140 195
+             L 140 185
+             C 160 180, 170 160, 170 140
+             L 170 110
+             C 170 85, 152 70, 130 70 Z"/>
+    <!-- Neck/shoulder area -->
+    <path d="M 100 195 L 100 220 L 60 240 L 60 300 L 200 300 L 200 240 L 160 220 L 140 195"
+          fill="#0A0A0A"/>
+  </g>
+
+  <!-- Face features (minimal) -->
+  <g fill="#FAFAFA">
+    <!-- Eye -->
+    <circle cx="150" cy="120" r="1.5"/>
+    <!-- Mouth line -->
+    <line x1="155" y1="150" x2="165" y2="148" stroke="#FAFAFA" stroke-width="1.25" stroke-linecap="round"/>
+  </g>
+
+  <!-- Headset band (over head) -->
+  <path d="M 88 95
+           C 88 55, 130 45, 160 55
+           C 180 62, 180 75, 178 90"
+        fill="none" stroke="#FAFAFA" stroke-width="3" stroke-linecap="round"/>
+
+  <!-- Ear cup -->
+  <ellipse cx="120" cy="125" rx="12" ry="18" fill="#141414" stroke="#FAFAFA" stroke-width="1.5"/>
+  <ellipse cx="120" cy="125" rx="8" ry="14" fill="#0A0A0A"/>
+
+  <!-- Boom mic arm -->
+  <path d="M 115 135 C 150 145, 185 115, 195 110"
+        fill="none" stroke="#FAFAFA" stroke-width="1.5" stroke-linecap="round"/>
+
+  <!-- Mic head -->
+  <ellipse cx="195" cy="110" rx="6" ry="8" fill="#141414" stroke="#FAFAFA" stroke-width="1.5"/>
+  <ellipse cx="195" cy="110" rx="3" ry="5" fill="#EF4444"/>
+
+  <!-- Cable loop -->
+  <path d="M 100 195 C 90 210, 95 225, 108 230"
+        fill="none" stroke="#737373" stroke-width="1" stroke-linecap="round"/>
+</svg>

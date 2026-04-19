@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <radialGradient id="stadium-glow" cx="50%" cy="30%" r="70%">
+      <stop offset="0%"  stop-color="#1C1C1C"/>
+      <stop offset="45%" stop-color="#0F0F0F"/>
+      <stop offset="100%" stop-color="#050505"/>
+    </radialGradient>
+    <radialGradient id="light-left" cx="15%" cy="20%" r="40%">
+      <stop offset="0%"  stop-color="#FAFAFA" stop-opacity="0.08"/>
+      <stop offset="100%" stop-color="#FAFAFA" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="light-right" cx="85%" cy="25%" r="35%">
+      <stop offset="0%"  stop-color="#EF4444" stop-opacity="0.06"/>
+      <stop offset="100%" stop-color="#EF4444" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="grain" x="0" y="0" width="4" height="4" patternUnits="userSpaceOnUse">
+      <rect width="4" height="4" fill="transparent"/>
+      <circle cx="1" cy="1" r="0.4" fill="#FAFAFA" fill-opacity="0.015"/>
+      <circle cx="3" cy="2.5" r="0.3" fill="#FAFAFA" fill-opacity="0.02"/>
+    </pattern>
+  </defs>
+  <rect width="1600" height="900" fill="url(#stadium-glow)"/>
+  <rect width="1600" height="900" fill="url(#light-left)"/>
+  <rect width="1600" height="900" fill="url(#light-right)"/>
+  <rect width="1600" height="900" fill="url(#grain)"/>
+  <!-- Horizon line -->
+  <line x1="0" y1="620" x2="1600" y2="620" stroke="#262626" stroke-width="1"/>
+</svg>

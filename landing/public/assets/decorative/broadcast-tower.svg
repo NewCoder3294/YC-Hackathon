@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 240" fill="none">
+  <style>
+    .wave-r { animation: waveR 2.5s ease-out infinite; transform-origin: 100px 60px; }
+    .w1 { animation-delay: 0s; }
+    .w2 { animation-delay: 0.8s; }
+    .w3 { animation-delay: 1.6s; }
+    @keyframes waveR {
+      0%   { transform: scale(0.3); opacity: 0.8; }
+      100% { transform: scale(2); opacity: 0; }
+    }
+    .blink { animation: blink 1.5s ease-in-out infinite; }
+    @keyframes blink { 0%,100%{opacity:0.3} 50%{opacity:1} }
+  </style>
+
+  <!-- Signal waves emanating -->
+  <g fill="none" stroke="#EF4444" stroke-width="1.5">
+    <circle class="wave-r w1" cx="100" cy="60" r="20"/>
+    <circle class="wave-r w2" cx="100" cy="60" r="20"/>
+    <circle class="wave-r w3" cx="100" cy="60" r="20"/>
+  </g>
+
+  <!-- Tower -->
+  <g stroke="#FAFAFA" stroke-width="1.25" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Top antenna -->
+    <line x1="100" y1="20" x2="100" y2="60"/>
+    <!-- Beacon on top -->
+    <circle class="blink" cx="100" cy="20" r="3" fill="#EF4444" stroke="none"/>
+
+    <!-- Outer legs -->
+    <line x1="76" y1="220" x2="100" y2="60"/>
+    <line x1="124" y1="220" x2="100" y2="60"/>
+
+    <!-- Cross supports -->
+    <line x1="94" y1="100" x2="106" y2="100"/>
+    <line x1="90" y1="125" x2="110" y2="125"/>
+    <line x1="86" y1="150" x2="114" y2="150"/>
+    <line x1="82" y1="180" x2="118" y2="180"/>
+
+    <!-- X braces -->
+    <line x1="94" y1="100" x2="106" y2="125"/>
+    <line x1="106" y1="100" x2="94" y2="125"/>
+    <line x1="90" y1="125" x2="110" y2="150"/>
+    <line x1="110" y1="125" x2="90" y2="150"/>
+    <line x1="86" y1="150" x2="114" y2="180"/>
+    <line x1="114" y1="150" x2="86" y2="180"/>
+    <line x1="82" y1="180" x2="118" y2="220"/>
+    <line x1="118" y1="180" x2="82" y2="220"/>
+
+    <!-- Base platform -->
+    <rect x="60" y="220" width="80" height="4" fill="#141414" stroke="#FAFAFA"/>
+  </g>
+
+  <!-- Ground shadow -->
+  <ellipse cx="100" cy="228" rx="50" ry="3" fill="#0A0A0A" opacity="0.6"/>
+</svg>
