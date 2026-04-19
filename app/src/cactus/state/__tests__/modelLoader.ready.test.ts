@@ -11,14 +11,16 @@ jest.mock('../../client', () => {
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const { __mockEnsureLoaded } = require('../../client') as { __mockEnsureLoaded: jest.Mock };
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const { useModelLoader } = require('../modelLoader') as typeof import('../modelLoader');
 
 describe('modelLoader.reset', () => {
   beforeEach(() => {
     __mockEnsureLoaded.mockReset();
+    useModelLoader.getState().reset();
   });
 
   it('clears error state and allows re-invocation', async () => {
-    const { useModelLoader } = require('../modelLoader');
     __mockEnsureLoaded.mockRejectedValueOnce(new Error('boom'));
 
     await act(async () => {
