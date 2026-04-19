@@ -79,6 +79,15 @@ struct LivePaneView: View {
                         .font(Typography.chip)
                         .foregroundStyle(Color.live)
                 }
+
+                Button(action: clearSession) {
+                    Image(systemName: "trash")
+                        .font(.system(size: 11))
+                        .foregroundStyle(Color.textSubtle)
+                }
+                .buttonStyle(.plain)
+                .help("Clear transcript and stat cards in this session")
+                .disabled(store.currentSession.transcript.isEmpty && store.currentSession.statCards.isEmpty)
             }
 
             if let banner = permState.bannerText {
@@ -215,6 +224,13 @@ struct LivePaneView: View {
                 Spacer(minLength: 0)
             }
         }
+    }
+
+    private func clearSession() {
+        store.currentSession.transcript = ""
+        store.currentSession.statCards = []
+        store.partialTranscript = ""
+        store.sessionStore.save(store.currentSession)
     }
 
     private func openSettings(section: String) {
