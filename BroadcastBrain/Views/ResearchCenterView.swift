@@ -40,7 +40,11 @@ struct ResearchCenterView: View {
         if store.spottingMode == nil {
             ZStack {
                 Color.bgBase
-                DottedGrid()
+                DottedGrid(
+                    dotColor: Color.textPrimary.opacity(0.28),
+                    spacing: 22,
+                    dotSize: 2.4
+                )
                 CommentatorStylePickerView()
             }
         } else if store.spottingMode == .stats {
