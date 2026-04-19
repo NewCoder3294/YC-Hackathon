@@ -121,16 +121,15 @@ export function SpottingBoardScreen() {
           />
         )}
 
-        {/* Mode picker overlay */}
+        {/* Mode picker overlay — no backdrop tint; card carries its own boxShadow */}
         {pickerOpen && (
           <View
             style={{
               position: 'absolute',
-              top: 0,
+              top: -28,
               left: 0,
               right: 0,
               bottom: 0,
-              backgroundColor: 'rgba(0,0,0,0.55)',
               alignItems: 'center',
               justifyContent: 'center',
               zIndex: 30,

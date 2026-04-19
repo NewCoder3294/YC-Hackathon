@@ -34,7 +34,7 @@ export function PlayerDetailDrawer({
         backgroundColor: tokens.bgRaised,
         borderLeftWidth: 1,
         borderLeftColor: tokens.border,
-        boxShadow: '-14px 0 40px rgba(0,0,0,0.6)',
+        boxShadow: tokens.shadowDrawer,
         zIndex: 20,
       }}
     >

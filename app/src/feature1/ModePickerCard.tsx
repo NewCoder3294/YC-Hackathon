@@ -21,7 +21,7 @@ export function ModePickerCard({ onPick, onSkip }: Props = {}) {
         borderRadius: 10,
         paddingVertical: 18,
         paddingHorizontal: 22,
-        boxShadow: '0 18px 50px rgba(0,0,0,0.6)',
+        boxShadow: tokens.shadowCard,
       }}
     >
       {/* Header */}
