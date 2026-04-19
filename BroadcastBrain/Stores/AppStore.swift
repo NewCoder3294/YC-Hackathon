@@ -106,6 +106,22 @@ final class AppStore {
         }
     }
 
+    /// The bundled match_cache is only valid for the match it was authored
+    /// against (currently Argentina vs France 2022). Injecting its facts into
+    /// an unrelated session's prompt causes Gemma to hallucinate Messi/Mbappé
+    /// stats for whatever the commentator is actually talking about. Require
+    /// both team names to appear in the cache title before using it.
+    var matchCacheForCurrentSession: MatchCache? {
+        guard let cache = matchCache, let match = currentSession.match else { return nil }
+        let cacheTitle = cache.title.lowercased()
+        let home = match.homeTeam.lowercased()
+        let away = match.awayTeam.lowercased()
+        guard !home.isEmpty, !away.isEmpty,
+              cacheTitle.contains(home), cacheTitle.contains(away)
+        else { return nil }
+        return cache
+    }
+
     func appendStatCard(_ card: StatCard) {
         currentSession.statCards.append(card)
         sessionStore.save(currentSession)

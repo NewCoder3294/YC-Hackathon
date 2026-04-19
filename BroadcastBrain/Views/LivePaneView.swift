@@ -901,7 +901,22 @@ struct LivePaneView: View {
 
         let started = Date()
 
-        let facts = store.matchCache?.facts.prefix(8).joined(separator: "\n- ") ?? ""
+        // Grounding sources, strongest first:
+        //   (a) live ESPN play-by-play — cached to
+        //       ~/Library/Application Support/BroadcastBrain/playbyplay/<league>/<gameId>.json
+        //       via PlayByPlayKit's LiveSession. We read the last 30 from the
+        //       in-memory mirror, which is kept in sync with that JSON on each poll.
+        //   (b) bundled match_cache.json — only when its teams match this session.
+        let livePlays = Array(store.playByPlayStore.plays.suffix(30))
+        let compact = store.playByPlayStore.currentCompact
+        let playsBlock = WhisperEngine.renderPlays(livePlays, compact: compact)
+        let havePlays = !playsBlock.isEmpty
+
+        let cache = store.matchCacheForCurrentSession
+        let facts = cache?.facts.prefix(8).joined(separator: "\n- ") ?? ""
+        let haveFacts = !facts.isEmpty
+        let haveGrounding = havePlays || haveFacts
+
         let system = """
         You are a sports broadcast agent for a live football commentator. Route the
         commentator's last utterance to one of two output kinds — this is the
@@ -920,17 +935,30 @@ struct LivePaneView: View {
         If the utterance is prefixed with [BTW], the commentator explicitly
         triggered whisper mode — FORCE a whisper answer regardless of phrasing.
 
-        Answer ONLY from the verified match facts below. If no fact matches, return
-        {"no_verified_data":true}. Return ONLY JSON, no other text.
+        Ground every answer in the data block below. The "Recent plays" list is
+        the official ESPN feed — it is the authoritative source for live state
+        like the current score, minute, possession, goals, cards, and subs.
+        Match facts give pre-match context.
+
+        If BOTH the plays list and the facts list are missing or say "(no data)",
+        return {"no_verified_data":true}. Do NOT invent scores, minutes, or
+        stats. Return ONLY a single JSON object — no prose, no markdown fences.
         """
         // Prefix [BTW] so Gemma's system prompt routes this as a whisper
         // regardless of phrasing.
         let utterance = forceWhisper ? "[BTW] \(transcript)" : transcript
+        let factsBlock = haveFacts ? "- \(facts)" : "(no data)"
+        let playsRendered = havePlays ? playsBlock : "(no data — no live feed attached)"
         let user = """
-        Match facts:
-        - \(facts)
+        Match: \(store.currentSession.title).
 
-        Commentator just said: "\(utterance)". Match: \(store.currentSession.title).
+        Recent plays (most recent last, \(livePlays.count) of last 30):
+        \(playsRendered)
+
+        Match facts:
+        \(factsBlock)
+
+        Commentator just said: "\(utterance)".
         """
 
         do {
@@ -941,6 +969,43 @@ struct LivePaneView: View {
 
             if let card = parseStatCard(reply, raw: transcript, latencyMs: latency) {
                 store.appendStatCard(card)
+                // Whisper answers are user-directed prose — speak them. Stat
+                // cards are visual only.
+                if card.kind == .whisper, let answer = card.answer, !answer.isEmpty {
+                    store.speech.speak(answer)
+                }
+            } else if forceWhisper {
+                // Gemma-1B frequently emits prose instead of JSON even when
+                // the system prompt forbids it. The prose is only trustworthy
+                // if we actually handed Gemma grounding data (plays or facts).
+                // Without grounding, any specific number it produces is a
+                // hallucination — refuse to speak it.
+                if !haveGrounding {
+                    let msg = "No live feed is attached to this session, so I can't answer that."
+                    let card = StatCard(
+                        kind: .whisper,
+                        player: "Agent",
+                        rawTranscript: transcript,
+                        latencyMs: latency,
+                        answer: msg
+                    )
+                    store.appendStatCard(card)
+                    store.speech.speak(msg)
+                    print("[live] whisper refused — no grounding; raw=\(reply.prefix(120))")
+                } else if let fallback = Self.proseFallbackAnswer(from: reply) {
+                    let card = StatCard(
+                        kind: .whisper,
+                        player: "Agent",
+                        rawTranscript: transcript,
+                        latencyMs: latency,
+                        answer: fallback
+                    )
+                    store.appendStatCard(card)
+                    store.speech.speak(fallback)
+                    print("[live] prose fallback whisper: \(fallback)")
+                } else {
+                    print("[live] whisper reply unusable, raw=\(reply.prefix(200))")
+                }
             }
         } catch {
             print("Gemma error on segment '\(transcript)': \(error)")
@@ -948,8 +1013,58 @@ struct LivePaneView: View {
         }
     }
 
+    /// Best-effort conversion of a prose Gemma reply into a single-sentence
+    /// whisper answer. Strips markdown fences, drops any leading meta-chatter
+    /// ("Okay, let's break down…"), and caps at ~220 chars so TTS doesn't
+    /// narrate a page of text.
+    private static func proseFallbackAnswer(from raw: String) -> String? {
+        let trimmed = raw.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return nil }
+        // Split on blank lines; prefer the first paragraph that isn't a
+        // Gemma-ism like "Please provide me with the context!".
+        let paragraphs = trimmed
+            .components(separatedBy: "\n\n")
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
+        let meaningless: [String] = [
+            "please provide",
+            "i need more information",
+            "as an ai",
+            "i am a large language model",
+            "i'm sorry",
+            "okay, let's"
+        ]
+        let candidate = paragraphs.first(where: { p in
+            let lower = p.lowercased()
+            return !meaningless.contains(where: { lower.hasPrefix($0) })
+        }) ?? paragraphs.first
+        guard var answer = candidate else { return nil }
+        // Strip common markdown artefacts.
+        answer = answer
+            .replacingOccurrences(of: "```json", with: "")
+            .replacingOccurrences(of: "```", with: "")
+            .replacingOccurrences(of: "**", with: "")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        // If the paragraph is itself a JSON-ish blob, drop it — the structured
+        // parser already had its shot.
+        if answer.hasPrefix("{") { return nil }
+        // Keep a single sentence for TTS sanity.
+        if let terminator = answer.firstIndex(where: { ".!?".contains($0) }) {
+            let end = answer.index(after: terminator)
+            answer = String(answer[..<end])
+        }
+        if answer.count > 220 {
+            answer = String(answer.prefix(220)) + "…"
+        }
+        return answer.isEmpty ? nil : answer
+    }
+
     private func parseStatCard(_ json: String, raw: String, latencyMs: Int) -> StatCard? {
-        guard let data = json.data(using: .utf8),
+        // Gemma 1B often wraps JSON in prose or ```json fences. Scan for the
+        // first balanced {...} block instead of trusting the whole reply to
+        // parse.
+        guard let jsonBlock = Self.extractFirstJSON(json),
+              let data = jsonBlock.data(using: .utf8),
               let obj = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
         else { return nil }
         if obj["no_verified_data"] as? Bool == true { return nil }
@@ -977,6 +1092,15 @@ struct LivePaneView: View {
             let stat = obj["stat_value"] as? String,
             let ctx = obj["context_line"] as? String
         else { return nil }
+        // When we have a match-specific cache applied, refuse cards about
+        // players who aren't on that match's roster. This catches Gemma
+        // falling back to the seeded Argentina/France facts for unrelated
+        // games.
+        if let cache = store.matchCacheForCurrentSession,
+           !Self.playerIsInCache(player, cache: cache) {
+            print("[live] rejecting stat card — player '\(player)' not in cache for \(cache.title)")
+            return nil
+        }
         return StatCard(
             kind: .stat,
             player: player,
@@ -986,5 +1110,30 @@ struct LivePaneView: View {
             rawTranscript: raw,
             latencyMs: latencyMs
         )
+    }
+
+    private static func playerIsInCache(_ player: String, cache: MatchCache) -> Bool {
+        let p = player.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !p.isEmpty else { return false }
+        return cache.players.contains { cached in
+            let c = cached.name.lowercased()
+            return c == p || c.contains(p) || p.contains(c)
+        }
+    }
+
+    private static func extractFirstJSON(_ s: String) -> String? {
+        guard let firstBrace = s.firstIndex(of: "{") else { return nil }
+        var depth = 0
+        var end: String.Index?
+        for i in s[firstBrace...].indices {
+            let ch = s[i]
+            if ch == "{" { depth += 1 }
+            else if ch == "}" {
+                depth -= 1
+                if depth == 0 { end = i; break }
+            }
+        }
+        guard let e = end else { return nil }
+        return String(s[firstBrace...e])
     }
 }

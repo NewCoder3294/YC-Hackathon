@@ -75,8 +75,12 @@ final class WhisperEngine {
         let compact = store.playByPlayStore.currentCompact
         let transcriptTail = Self.tailLines(of: store.currentSession.transcript, limit: 10)
 
-        if plays.isEmpty && transcriptTail.isEmpty {
-            log.debug("tick skip — no plays and no transcript")
+        // Whispers are strictly grounded in the play-by-play feed. Running
+        // Gemma without plays makes the system prompt's "use only facts from
+        // the plays payload" rule force every response to no_verified_data,
+        // which spams the log and wastes an inference slot. Require plays.
+        guard !plays.isEmpty else {
+            log.debug("tick skip — no plays (no live feed attached)")
             return
         }
 
@@ -101,13 +105,23 @@ final class WhisperEngine {
             let latency = Int(Date().timeIntervalSince(started) * 1000)
             store.lastLatencyMs = latency
 
-            guard let card = Self.parseWhisper(reply, latencyMs: latency) else {
-                log.debug("tick skip — no verified data or parse failure")
+            let parsed = Self.parseWhisper(reply, latencyMs: latency)
+            switch parsed {
+            case .card(let card):
+                store.appendStatCard(card)
+                if let answer = card.answer, !answer.isEmpty {
+                    tts.speak(answer)
+                }
                 return
-            }
-            store.appendStatCard(card)
-            if let answer = card.answer, !answer.isEmpty {
-                tts.speak(answer)
+            case .noVerifiedData:
+                log.debug("tick skip — Gemma returned no_verified_data")
+                return
+            case .emptyAnswer:
+                log.debug("tick skip — Gemma JSON had empty answer; raw=\(reply.prefix(200), privacy: .public)")
+                return
+            case .unparseable:
+                log.debug("tick skip — could not extract JSON; raw=\(reply.prefix(200), privacy: .public)")
+                return
             }
         } catch {
             log.error("tick inference failed: \(error.localizedDescription, privacy: .public)")
@@ -134,7 +148,10 @@ final class WhisperEngine {
     // MARK: - Rendering
 
     /// Turn a CompactPlay into "[clock P{period}] {player or team}: {text}".
-    private static func renderPlays(_ plays: [CompactPlay], compact: CompactGame?) -> String {
+    /// Internal so LivePaneView's handleSegment can reuse the exact format
+    /// WhisperEngine's autonomous tick uses — Gemma's output stays consistent
+    /// across both whisper entry points.
+    static func renderPlays(_ plays: [CompactPlay], compact: CompactGame?) -> String {
         guard !plays.isEmpty else { return "" }
         let athletes = compact?.athletes ?? [:]
         let teams = compact?.teams ?? [:]
@@ -171,26 +188,33 @@ final class WhisperEngine {
 
     // MARK: - Parsing
 
-    private static func parseWhisper(_ raw: String, latencyMs: Int) -> StatCard? {
+    enum WhisperParseResult {
+        case card(StatCard)
+        case noVerifiedData
+        case emptyAnswer
+        case unparseable
+    }
+
+    private static func parseWhisper(_ raw: String, latencyMs: Int) -> WhisperParseResult {
         // Cactus sometimes wraps JSON in chatter. Grab the first {...} block.
         guard let jsonString = extractFirstJSON(raw),
               let data = jsonString.data(using: .utf8),
               let obj = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
-        else { return nil }
-        if obj["no_verified_data"] as? Bool == true { return nil }
+        else { return .unparseable }
+        if obj["no_verified_data"] as? Bool == true { return .noVerifiedData }
 
         let answer = (obj["answer"] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-        guard !answer.isEmpty else { return nil }
+        guard !answer.isEmpty else { return .emptyAnswer }
 
         let player = (obj["player"] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
 
-        return StatCard(
+        return .card(StatCard(
             kind: .whisper,
             player: player.isEmpty ? "Agent" : player,
             rawTranscript: "", // empty rawTranscript marks this as an auto-whisper
             latencyMs: latencyMs,
             answer: answer
-        )
+        ))
     }
 
     private static func extractFirstJSON(_ s: String) -> String? {

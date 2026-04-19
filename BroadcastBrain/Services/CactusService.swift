@@ -97,24 +97,52 @@ final class RealCactusService: CactusService {
         return Self.extractContent(from: raw)
     }
 
-    /// Cactus chat completions return an envelope with `.choices[0].message.content`.
-    /// Some configurations return the content string directly. Handle both.
+    /// Cactus chat completions have shipped at least three envelope shapes:
+    ///   - OpenAI-compatible:  `.choices[0].message.content`
+    ///   - Legacy:             top-level `.content`
+    ///   - Current Cactus FFI: `{"success":true,"response":"<model output>", ...}`
+    /// Gemma also likes to wrap structured output in ```json ... ``` fences even
+    /// when the prompt asks for raw JSON. Normalize all of that here so callers
+    /// only ever see the model's actual content, free of framing.
     private static func extractContent(from raw: String) -> String {
-        guard
-            let data = raw.data(using: .utf8),
-            let top = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
-        else {
-            return raw
+        var content = raw
+        if let data = raw.data(using: .utf8),
+           let top = try? JSONSerialization.jsonObject(with: data) as? [String: Any] {
+            if let choices = top["choices"] as? [[String: Any]],
+               let first = choices.first,
+               let message = first["message"] as? [String: Any],
+               let c = message["content"] as? String {
+                content = c
+            } else if let c = top["content"] as? String {
+                content = c
+            } else if let c = top["response"] as? String {
+                // New Cactus FFI envelope. Note: this branch also runs when
+                // `success` is false — in that case we still surface whatever
+                // partial `response` the runtime produced; the caller will
+                // fail to parse and log it explicitly.
+                content = c
+            }
         }
-        if let choices = top["choices"] as? [[String: Any]],
-           let first = choices.first,
-           let message = first["message"] as? [String: Any],
-           let content = message["content"] as? String {
-            return content
+        return stripCodeFences(content)
+    }
+
+    /// Trim a single surrounding markdown fence like ```json\n...\n``` or ```...```.
+    /// Leaves content alone if no fence is present.
+    private static func stripCodeFences(_ s: String) -> String {
+        let trimmed = s.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard trimmed.hasPrefix("```") else { return trimmed }
+        // Drop the opening fence (optionally "```json" / "```JSON" etc.)
+        var body = trimmed.dropFirst(3)
+        if let newlineIdx = body.firstIndex(of: "\n") {
+            let firstLine = body[..<newlineIdx].trimmingCharacters(in: .whitespaces)
+            if firstLine.allSatisfy({ $0.isLetter }) {
+                body = body[body.index(after: newlineIdx)...]
+            }
         }
-        if let content = top["content"] as? String {
-            return content
+        // Drop a trailing fence if present.
+        if let closeRange = body.range(of: "```", options: .backwards) {
+            body = body[..<closeRange.lowerBound]
         }
-        return raw
+        return body.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 }
