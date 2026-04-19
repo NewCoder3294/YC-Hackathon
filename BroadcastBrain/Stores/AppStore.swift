@@ -3,7 +3,7 @@ import Observation
 import PlayByPlayKit
 
 enum Surface: String, CaseIterable, Identifiable {
-    case live, squads, research, archive, plays, playsDB
+    case live, squads, research, news, archive, plays, playsDB
     var id: String { rawValue }
 }
 
@@ -49,10 +49,13 @@ final class AppStore {
     /// When true the ContentView presents NewMatchSheet. Driven by the sidebar
     /// `+ New Session` button. Dismissed on Cancel or Create.
     var showNewMatchSheet: Bool = false
+    /// Shows TeamSetupView full-screen when true (first launch or user-triggered refresh).
+    var showingSetup: Bool = false
+    var spottingMode: SpottingMode? = nil
 
     let sessionStore: SessionStore
     let cactus: CactusService
-    let matchCache: MatchCache?
+    var matchCache: MatchCache?
     let playByPlayStore: PlayByPlayStore
     let speech: SpeechSynthesisService
     let whisperEngine: WhisperEngine
@@ -360,5 +363,23 @@ final class AppStore {
         currentSession = s
         selectedArchiveId = nil
         selectedSurface = .live
+    }
+
+    /// Called by TeamSetupView after the fetch completes — swaps the in-memory
+    /// match cache and starts a fresh session for the new matchup.
+    func loadMatchCache(_ cache: MatchCache) {
+        matchCache = cache
+        showingSetup = false
+
+        let fresh = Session(title: cache.title)
+        sessionStore.save(fresh)
+        currentSession = fresh
+        selectedArchiveId = nil
+        selectedSurface = .research
+    }
+
+    /// Called by the sidebar "refresh" button to reopen the setup flow.
+    func presentSetup() {
+        showingSetup = true
     }
 }

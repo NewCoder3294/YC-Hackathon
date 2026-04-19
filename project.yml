@@ -39,9 +39,11 @@ targets:
     info:
       path: BroadcastBrain/Info.plist
       properties:
-        NSMicrophoneUsageDescription: "BroadcastBrain listens to match commentary to surface stats."
-        NSSpeechRecognitionUsageDescription: "BroadcastBrain transcribes your voice on-device to know which stat to surface."
-        NSHumanReadableCopyright: "© 2026 BroadcastBrain"
+        CFBundleName: "Kleos"
+        CFBundleDisplayName: "Kleos"
+        NSMicrophoneUsageDescription: "Kleos listens to match commentary to surface stats."
+        NSSpeechRecognitionUsageDescription: "Kleos transcribes your voice on-device to know which stat to surface."
+        NSHumanReadableCopyright: "© 2026 Kleos"
         CFBundleShortVersionString: "0.1.0"
         CFBundleVersion: "1"
         LSMinimumSystemVersion: "14.0"

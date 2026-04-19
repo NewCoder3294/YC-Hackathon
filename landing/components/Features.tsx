@@ -29,7 +29,7 @@ export function Features() {
           <FeatureCard
             number="02"
             title="Live co-pilot"
-            body="The booth device listens. Apple STT transcribes on-device, Gemma 4 on Cactus decides which stat to surface, and the card lands in under a second. Ask anything by voice — career splits, head-to-head, streaks — and get a sourced answer instantly."
+            body="The booth device listens. Gemma 4 on Cactus takes audio natively, decides which stat to surface, and the card lands in under a second. Ask anything by voice — career splits, head-to-head, streaks — and get a sourced answer instantly."
             preview="/assets/product/live-dashboard-mockup.svg"
             tag="FEATURE 02"
             accent="live"

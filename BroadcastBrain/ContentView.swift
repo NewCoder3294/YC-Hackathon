@@ -7,20 +7,28 @@ struct ContentView: View {
     var body: some View {
         @Bindable var bindable = store
 
-        HStack(spacing: 0) {
-            SidebarView()
-                .frame(width: theme.sidebarCollapsed ? 68 : 260)
+        Group {
+            if store.showingSetup {
+                TeamSetupView()
+                    .transition(.opacity)
+            } else {
+                HStack(spacing: 0) {
+                    SidebarView()
+                        .frame(width: theme.sidebarCollapsed ? 68 : 260)
 
-            detailView
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    detailView
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                }
+                .ignoresSafeArea(.container, edges: .top)
+                .background(Color.bgBase)
+                .animation(.easeInOut(duration: 0.2), value: theme.sidebarCollapsed)
+                .sheet(isPresented: $bindable.showNewMatchSheet) {
+                    NewMatchSheet()
+                        .environment(store)
+                }
+            }
         }
-        .ignoresSafeArea(.container, edges: .top)
-        .background(Color.bgBase)
-        .animation(.easeInOut(duration: 0.2), value: theme.sidebarCollapsed)
-        .sheet(isPresented: $bindable.showNewMatchSheet) {
-            NewMatchSheet()
-                .environment(store)
-        }
+        .animation(.easeInOut(duration: 0.2), value: store.showingSetup)
     }
 
     @ViewBuilder
@@ -29,6 +37,7 @@ struct ContentView: View {
         case .live:     LivePaneView()
         case .squads:   SquadsView()
         case .research: ResearchCenterView()
+        case .news:     NewsTabView()
         case .archive:  ArchivesListView()
         case .plays:    PlaysSearchView()
         case .playsDB:  PlaysDBView()

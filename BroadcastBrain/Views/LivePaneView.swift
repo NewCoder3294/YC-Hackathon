@@ -716,7 +716,7 @@ struct LivePaneView: View {
         if hadContent {
             // Reuse the same match for the next recording — don't re-prompt
             // the commentator for team/sport info after each match.
-            store.newSessionKeepingCurrentMatch()
+            store.newSession()
         }
 
         // 4. Route to Archive detail view for the just-ended session

@@ -1,3 +1,4 @@
+import AppKit
 import SwiftUI
 
 struct SidebarView: View {
@@ -29,6 +30,7 @@ struct SidebarView: View {
                             surfaceRow(title: "Live",     systemImage: "dot.radiowaves.left.and.right", surface: .live)
                             surfaceRow(title: "Squads",   systemImage: "person.2.fill",                 surface: .squads)
                             surfaceRow(title: "Research", systemImage: "book.fill",                     surface: .research)
+                            surfaceRow(title: "News",     systemImage: "newspaper.fill",                surface: .news)
                             surfaceRow(title: "Archive",  systemImage: "archivebox.fill",               surface: .archive)
                             surfaceRow(title: "Plays",    systemImage: "sportscourt.fill",              surface: .plays)
                             surfaceRow(title: "Plays DB", systemImage: "tray.full.fill",                surface: .playsDB)
@@ -109,16 +111,10 @@ private struct BrandHeader: View {
                 HStack(spacing: 10) {
                     LogoMark()
                         .frame(width: 30, height: 30)
-                    VStack(alignment: .leading, spacing: 1) {
-                        Text("BROADCAST")
-                            .font(.system(size: 11, weight: .bold, design: .monospaced))
-                            .tracking(1.6)
-                            .foregroundStyle(Color.textPrimary)
-                        Text("BRAIN")
-                            .font(.system(size: 11, weight: .bold, design: .monospaced))
-                            .tracking(1.6)
-                            .foregroundStyle(Color.textPrimary)
-                    }
+                    Text("KLEOS")
+                        .font(.system(size: 15, weight: .bold, design: .monospaced))
+                        .tracking(2.0)
+                        .foregroundStyle(Color.textPrimary)
                     Spacer()
                     CollapseChevron(collapsed: false) { theme.toggleSidebar() }
                 }
@@ -127,7 +123,8 @@ private struct BrandHeader: View {
         .frame(maxWidth: .infinity, alignment: collapsed ? .center : .leading)
         .padding(.horizontal, collapsed ? 0 : 16)
         .padding(.top, 34)
-        .padding(.bottom, 14)
+        .padding(.bottom, 8)
+        .frame(height: 72, alignment: .bottom)
         .overlay(alignment: .bottom) {
             Rectangle().fill(Color.borderSoft).frame(height: 1)
         }
@@ -469,6 +466,9 @@ private struct SidebarFooterControls: View {
                 IconButton(systemImage: theme.mode == .dark ? "sun.max" : "moon",
                            help: theme.mode == .dark ? "Light mode" : "Dark mode") {
                     theme.toggleMode()
+                }
+                IconButton(systemImage: "sidebar.left", help: "Expand sidebar") {
+                    theme.toggleSidebar()
                 }
             } else {
                 FooterPillButton(

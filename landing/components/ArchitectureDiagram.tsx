@@ -13,17 +13,9 @@ const STAGES = [
     icon: "mic",
   },
   {
-    id: "stt",
-    label: "APPLE STT",
-    sub: "On-device transcription",
-    chip: "< 200ms · ON-DEVICE",
-    accent: "text",
-    icon: "waveform",
-  },
-  {
     id: "gemma",
     label: "GEMMA 4 · CACTUS",
-    sub: "E4B · 4.5B params · tool calls",
+    sub: "Native audio input · E4B · 4.5B params",
     chip: "ON-DEVICE · HYBRID ROUTER",
     accent: "routing",
     icon: "brain",
@@ -80,10 +72,10 @@ export function ArchitectureDiagram() {
           </div>
           <p className="text-[14px] leading-[1.65] text-text-muted">
             Voice to stat card in a single pass — no round-trip to the cloud.
-            Apple captures audio, transcribes on-device. Gemma 4 on Cactus decides
-            what&apos;s relevant and calls deterministic tools against a
-            Sportradar-sourced match cache. The card renders in the booth in under
-            a second, airplane-mode-safe from kickoff onward.
+            Gemma 4 on Cactus takes the booth audio directly, decides what&apos;s
+            relevant, and calls deterministic tools against a Sportradar-sourced
+            match cache. The card renders in the booth in under a second,
+            airplane-mode-safe from kickoff onward.
           </p>
         </div>
 

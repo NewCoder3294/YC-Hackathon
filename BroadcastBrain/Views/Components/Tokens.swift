@@ -42,6 +42,7 @@ extension Color {
     static let live        = Color.themed(light: "#DC2626", dark: "#EF4444")
     static let verified    = Color.themed(light: "#059669", dark: "#10B981")
     static let esoteric    = Color.themed(light: "#D97706", dark: "#F59E0B")
+    static let tactical    = Color.themed(light: "#D97706", dark: "#F59E0B")
 }
 
 extension NSColor {
