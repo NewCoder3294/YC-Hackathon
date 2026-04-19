@@ -20,6 +20,8 @@ struct ContentView: View {
         case .squads:   SquadsView()
         case .research: ResearchCenterView()
         case .archive:  ArchivesListView()
+        case .plays:    PlaysSearchView()
+        case .playsDB:  PlaysDBView()
         }
     }
 }

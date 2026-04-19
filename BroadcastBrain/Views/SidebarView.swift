@@ -11,6 +11,8 @@ struct SidebarView: View {
                     surfaceRow(title: "Squads",   systemImage: "person.2",                      surface: .squads)
                     surfaceRow(title: "Research", systemImage: "book",                          surface: .research)
                     surfaceRow(title: "Archive",  systemImage: "archivebox",                    surface: .archive)
+                    surfaceRow(title: "Plays",    systemImage: "sportscourt",                   surface: .plays)
+                    surfaceRow(title: "Plays DB", systemImage: "tray.full",                     surface: .playsDB)
                 }
             }
             .listStyle(.sidebar)
