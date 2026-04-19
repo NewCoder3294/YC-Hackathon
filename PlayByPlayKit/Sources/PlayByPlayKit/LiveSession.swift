@@ -70,6 +70,12 @@ public actor LiveSession {
         if let disk = try? SessionStorage.read(url) {
             self.state = disk
             await athleteCache.seed(disk.athletes)
+            // Emit the cached state immediately so subscribers aren't stuck
+            // waiting for the next *new* play before they see anything. The
+            // poll loop's `!newPlays.isEmpty || state == nil` gate would
+            // otherwise suppress every tick until a fresh play lands, which
+            // for a paused / completed game is never.
+            continuation?.yield(PlayDelta(newPlays: [], state: disk))
         }
 
         pollTask = Task { [weak self] in
