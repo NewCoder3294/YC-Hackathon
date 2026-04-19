@@ -33,9 +33,26 @@ struct PlaysStreamView: View {
 
     private var header: some View {
         HStack(spacing: 12) {
+            Button { pbp.clearSelection() } label: {
+                HStack(spacing: 4) {
+                    Image(systemName: "chevron.left")
+                        .font(.system(size: 10, weight: .semibold))
+                    Text("ALL GAMES")
+                        .font(.system(size: 10, weight: .semibold, design: .monospaced))
+                        .tracking(1.2)
+                }
+                .foregroundStyle(Color.textMuted)
+                .padding(.horizontal, 10)
+                .padding(.vertical, 6)
+                .background(Color.bgSubtle, in: RoundedRectangle(cornerRadius: 5))
+                .overlay(RoundedRectangle(cornerRadius: 5).stroke(Color.bbBorder, lineWidth: 1))
+            }
+            .buttonStyle(.plain)
+            .help("Back to game list")
+
             VStack(alignment: .leading, spacing: 2) {
                 Text(pbp.selectedGame?.shortName ?? "")
-                    .font(Typography.playerName)
+                    .font(.system(size: 14, weight: .semibold, design: .monospaced))
                     .foregroundStyle(Color.textPrimary)
                 Text(streamStatus)
                     .font(Typography.chip)
@@ -47,11 +64,27 @@ struct PlaysStreamView: View {
                     .font(Typography.statLabel)
                     .foregroundStyle(Color.textMuted)
             }
-            Button("Stop") { pbp.clearSelection() }
-                .buttonStyle(.bordered)
+            Button {
+                pbp.clearSelection()
+            } label: {
+                HStack(spacing: 6) {
+                    Image(systemName: "stop.fill")
+                        .font(.system(size: 9))
+                    Text("STOP")
+                        .font(.system(size: 10, weight: .bold, design: .monospaced))
+                        .tracking(1.2)
+                }
+                .foregroundStyle(Color.live)
+                .padding(.horizontal, 10)
+                .padding(.vertical, 6)
+                .background(Color.live.opacity(0.1), in: RoundedRectangle(cornerRadius: 5))
+                .overlay(RoundedRectangle(cornerRadius: 5).stroke(Color.live.opacity(0.35), lineWidth: 1))
+            }
+            .buttonStyle(.plain)
+            .help("Stop streaming")
         }
         .padding(.horizontal, 20)
-        .padding(.vertical, 14)
+        .padding(.vertical, 12)
         .background(Color.bgRaised)
     }
 

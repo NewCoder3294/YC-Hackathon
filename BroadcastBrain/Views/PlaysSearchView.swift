@@ -57,22 +57,7 @@ struct PlaysSearchView: View {
                 }
             }
         } label: {
-            HStack(spacing: 8) {
-                Image(systemName: "sportscourt")
-                    .font(.system(size: 11, weight: .semibold))
-                    .foregroundStyle(Color.textSubtle)
-                Text(pbp.selectedLeague.displayName.uppercased())
-                    .font(.system(size: 11, weight: .semibold, design: .monospaced))
-                    .tracking(1.0)
-                    .foregroundStyle(Color.textPrimary)
-                Image(systemName: "chevron.down")
-                    .font(.system(size: 9, weight: .semibold))
-                    .foregroundStyle(Color.textSubtle)
-            }
-            .padding(.horizontal, 12)
-            .padding(.vertical, 7)
-            .background(Color.bgSubtle, in: RoundedRectangle(cornerRadius: 5))
-            .overlay(RoundedRectangle(cornerRadius: 5).stroke(Color.bbBorder, lineWidth: 1))
+            LeagueDropdownLabel(name: pbp.selectedLeague.displayName)
         }
         .menuStyle(.borderlessButton)
         .menuIndicator(.hidden)
@@ -374,6 +359,47 @@ private struct GameRow: View {
                 .frame(minWidth: 28, alignment: .trailing)
         }
         .frame(maxWidth: 280)
+    }
+}
+
+private struct LeagueDropdownLabel: View {
+    let name: String
+    @State private var hovering = false
+
+    var body: some View {
+        HStack(spacing: 10) {
+            Text("LEAGUE")
+                .font(.system(size: 8, weight: .bold, design: .monospaced))
+                .tracking(1.4)
+                .foregroundStyle(Color.textSubtle)
+                .padding(.horizontal, 5)
+                .padding(.vertical, 2)
+                .background(Color.bgBase, in: RoundedRectangle(cornerRadius: 2))
+                .overlay(RoundedRectangle(cornerRadius: 2).stroke(Color.bbBorder, lineWidth: 1))
+
+            Text(name.uppercased())
+                .font(.system(size: 12, weight: .semibold, design: .monospaced))
+                .tracking(0.6)
+                .foregroundStyle(Color.textPrimary)
+
+            Rectangle()
+                .fill(Color.bbBorder)
+                .frame(width: 1, height: 16)
+
+            Image(systemName: "chevron.down")
+                .font(.system(size: 10, weight: .bold))
+                .foregroundStyle(hovering ? Color.textPrimary : Color.textMuted)
+        }
+        .padding(.horizontal, 10)
+        .padding(.vertical, 8)
+        .background(hovering ? Color.bgHover : Color.bgRaised)
+        .overlay(
+            RoundedRectangle(cornerRadius: 6)
+                .stroke(Color.bbBorder, lineWidth: 1)
+        )
+        .clipShape(RoundedRectangle(cornerRadius: 6))
+        .contentShape(Rectangle())
+        .onHover { hovering = $0 }
     }
 }
 
