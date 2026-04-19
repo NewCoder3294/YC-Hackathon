@@ -29,7 +29,21 @@ final class ModelCodableTests: XCTestCase {
         dec.dateDecodingStrategy = .secondsSince1970
         let decoded = try dec.decode(Session.self, from: data)
 
-        XCTAssertEqual(s, decoded)
+        // Dates round-trip through Double seconds with negligible float error.
+        // Compare field-by-field; treat dates as equal within 1ms.
+        XCTAssertEqual(s.id, decoded.id)
+        XCTAssertEqual(s.title, decoded.title)
+        XCTAssertEqual(s.transcript, decoded.transcript)
+        XCTAssertEqual(s.notes, decoded.notes)
+        XCTAssertEqual(s.statCards.count, decoded.statCards.count)
+        XCTAssertEqual(s.researchMessages, decoded.researchMessages)
+        XCTAssertLessThan(abs(s.createdAt.timeIntervalSince(decoded.createdAt)), 0.001)
+        for (a, b) in zip(s.statCards, decoded.statCards) {
+            XCTAssertEqual(a.id, b.id)
+            XCTAssertEqual(a.player, b.player)
+            XCTAssertEqual(a.statValue, b.statValue)
+            XCTAssertLessThan(abs(a.timestamp.timeIntervalSince(b.timestamp)), 0.001)
+        }
     }
 
     func testMatchCacheDecodesBundledJSON() throws {
