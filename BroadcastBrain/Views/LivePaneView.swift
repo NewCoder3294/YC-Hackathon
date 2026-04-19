@@ -7,6 +7,8 @@ struct LivePaneView: View {
     @Environment(AppStore.self) private var store
     @State private var audio = AudioCaptureService()
     @State private var permState: PermissionState = .unknown
+    @State private var debounceTask: Task<Void, Never>?
+    @State private var lastHandledSegment: String = ""
 
     enum PermissionState: Equatable {
         case unknown
@@ -288,13 +290,30 @@ struct LivePaneView: View {
 
                 audio.onPartial = { partial in
                     Task { @MainActor in
-                        if store.liveState == .listening {
-                            store.partialTranscript = partial
+                        guard store.liveState == .listening else { return }
+                        store.partialTranscript = partial
+
+                        // Debounce: if partial stays the same for 1.2s, treat it
+                        // as a complete segment and ship to Gemma. Protects us
+                        // from SFSpeechRecognizer taking 3-5+ seconds to fire isFinal.
+                        debounceTask?.cancel()
+                        let snapshot = partial
+                        debounceTask = Task { @MainActor in
+                            try? await Task.sleep(nanoseconds: 1_200_000_000)
+                            guard !Task.isCancelled else { return }
+                            guard store.liveState == .listening else { return }
+                            guard store.partialTranscript == snapshot, !snapshot.isEmpty else { return }
+                            guard snapshot != lastHandledSegment else { return }
+                            lastHandledSegment = snapshot
+                            await handleSegment(snapshot)
                         }
                     }
                 }
                 audio.onSegment = { segment in
                     Task { @MainActor in
+                        debounceTask?.cancel()
+                        guard segment != lastHandledSegment else { return }
+                        lastHandledSegment = segment
                         await handleSegment(segment)
                     }
                 }
@@ -324,6 +343,8 @@ struct LivePaneView: View {
 
     private func stopListening() {
         audio.stop()
+        debounceTask?.cancel()
+        lastHandledSegment = ""
         store.liveState = .idle
         store.partialTranscript = ""
     }
