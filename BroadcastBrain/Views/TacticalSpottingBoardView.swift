@@ -56,24 +56,23 @@ struct TacticalSpottingBoardView: View {
 
             Spacer()
 
-            HStack(spacing: 0) {
-                Button { store.spottingMode = nil } label: {
+            Button { store.spottingMode = nil } label: {
+                HStack(spacing: 4) {
+                    Image(systemName: "chevron.left")
+                        .font(.system(size: 10, weight: .semibold))
                     Text("MY STYLE")
                         .font(Typography.chip)
-                        .foregroundStyle(Color.textPrimary)
-                        .padding(.horizontal, 12).padding(.vertical, 6)
-                        .background(Color.bgHover)
                 }
-                .buttonStyle(.plain)
-                Rectangle().fill(Color.bbBorder).frame(width: 1, height: 14)
-                Button {} label: {
-                    Text("CASES")
-                        .font(Typography.chip)
-                        .foregroundStyle(Color.textSubtle)
-                        .padding(.horizontal, 12).padding(.vertical, 6)
-                }
-                .buttonStyle(.plain)
-                Rectangle().fill(Color.bbBorder).frame(width: 1, height: 14)
+                .foregroundStyle(Color.textMuted)
+                .padding(.horizontal, 10).padding(.vertical, 6)
+                .background(Color.bgSubtle, in: RoundedRectangle(cornerRadius: 4))
+                .overlay(RoundedRectangle(cornerRadius: 4).stroke(Color.bbBorder, lineWidth: 1))
+            }
+            .buttonStyle(.plain)
+            .help("Back to commentator style picker")
+            .padding(.trailing, 10)
+
+            HStack(spacing: 0) {
                 densityPicker
             }
             .overlay(RoundedRectangle(cornerRadius: 4).stroke(Color.bbBorder, lineWidth: 1))

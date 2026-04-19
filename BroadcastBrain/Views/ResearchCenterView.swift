@@ -10,7 +10,11 @@ struct ResearchCenterView: View {
                 matchTitle: store.currentSession.title,
                 isAirplane: true,
                 latencyMs: store.lastLatencyMs
-            )
+            ) {
+                if store.spottingMode != nil {
+                    notesToggle
+                }
+            }
 
             HStack(spacing: 0) {
                 modeContent
@@ -25,13 +29,6 @@ struct ResearchCenterView: View {
             }
         }
         .background(Color.bgBase)
-        .overlay(alignment: .topTrailing) {
-            if store.spottingMode != nil {
-                notesToggle
-                    .padding(.top, 52)
-                    .padding(.trailing, 16)
-            }
-        }
         .animation(.easeInOut(duration: 0.2), value: showingNotes)
     }
 

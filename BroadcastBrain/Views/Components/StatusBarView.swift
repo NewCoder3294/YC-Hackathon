@@ -1,9 +1,10 @@
 import SwiftUI
 
-struct StatusBarView: View {
+struct StatusBarView<Trailing: View>: View {
     let matchTitle: String
     let isAirplane: Bool
     let latencyMs: Int?
+    @ViewBuilder let trailing: () -> Trailing
 
     var body: some View {
         HStack(spacing: 12) {
@@ -19,6 +20,7 @@ struct StatusBarView: View {
                 LatencyTag(ms: ms)
             }
             LivePill()
+            trailing()
         }
         .padding(.horizontal, 16)
         .padding(.top, 34)
@@ -28,5 +30,14 @@ struct StatusBarView: View {
         .overlay(alignment: .bottom) {
             Rectangle().fill(Color.bbBorder).frame(height: 1)
         }
+    }
+}
+
+extension StatusBarView where Trailing == EmptyView {
+    init(matchTitle: String, isAirplane: Bool, latencyMs: Int?) {
+        self.matchTitle = matchTitle
+        self.isAirplane = isAirplane
+        self.latencyMs = latencyMs
+        self.trailing = { EmptyView() }
     }
 }

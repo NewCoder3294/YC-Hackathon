@@ -61,12 +61,12 @@ struct StatsFirstSpottingBoardView: View {
 
             Spacer()
 
-            // Right cluster
+            // My Style back button (standalone, not part of density picker)
+            backButton
+                .padding(.trailing, 10)
+
+            // Density picker
             HStack(spacing: 0) {
-                styleButton
-                Rectangle().fill(Color.bbBorder).frame(width: 1, height: 14)
-                casesButton
-                Rectangle().fill(Color.bbBorder).frame(width: 1, height: 14)
                 densityPicker
             }
             .overlay(RoundedRectangle(cornerRadius: 4).stroke(Color.bbBorder, lineWidth: 1))
@@ -78,29 +78,24 @@ struct StatsFirstSpottingBoardView: View {
         .overlay(alignment: .bottom) { Rectangle().fill(Color.bbBorder).frame(height: 1) }
     }
 
-    private var styleButton: some View {
+    private var backButton: some View {
         Button {
             store.spottingMode = nil
         } label: {
-            Text("MY STYLE")
-                .font(Typography.chip)
-                .foregroundStyle(Color.textPrimary)
-                .padding(.horizontal, 12)
-                .padding(.vertical, 6)
-                .background(Color.bgHover)
+            HStack(spacing: 4) {
+                Image(systemName: "chevron.left")
+                    .font(.system(size: 10, weight: .semibold))
+                Text("MY STYLE")
+                    .font(Typography.chip)
+            }
+            .foregroundStyle(Color.textMuted)
+            .padding(.horizontal, 10)
+            .padding(.vertical, 6)
+            .background(Color.bgSubtle, in: RoundedRectangle(cornerRadius: 4))
+            .overlay(RoundedRectangle(cornerRadius: 4).stroke(Color.bbBorder, lineWidth: 1))
         }
         .buttonStyle(.plain)
-    }
-
-    private var casesButton: some View {
-        Button {} label: {
-            Text("CASES")
-                .font(Typography.chip)
-                .foregroundStyle(Color.textSubtle)
-                .padding(.horizontal, 12)
-                .padding(.vertical, 6)
-        }
-        .buttonStyle(.plain)
+        .help("Back to commentator style picker")
     }
 
     private var densityPicker: some View {
