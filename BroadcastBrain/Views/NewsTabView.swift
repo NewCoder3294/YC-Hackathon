@@ -1,4 +1,5 @@
 import SwiftUI
+import AppKit
 
 struct NewsTabView: View {
     @Environment(AppStore.self) private var store
@@ -9,6 +10,9 @@ struct NewsTabView: View {
     @State private var isSynthesizing = false
     @State private var errorMessage: String?
     @State private var statusMessage: String?
+
+    @State private var selectionMode = false
+    @State private var selectedIds: Set<String> = []
 
     private let leagueFilters: [(key: String, label: String)] = [
         ("all",        "ALL"),
@@ -57,7 +61,12 @@ struct NewsTabView: View {
                 ScrollView {
                     LazyVStack(alignment: .leading, spacing: 8) {
                         ForEach(filteredItems) { item in
-                            NewsRow(item: item)
+                            NewsRow(
+                                item: item,
+                                selectionMode: selectionMode,
+                                isSelected: selectedIds.contains(item.id),
+                                onToggleSelection: { toggleSelection(item) }
+                            )
                         }
                     }
                     .padding(20)
@@ -74,11 +83,30 @@ struct NewsTabView: View {
 
     private var header: some View {
         VStack(alignment: .leading, spacing: 10) {
-            HStack {
+            HStack(spacing: 8) {
                 Text("NEWS")
                     .font(Typography.sectionHead)
                     .foregroundStyle(Color.textSubtle)
                 Spacer()
+
+                Button(action: toggleSelectionMode) {
+                    HStack(spacing: 4) {
+                        Image(systemName: selectionMode ? "checkmark.square.fill" : "square")
+                            .font(.system(size: 11))
+                        Text(selectionMode
+                             ? "\(selectedIds.count) SELECTED"
+                             : "SELECT ARTICLES"
+                        )
+                        .font(Typography.chip)
+                    }
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 6)
+                    .background(selectionMode ? Color.bgHover : Color.bgRaised, in: RoundedRectangle(cornerRadius: 4))
+                    .overlay(RoundedRectangle(cornerRadius: 4).stroke(Color.bbBorder, lineWidth: 1))
+                    .foregroundStyle(Color.textPrimary)
+                }
+                .buttonStyle(.plain)
+
                 Button(action: { Task { await refresh() } }) {
                     HStack(spacing: 4) {
                         Image(systemName: "arrow.clockwise")
@@ -96,7 +124,7 @@ struct NewsTabView: View {
                         } else {
                             Image(systemName: "sparkles")
                         }
-                        Text("Synthesize to Research Notes").font(Typography.chip)
+                        Text(synthesizeButtonLabel).font(Typography.chip)
                     }
                     .padding(.horizontal, 10)
                     .padding(.vertical, 6)
@@ -121,6 +149,15 @@ struct NewsTabView: View {
         .overlay(Divider().background(Color.bbBorder), alignment: .bottom)
     }
 
+    private var synthesizeButtonLabel: String {
+        if selectionMode {
+            return selectedIds.isEmpty
+                ? "Select articles to synthesize"
+                : "Synthesize \(selectedIds.count) selected"
+        }
+        return "Synthesize all to notes"
+    }
+
     private func leagueChip(_ filter: (key: String, label: String)) -> some View {
         let selected = selectedLeague == filter.key
         return Button(action: { selectedLeague = filter.key }) {
@@ -136,10 +173,33 @@ struct NewsTabView: View {
     }
 
     private var canSynthesize: Bool {
-        !items.isEmpty && !isSynthesizing
+        guard !isSynthesizing else { return false }
+        if selectionMode { return !selectedIds.isEmpty }
+        return !items.isEmpty
+    }
+
+    private var synthesisPool: [NewsItem] {
+        if selectionMode {
+            return items.filter { selectedIds.contains($0.id) }
+        }
+        let scoped = filteredItems
+        return scoped.isEmpty ? items : scoped
     }
 
     // MARK: - Actions
+
+    private func toggleSelectionMode() {
+        selectionMode.toggle()
+        if !selectionMode { selectedIds.removeAll() }
+    }
+
+    private func toggleSelection(_ item: NewsItem) {
+        if selectedIds.contains(item.id) {
+            selectedIds.remove(item.id)
+        } else {
+            selectedIds.insert(item.id)
+        }
+    }
 
     private func refresh() async {
         isLoading = true
@@ -153,24 +213,32 @@ struct NewsTabView: View {
     }
 
     private func synthesize() async {
-        guard !items.isEmpty else { return }
+        let pool = synthesisPool
+        guard !pool.isEmpty else { return }
         isSynthesizing = true
         errorMessage = nil
-        statusMessage = "Synthesizing with Gemini…"
+        let label = selectionMode ? "selected" : "filtered"
+        statusMessage = "Reading \(pool.count) \(label) headline\(pool.count == 1 ? "" : "s")…"
 
         let matchTitle = store.matchCache?.title
         let playerNames = (store.matchCache?.players ?? []).map(\.name)
-        let pool = filteredItems.isEmpty ? items : filteredItems
+
+        // Short pause so the first message is readable before the request starts.
+        try? await Task.sleep(nanoseconds: 250_000_000)
+        await MainActor.run { self.statusMessage = "Writing the digest…" }
 
         do {
             let digest = try await GeminiService.synthesizeNews(
                 headlines: pool,
                 matchTitle: matchTitle,
-                playerNames: playerNames
+                playerNames: playerNames,
+                userCurated: selectionMode
             )
             await MainActor.run {
+                self.statusMessage = "Appending to Research notes…"
                 appendDigestToNotes(digest)
                 self.isSynthesizing = false
+                self.selectedIds.removeAll()
                 self.statusMessage = "Saved to Research notes."
             }
         } catch {
@@ -197,39 +265,91 @@ struct NewsTabView: View {
 
 private struct NewsRow: View {
     let item: NewsItem
+    let selectionMode: Bool
+    let isSelected: Bool
+    let onToggleSelection: () -> Void
+
+    @State private var hovered = false
+
+    private var articleURL: URL? {
+        guard let s = item.articleUrl, let url = URL(string: s) else { return nil }
+        return url
+    }
+
+    private var strokeColor: Color {
+        if selectionMode && isSelected { return Color.live }
+        return hovered ? Color.textMuted : Color.bbBorder
+    }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            HStack(spacing: 6) {
-                Text(item.leagueLabel)
-                    .font(Typography.chip)
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 2)
-                    .background(Color.bgRaised, in: RoundedRectangle(cornerRadius: 3))
-                    .foregroundStyle(Color.textMuted)
-                if !item.published.isEmpty {
-                    Text(item.published.prefix(10))
-                        .font(.system(size: 9, design: .monospaced))
-                        .foregroundStyle(Color.textSubtle)
+        Button(action: handleTap) {
+            HStack(alignment: .top, spacing: 10) {
+                if selectionMode {
+                    Image(systemName: isSelected ? "checkmark.square.fill" : "square")
+                        .font(.system(size: 14))
+                        .foregroundStyle(isSelected ? Color.live : Color.textSubtle)
+                        .padding(.top, 2)
                 }
-                Spacer()
+
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack(spacing: 6) {
+                        Text(item.leagueLabel)
+                            .font(Typography.chip)
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(Color.bgRaised, in: RoundedRectangle(cornerRadius: 3))
+                            .foregroundStyle(Color.textMuted)
+                        if !item.published.isEmpty {
+                            Text(item.published.prefix(10))
+                                .font(.system(size: 9, design: .monospaced))
+                                .foregroundStyle(Color.textSubtle)
+                        }
+                        Spacer()
+                        if !selectionMode && articleURL != nil {
+                            Image(systemName: "arrow.up.right.square")
+                                .font(.system(size: 10))
+                                .foregroundStyle(hovered ? Color.textPrimary : Color.textSubtle)
+                        }
+                    }
+                    Text(item.headline)
+                        .font(Typography.body)
+                        .foregroundStyle(Color.textPrimary)
+                        .lineLimit(3)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .multilineTextAlignment(.leading)
+                    if !item.description.isEmpty {
+                        Text(item.description)
+                            .font(Typography.chip)
+                            .foregroundStyle(Color.textMuted)
+                            .lineLimit(2)
+                            .fixedSize(horizontal: false, vertical: true)
+                            .multilineTextAlignment(.leading)
+                    }
+                }
             }
-            Text(item.headline)
-                .font(Typography.body)
-                .foregroundStyle(Color.textPrimary)
-                .lineLimit(3)
-                .fixedSize(horizontal: false, vertical: true)
-            if !item.description.isEmpty {
-                Text(item.description)
-                    .font(Typography.chip)
-                    .foregroundStyle(Color.textMuted)
-                    .lineLimit(2)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
+            .padding(10)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(
+                (selectionMode && isSelected) ? Color.live.opacity(0.08)
+                : (hovered ? Color.bgHover : Color.bgRaised),
+                in: RoundedRectangle(cornerRadius: 4)
+            )
+            .overlay(RoundedRectangle(cornerRadius: 4).stroke(strokeColor, lineWidth: 1))
+            .contentShape(Rectangle())
         }
-        .padding(10)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color.bgRaised, in: RoundedRectangle(cornerRadius: 4))
-        .overlay(RoundedRectangle(cornerRadius: 4).stroke(Color.bbBorder, lineWidth: 1))
+        .buttonStyle(.plain)
+        .disabled(!selectionMode && articleURL == nil)
+        .onHover { hovered = $0 }
+        .help(selectionMode
+              ? (isSelected ? "Deselect" : "Select for synthesis")
+              : (articleURL?.absoluteString ?? "No link available"))
+    }
+
+    private func handleTap() {
+        if selectionMode {
+            onToggleSelection()
+        } else if let url = articleURL {
+            NSWorkspace.shared.open(url)
+        }
     }
 }

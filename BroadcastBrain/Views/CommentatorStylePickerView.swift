@@ -16,7 +16,7 @@ struct CommentatorStylePickerView: View {
                 Image(systemName: "checkmark.circle.fill")
                     .font(.system(size: 10, weight: .medium, design: .monospaced))
                     .foregroundStyle(Color.verified)
-                Text("READY · PRE-INDEXED OVERNIGHT")
+                Text("MATCH CACHE READY")
                     .font(Typography.chip)
                     .foregroundStyle(Color.verified)
             }
@@ -27,7 +27,7 @@ struct CommentatorStylePickerView: View {
                 .foregroundStyle(Color.textPrimary)
                 .padding(.bottom, 8)
 
-            Text("\(playerCount) players · \(storylineCount) storylines pre-indexed.")
+            Text("\(playerCount) players · \(storylineCount) storylines cached for this match.")
                 .font(Typography.chip)
                 .foregroundStyle(Color.textMuted)
                 .padding(.bottom, 24)
@@ -38,24 +38,24 @@ struct CommentatorStylePickerView: View {
                     mode: .stats,
                     title: "STATS-FIRST",
                     badge: nil,
-                    description: "xG · xA · progressive carries. Numbers lead.",
-                    detail: "\(playerCount) player stats · \(storylineCount) matchups cached.",
+                    description: "Numbers lead. Top 3 stats per player, ranked by impact.",
+                    detail: "Best for data-driven calls and quick comparisons.",
                     hovered: $hovered
                 )
                 StyleRow(
                     mode: .story,
                     title: "STORY-FIRST",
-                    badge: "RECOMMENDED FOR YOU",
-                    description: "Arcs, feuds, milestones. Narrative leads.",
-                    detail: "World Cup · tournament history · season arcs.",
+                    badge: "RECOMMENDED",
+                    description: "Narrative leads. Latest headline or storyline on each card.",
+                    detail: "Best for colour commentary and player arcs.",
                     hovered: $hovered
                 )
                 StyleRow(
                     mode: .tactical,
                     title: "TACTICAL",
                     badge: nil,
-                    description: "Formations, pressing, roles. Function leads.",
-                    detail: "Top scoreboard list · goals · comments.",
+                    description: "Matchups lead. Who each player faces and why it matters.",
+                    detail: "Best for analytical breakdowns and individual battles.",
                     hovered: $hovered
                 )
             }
@@ -97,18 +97,34 @@ private struct StyleRow: View {
 
     var isHovered: Bool { hovered == mode }
 
+    private var iconName: String {
+        switch mode {
+        case .stats:    return "chart.bar.fill"
+        case .story:    return "book.fill"
+        case .tactical: return "point.3.connected.trianglepath.dotted"
+        }
+    }
+
+    private var label: String {
+        switch mode {
+        case .stats:    return "DATA"
+        case .story:    return "ARC"
+        case .tactical: return "MATCH"
+        }
+    }
+
     var body: some View {
         Button {
             store.spottingMode = mode
             store.selectedSurface = .research
         } label: {
             HStack(alignment: .top, spacing: 14) {
-                // Stat preview block
-                VStack(alignment: .trailing, spacing: 2) {
-                    Text(mode == .stats ? "5.2" : mode == .story ? "W/L" : "4-3")
-                        .font(.system(size: 18, weight: .semibold, design: .monospaced))
+                // Mode icon
+                VStack(spacing: 2) {
+                    Image(systemName: iconName)
+                        .font(.system(size: 22, weight: .regular))
                         .foregroundStyle(Color.textPrimary)
-                    Text(mode == .stats ? "xG" : mode == .story ? "Cup Final" : "Formation")
+                    Text(label)
                         .font(Typography.chip)
                         .foregroundStyle(Color.textSubtle)
                 }

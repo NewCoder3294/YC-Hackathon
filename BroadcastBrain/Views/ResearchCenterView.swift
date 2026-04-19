@@ -2,8 +2,7 @@ import SwiftUI
 
 struct ResearchCenterView: View {
     @Environment(AppStore.self) private var store
-    @State private var promptText: String = ""
-    @State private var isSending = false
+    @State private var showingNotes = false
 
     var body: some View {
         VStack(spacing: 0) {
@@ -13,25 +12,60 @@ struct ResearchCenterView: View {
                 latencyMs: store.lastLatencyMs
             )
 
-            if store.spottingMode == nil {
-                ZStack {
-                    Color.bgBase
-                    CommentatorStylePickerView()
-                }
-            } else if store.spottingMode == .stats {
-                StatsFirstSpottingBoardView()
-            } else if store.spottingMode == .story {
-                StoryFirstSpottingBoardView()
-            } else if store.spottingMode == .tactical {
-                TacticalSpottingBoardView()
-            } else {
-                HSplitView {
+            HStack(spacing: 0) {
+                modeContent
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+                if showingNotes && store.spottingMode != nil {
+                    Rectangle().fill(Color.bbBorder).frame(width: 1)
                     notesColumn
-                    chatColumn
+                        .frame(width: 360)
+                        .transition(.move(edge: .trailing).combined(with: .opacity))
                 }
             }
         }
         .background(Color.bgBase)
+        .overlay(alignment: .topTrailing) {
+            if store.spottingMode != nil {
+                notesToggle
+                    .padding(.top, 52)
+                    .padding(.trailing, 16)
+            }
+        }
+        .animation(.easeInOut(duration: 0.2), value: showingNotes)
+    }
+
+    @ViewBuilder
+    private var modeContent: some View {
+        if store.spottingMode == nil {
+            ZStack {
+                Color.bgBase
+                CommentatorStylePickerView()
+            }
+        } else if store.spottingMode == .stats {
+            StatsFirstSpottingBoardView()
+        } else if store.spottingMode == .story {
+            StoryFirstSpottingBoardView()
+        } else if store.spottingMode == .tactical {
+            TacticalSpottingBoardView()
+        }
+    }
+
+    private var notesToggle: some View {
+        Button(action: { showingNotes.toggle() }) {
+            HStack(spacing: 5) {
+                Image(systemName: showingNotes ? "chevron.right" : "note.text")
+                    .font(.system(size: 10, weight: .semibold))
+                Text(showingNotes ? "HIDE" : "NOTES")
+                    .font(Typography.chip)
+            }
+            .padding(.horizontal, 10)
+            .padding(.vertical, 6)
+            .background(showingNotes ? Color.live : Color.bgRaised, in: RoundedRectangle(cornerRadius: 4))
+            .foregroundStyle(showingNotes ? Color.white : Color.textPrimary)
+            .overlay(RoundedRectangle(cornerRadius: 4).stroke(Color.bbBorder, lineWidth: 1))
+        }
+        .buttonStyle(.plain)
     }
 
     private var notesColumn: some View {
@@ -57,104 +91,7 @@ struct ResearchCenterView: View {
             .background(Color.bgRaised, in: RoundedRectangle(cornerRadius: 4))
             .overlay(RoundedRectangle(cornerRadius: 4).stroke(Color.bbBorder, lineWidth: 1))
         }
-        .padding(20)
-        .frame(minWidth: 340)
+        .padding(16)
         .background(Color.bgBase)
-    }
-
-    private var chatColumn: some View {
-        VStack(spacing: 0) {
-            HStack {
-                Text("Q&A · GROUNDED IN MATCH CACHE")
-                    .font(Typography.sectionHead)
-                    .foregroundStyle(Color.textSubtle)
-                Spacer()
-            }
-            .padding(.horizontal, 20)
-            .padding(.top, 20)
-            .padding(.bottom, 8)
-
-            ScrollView {
-                VStack(alignment: .leading, spacing: 4) {
-                    ForEach(store.currentSession.researchMessages) { m in
-                        ChatMessageRow(message: m)
-                    }
-                    if store.currentSession.researchMessages.isEmpty {
-                        VStack(alignment: .leading, spacing: 6) {
-                            Text("Ask grounded questions about the match.")
-                                .font(Typography.body)
-                                .foregroundStyle(Color.textMuted)
-                            Text("e.g. \"How many WC goals does Mbappé have?\"")
-                                .font(Typography.chip)
-                                .foregroundStyle(Color.textSubtle)
-                        }
-                        .padding(.top, 12)
-                    }
-                }
-                .padding(.horizontal, 20)
-            }
-
-            HStack(spacing: 8) {
-                TextField("Ask a research question…", text: $promptText, onCommit: send)
-                    .textFieldStyle(.plain)
-                    .font(Typography.body)
-                    .foregroundStyle(Color.textPrimary)
-                    .padding(10)
-                    .background(Color.bgRaised, in: RoundedRectangle(cornerRadius: 4))
-                    .overlay(RoundedRectangle(cornerRadius: 4).stroke(Color.bbBorder, lineWidth: 1))
-
-                Button(action: send) {
-                    Image(systemName: "arrow.up.circle.fill")
-                        .font(.system(size: 24))
-                        .foregroundStyle(canSend ? Color.live : Color.textSubtle)
-                }
-                .buttonStyle(.plain)
-                .disabled(!canSend)
-            }
-            .padding(20)
-        }
-        .frame(minWidth: 340)
-        .background(Color.bgBase)
-    }
-
-    private var canSend: Bool {
-        !isSending && !promptText.trimmingCharacters(in: .whitespaces).isEmpty
-    }
-
-    private func send() {
-        let text = promptText.trimmingCharacters(in: .whitespaces)
-        guard !text.isEmpty, !isSending else { return }
-        promptText = ""
-        isSending = true
-        store.appendResearchMessage(ChatMessage(role: .user, content: text, grounded: false))
-
-        Task {
-            let facts = store.matchCache?.facts.joined(separator: "\n- ") ?? ""
-            let system = """
-            You are a match research assistant. Answer from the verified facts below only.
-            If you don't know, say exactly: "I don't have verified data on that."
-            Keep answers under 3 sentences.
-            """
-            let user = """
-            Match facts:
-            - \(facts)
-
-            Match: \(store.currentSession.title). Question: \(text)
-            """
-            do {
-                let reply = try await store.cactus.complete(system: system, user: user)
-                let grounded = !reply.lowercased().contains("don't have verified")
-                    && !reply.lowercased().contains("don't have that")
-                await MainActor.run {
-                    store.appendResearchMessage(ChatMessage(role: .assistant, content: reply, grounded: grounded))
-                    isSending = false
-                }
-            } catch {
-                await MainActor.run {
-                    store.appendResearchMessage(ChatMessage(role: .assistant, content: "Error: \(error.localizedDescription)", grounded: false))
-                    isSending = false
-                }
-            }
-        }
     }
 }

@@ -48,8 +48,9 @@ final class AppStore {
         self.sessionStore = sessionStore
         self.cactus = cactus
 
-        // Prefer the user-saved cache, fall back to bundled resource
-        let initialCache = Self.loadSavedCache() ?? Self.loadBundledCache()
+        // Only user-saved cache counts — no bundled fallback, so first launch always
+        // forces the team setup screen for a tailored experience.
+        let initialCache = Self.loadSavedCache()
         self.matchCache = initialCache
 
         let title = initialCache?.title ?? "New Match"
@@ -131,12 +132,6 @@ final class AppStore {
     private static func loadSavedCache() -> MatchCache? {
         guard FileManager.default.fileExists(atPath: savedCacheURL.path),
               let data = try? Data(contentsOf: savedCacheURL) else { return nil }
-        return try? JSONDecoder().decode(MatchCache.self, from: data)
-    }
-
-    private static func loadBundledCache() -> MatchCache? {
-        guard let url  = Bundle.main.url(forResource: "match_cache", withExtension: "json"),
-              let data = try? Data(contentsOf: url) else { return nil }
         return try? JSONDecoder().decode(MatchCache.self, from: data)
     }
 
