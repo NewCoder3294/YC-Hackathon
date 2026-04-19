@@ -5,23 +5,27 @@ import Foundation
 ///
 /// `sourceLabel` and `isHealthy` exist so the UI can display at a glance
 /// whether whispers are actually hitting Gemma or silently falling back.
-/// The teammate debugging the whisper agent had no way to tell which code
-/// path was running; the pill in the Live pane now makes this obvious.
 protocol CactusService: AnyObject {
-    func complete(system: String, user: String) async throws -> String
+    /// Run inference with optional audio input. When `audioPath` is non-nil
+    /// the WAV file at that path is included in the user message as
+    /// `"audio":["path"]`, enabling Gemma 4's multimodal audio understanding.
+    func complete(system: String, user: String, audioPath: String?) async throws -> String
 
-    /// Short human-readable label for the status pill. Short enough to fit
-    /// in ~12 chars of monospaced UI space.
+    /// Short human-readable label for the status pill.
     var sourceLabel: String { get }
 
-    /// True when `complete(...)` has a realistic chance of returning useful
-    /// output. False for `UnavailableCactusService`. Drives the pill color.
+    /// True when `complete(...)` has a realistic chance of returning useful output.
     var isHealthy: Bool { get }
 }
 
+extension CactusService {
+    /// Convenience overload — no audio input.
+    func complete(system: String, user: String) async throws -> String {
+        try await complete(system: system, user: user, audioPath: nil)
+    }
+}
+
 /// Stand-in used when the Gemma model is missing or failed to initialize.
-/// It throws from every call so the UI can surface a clear error — this is
-/// NOT a mock and never returns canned data.
 final class UnavailableCactusService: CactusService {
     private let reason: String
 
@@ -29,7 +33,7 @@ final class UnavailableCactusService: CactusService {
         self.reason = reason
     }
 
-    func complete(system: String, user: String) async throws -> String {
+    func complete(system: String, user: String, audioPath: String?) async throws -> String {
         throw CactusError.initFailed(reason)
     }
 
@@ -53,20 +57,15 @@ enum CactusError: Error, LocalizedError {
     }
 }
 
-/// Real Cactus-backed inference. Wraps the API exposed by `Cactus.swift`,
-/// which ships alongside `cactus-macos.xcframework`.
+/// Real Cactus-backed inference. Wraps the API exposed by `Cactus.swift`.
 ///
-/// API reference (from the bundled Cactus.swift):
-///   - `cactusInit(modelPath, corpusDir, cacheIndex)` throws -> `CactusModelT`
-///   - `cactusComplete(model, messagesJson, optionsJson, toolsJson, onToken, pcmData)` throws -> `String`
-///   - `cactusDestroy(model)`
+/// Audio is included in the messages JSON using the Cactus/Gemma4 multimodal
+/// format: `{"role":"user","content":"...","audio":["path/to/file.wav"]}`.
+/// This lets Gemma hear the broadcaster's audio alongside play-by-play context.
 final class RealCactusService: CactusService {
     private let model: CactusModelT
     // cactus_complete is not thread-safe against itself on the same model
-    // pointer; overlapping calls corrupt the native runtime's KV state and
-    // crash the process. Funnel every invocation through one serial queue so
-    // the live-pane segment stream, the 30-second whisper tick, and the
-    // research pane can never run inference concurrently.
+    // pointer; funnel every invocation through one serial queue.
     private let inferenceQueue = DispatchQueue(
         label: "com.broadcastbrain.cactus.inference",
         qos: .userInitiated
@@ -87,12 +86,25 @@ final class RealCactusService: CactusService {
         cactusDestroy(model)
     }
 
-    func complete(system: String, user: String) async throws -> String {
-        let messages: [[String: String]] = [
+    func complete(system: String, user: String, audioPath: String? = nil) async throws -> String {
+        var userMsg: [String: Any] = ["role": "user", "content": user]
+        if let path = audioPath {
+            userMsg["audio"] = [path]
+        }
+        let messages: [[String: Any]] = [
             ["role": "system", "content": system],
-            ["role": "user", "content": user]
+            userMsg
         ]
-        let data = try JSONSerialization.data(withJSONObject: messages)
+        // Cactus's hand-rolled JSON parser (cactus_utils.h parse_path_array)
+        // does not unescape "\/" in the audio[] array — it then passes the
+        // literal backslash-laden string to std::filesystem::absolute(), which
+        // treats it as relative and prepends the sandbox working dir.
+        // `.withoutEscapingSlashes` keeps "/" literal so the parser sees the
+        // real absolute path.
+        let data = try JSONSerialization.data(
+            withJSONObject: messages,
+            options: [.withoutEscapingSlashes]
+        )
         guard let messagesJson = String(data: data, encoding: .utf8) else {
             throw CactusError.invalidResponse
         }
@@ -120,9 +132,6 @@ final class RealCactusService: CactusService {
     ///   - OpenAI-compatible:  `.choices[0].message.content`
     ///   - Legacy:             top-level `.content`
     ///   - Current Cactus FFI: `{"success":true,"response":"<model output>", ...}`
-    /// Gemma also likes to wrap structured output in ```json ... ``` fences even
-    /// when the prompt asks for raw JSON. Normalize all of that here so callers
-    /// only ever see the model's actual content, free of framing.
     static func extractContent(from raw: String) -> String {
         var content = raw
         if let data = raw.data(using: .utf8),
@@ -135,22 +144,15 @@ final class RealCactusService: CactusService {
             } else if let c = top["content"] as? String {
                 content = c
             } else if let c = top["response"] as? String {
-                // New Cactus FFI envelope. Note: this branch also runs when
-                // `success` is false — in that case we still surface whatever
-                // partial `response` the runtime produced; the caller will
-                // fail to parse and log it explicitly.
                 content = c
             }
         }
         return stripCodeFences(content)
     }
 
-    /// Trim a single surrounding markdown fence like ```json\n...\n``` or ```...```.
-    /// Leaves content alone if no fence is present.
     static func stripCodeFences(_ s: String) -> String {
         let trimmed = s.trimmingCharacters(in: .whitespacesAndNewlines)
         guard trimmed.hasPrefix("```") else { return trimmed }
-        // Drop the opening fence (optionally "```json" / "```JSON" etc.)
         var body = trimmed.dropFirst(3)
         if let newlineIdx = body.firstIndex(of: "\n") {
             let firstLine = body[..<newlineIdx].trimmingCharacters(in: .whitespaces)
@@ -158,7 +160,6 @@ final class RealCactusService: CactusService {
                 body = body[body.index(after: newlineIdx)...]
             }
         }
-        // Drop a trailing fence if present.
         if let closeRange = body.range(of: "```", options: .backwards) {
             body = body[..<closeRange.lowerBound]
         }

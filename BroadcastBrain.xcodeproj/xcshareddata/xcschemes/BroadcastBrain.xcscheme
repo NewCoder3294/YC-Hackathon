@@ -76,6 +76,13 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
       </CommandLineArguments>
+      <EnvironmentVariables>
+         <EnvironmentVariable
+            key = "CACTUS_CLOUD_KEY"
+            value = ""
+            isEnabled = "YES">
+         </EnvironmentVariable>
+      </EnvironmentVariables>
    </LaunchAction>
    <ProfileAction
       buildConfiguration = "Release"

@@ -71,9 +71,9 @@ final class WhisperEngine {
     private func tickOnce() async {
         guard let store else { return }
 
-        let plays = store.playByPlayStore.plays
+        let plays = PlayContextFilter.filter(plays: store.playByPlayStore.plays)
         let compact = store.playByPlayStore.currentCompact
-        let transcriptTail = Self.tailLines(of: store.currentSession.transcript, limit: 10)
+        let audioPath = store.latestUtterancePath
 
         // Whispers are strictly grounded in the play-by-play feed. Running
         // Gemma without plays makes the system prompt's "use only facts from
@@ -95,14 +95,11 @@ final class WhisperEngine {
 
         Last \(plays.count) plays (most recent last):
         \(playsBlock.isEmpty ? "(no live plays available)" : playsBlock)
-
-        Commentator said recently:
-        "\(transcriptTail.isEmpty ? "(no transcript yet)" : transcriptTail)"
         """
 
         let started = Date()
         do {
-            let reply = try await cactus.complete(system: system, user: user)
+            let reply = try await cactus.complete(system: system, user: user, audioPath: audioPath)
             let latency = Int(Date().timeIntervalSince(started) * 1000)
             store.lastLatencyMs = latency
 
@@ -138,11 +135,10 @@ final class WhisperEngine {
     // MARK: - Prompt
 
     private static let systemPrompt = """
-    You are a live broadcast stats whisperer. You produce ONE short, useful stat
-    the commentator can drop in the NEXT 30 seconds of play. You receive:
-    - The last ~50 plays from the official play-by-play feed (the ground truth).
-    - The last few sentences the commentator just said (context — audio is ~5s
-      delayed from what the feed shows).
+    You are a live broadcast stats whisperer. You may receive audio of the broadcaster \
+    and key play-by-play context from the ESPN feed. Listen to what the commentator \
+    says (if audio is provided) and the game context to surface ONE short stat they \
+    can use in the next 30 seconds of play.
 
     Return STRICTLY ONE JSON object:
     {"type":"whisper","player":"<name or empty>","answer":"<one sentence, <=25 words, a specific number or contextual fact derivable from the plays>","source":"ESPN play-by-play"}

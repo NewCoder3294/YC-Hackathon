@@ -46,6 +46,10 @@ final class AppStore {
     /// "armed but waiting on plays" from "armed but Gemma refused" from
     /// "armed but Cactus errored" at a glance. Cleared on successful emit.
     var lastWhisperSkip: WhisperSkipReason?
+    /// Path to the most recent utterance WAV file emitted by AudioCaptureService.
+    /// Set from LivePaneView's onUtterance callback; read by WhisperEngine's
+    /// 30-second tick to pass audio into Gemma alongside play context.
+    var latestUtterancePath: String?
     /// When true the ContentView presents NewMatchSheet. Driven by the sidebar
     /// `+ New Session` button. Dismissed on Cancel or Create.
     var showNewMatchSheet: Bool = false

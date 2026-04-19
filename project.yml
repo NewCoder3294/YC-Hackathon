@@ -89,6 +89,11 @@ schemes:
         BroadcastBrain: all
     run:
       config: Debug
+      environmentVariables:
+        # Cactus cloud handoff API key. Leave blank to stay fully on-device
+        # (the WARN "missing_api_key" is benign — falls back to local output).
+        # Paste the Cactus dashboard key here to enable cloud handoff.
+        CACTUS_CLOUD_API_KEY: "cactus_live_467ab0dae375036fc52a1be21ac20a04"
     test:
       config: Debug
       targets:
