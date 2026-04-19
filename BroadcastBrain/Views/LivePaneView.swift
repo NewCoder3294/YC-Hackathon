@@ -30,45 +30,44 @@ struct LivePaneView: View {
     }
 
     var body: some View {
-        VStack(spacing: 0) {
-            StatusBarView(
-                matchTitle: store.currentSession.title,
-                isAirplane: true,
-                latencyMs: store.lastLatencyMs
-            )
-
-            HSplitView {
-                // Left: running transcript
-                transcriptColumn
-
-                // Right: stat cards surfaced
-                statCardsColumn
-            }
-
-            Divider().background(Color.bbBorder)
-
-            HStack(alignment: .center, spacing: 32) {
-                Spacer()
-                PressToTalkButton(
-                    isListening: store.liveState == .listening,
-                    onToggle: matchButtonTapped
+        ZStack {
+            VStack(spacing: 0) {
+                StatusBarView(
+                    matchTitle: store.currentSession.title,
+                    isAirplane: true,
+                    latencyMs: store.lastLatencyMs
                 )
-                whisperButton
-                Spacer()
+
+                HSplitView {
+                    // Left: running transcript
+                    transcriptColumn
+
+                    // Right: stat cards surfaced
+                    statCardsColumn
+                }
+
+                Divider().background(Color.bbBorder)
+
+                HStack(alignment: .center, spacing: 32) {
+                    Spacer()
+                    PressToTalkButton(
+                        isListening: store.liveState == .listening,
+                        onToggle: matchButtonTapped
+                    )
+                    whisperButton
+                    Spacer()
+                }
+                .padding(.vertical, 20)
             }
-            .padding(.vertical, 20)
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color.bgBase)
-        .confirmationDialog(
-            "End this recording?",
-            isPresented: $showEndConfirm,
-            titleVisibility: .visible
-        ) {
-            Button("End & save to Archive", role: .destructive) { endMatch() }
-            Button("Cancel", role: .cancel) {}
-        } message: {
-            Text("Transcript, stat cards and whispers from this session will be saved and loaded in the Archive tab.")
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(Color.bgBase)
+            .blur(radius: showEndConfirm ? 3 : 0)
+            .animation(.easeInOut(duration: 0.15), value: showEndConfirm)
+
+            if showEndConfirm {
+                endConfirmOverlay
+                    .transition(.opacity.combined(with: .scale(scale: 0.96)))
+            }
         }
         .task { refreshPermissionState() }
         .onDisappear {
@@ -77,6 +76,115 @@ struct LivePaneView: View {
                 store.liveState = .idle
             }
         }
+    }
+
+    /// Custom end-match confirmation that matches the app's dark / mono language
+    /// — replaces the default macOS .confirmationDialog.
+    private var endConfirmOverlay: some View {
+        ZStack {
+            // Dimmed backdrop (tap to cancel)
+            Color.black.opacity(0.55)
+                .ignoresSafeArea()
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    withAnimation(.easeInOut(duration: 0.15)) { showEndConfirm = false }
+                }
+
+            // Dialog card
+            VStack(alignment: .leading, spacing: 0) {
+                // Header
+                HStack(spacing: 10) {
+                    Image(systemName: "stop.circle.fill")
+                        .font(.system(size: 16))
+                        .foregroundStyle(Color.live)
+                    Text("END THIS RECORDING?")
+                        .font(Typography.sectionHead)
+                        .foregroundStyle(Color.textPrimary)
+                        .tracking(0.5)
+                    Spacer()
+                }
+                .padding(.horizontal, 20)
+                .padding(.vertical, 16)
+                .background(Color.bgSubtle)
+                .overlay(alignment: .bottom) {
+                    Rectangle().fill(Color.bbBorder).frame(height: 1)
+                }
+
+                // Body
+                VStack(alignment: .leading, spacing: 10) {
+                    row(label: "TRANSCRIPT", value: "\(transcriptLineCount) lines")
+                    row(label: "STAT CARDS", value: "\(store.currentSession.statCards.filter { $0.kind == .stat }.count)", valueColor: .verified)
+                    row(label: "WHISPERS",   value: "\(store.currentSession.statCards.filter { $0.kind == .whisper }.count)", valueColor: .esoteric)
+                    Divider().background(Color.bbBorder).padding(.vertical, 4)
+                    Text("Saved to Archive · accessible any time.")
+                        .font(Typography.body)
+                        .foregroundStyle(Color.textMuted)
+                }
+                .padding(20)
+
+                // Buttons
+                VStack(spacing: 8) {
+                    Button(action: { showEndConfirm = false; endMatch() }) {
+                        HStack(spacing: 8) {
+                            Image(systemName: "archivebox.fill")
+                                .font(.system(size: 12))
+                            Text("END & SAVE TO ARCHIVE")
+                                .font(Typography.chip)
+                                .tracking(0.6)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 12)
+                        .foregroundStyle(Color.textPrimary)
+                        .background(Color.live)
+                        .clipShape(RoundedRectangle(cornerRadius: 5))
+                    }
+                    .buttonStyle(.plain)
+
+                    Button(action: {
+                        withAnimation(.easeInOut(duration: 0.15)) { showEndConfirm = false }
+                    }) {
+                        Text("CANCEL")
+                            .font(Typography.chip)
+                            .tracking(0.6)
+                            .foregroundStyle(Color.textMuted)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 12)
+                            .background(Color.bgSubtle)
+                            .overlay(RoundedRectangle(cornerRadius: 5).stroke(Color.bbBorder, lineWidth: 1))
+                            .clipShape(RoundedRectangle(cornerRadius: 5))
+                    }
+                    .buttonStyle(.plain)
+                }
+                .padding(.horizontal, 20)
+                .padding(.bottom, 20)
+            }
+            .frame(width: 420)
+            .background(Color.bgRaised)
+            .overlay(
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(Color.bbBorder, lineWidth: 1)
+            )
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+            .shadow(color: .black.opacity(0.6), radius: 40, y: 20)
+        }
+    }
+
+    private func row(label: String, value: String, valueColor: Color = .textPrimary) -> some View {
+        HStack {
+            Text(label)
+                .font(Typography.chip)
+                .foregroundStyle(Color.textSubtle)
+            Spacer()
+            Text(value)
+                .font(Typography.statLabel)
+                .foregroundStyle(valueColor)
+        }
+    }
+
+    private var transcriptLineCount: Int {
+        let t = store.currentSession.transcript
+        guard !t.isEmpty else { return 0 }
+        return t.split(separator: "\n").count
     }
 
     private var transcriptColumn: some View {
