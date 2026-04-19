@@ -433,6 +433,32 @@ final class GameFetchService {
         return "fit"
     }
 
+    private func fetchNewsForPlayer(name: String, team: String) async -> [String] {
+        guard !name.isEmpty else { return [] }
+        return await googleNews("\(name) \(team) 2026", max: 3)
+    }
+
+    private func makeStoryline(name: String, position: String, stats: [String: String], news: [String], status: String) -> String {
+        if ["injured", "doubtful", "suspended"].contains(status) {
+            return "\(name) is listed as \(status) — availability is the key team news heading in."
+        }
+        if let headline = news.first {
+            let clean = headline.replacingOccurrences(of: "\\s*-\\s*[^-]+$", with: "", options: .regularExpression)
+                                .trimmingCharacters(in: .whitespaces)
+            if clean.count > 10 { return clean }
+        }
+        if let (key, val) = stats.first(where: { !["", "0", "0.0", "—"].contains($0.value) }) {
+            return "\(name) brings \(val) \(key) into this matchup — one of the key figures to watch."
+        }
+        let pos = position.isEmpty ? "player" : position
+        return "\(name) is a key \(pos) piece in this lineup — watch how they influence the game."
+    }
+
+    private func makeMatchupNote(name: String, opponent: String) -> String {
+        let opp = opponent.isEmpty || opponent == "TBD" ? "their opponent" : opponent
+        return "\(name) faces \(opp) — a key individual battle to monitor throughout."
+    }
+
     private func makeId(_ parts: String...) -> String {
         let raw = parts.filter { !$0.isEmpty }.joined(separator: "-").lowercased().trimmingCharacters(in: .whitespaces)
         let r = raw.replacingOccurrences(of: "[^a-z0-9]+", with: "-", options: .regularExpression)
