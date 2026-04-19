@@ -9,6 +9,7 @@ type State = {
   error: string | null;
   client: CactusClient;
   ensureLoaded: () => Promise<boolean>;
+  reset: () => void;
 };
 
 const sharedClient = new CactusClient();
@@ -59,5 +60,9 @@ export const useModelLoader = create<State>((set, get) => ({
       return false;
     })();
     return inflight;
+  },
+  reset: () => {
+    inflight = null;
+    set({ status: 'unloaded', progress: 0, error: null });
   },
 }));
