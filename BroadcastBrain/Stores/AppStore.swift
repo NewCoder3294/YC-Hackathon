@@ -104,6 +104,65 @@ final class AppStore {
         if cactus is UnavailableCactusService {
             self.inferenceWarning = "Gemma model not found. Install `gemma.gguf` (see README) and relaunch — the app starts but cannot produce stats until the model is present."
         }
+
+        // If the current session already carries a linked ESPN game, resume it.
+        if let match = currentSession.match {
+            startPlayByPlayIfNeeded(for: match)
+        }
+        // Otherwise probe ESPN for an actually-live game across the common
+        // leagues so the whisper agent has real plays to ground on, even when
+        // the user is on the seeded sample session.
+        Task { @MainActor in
+            await autoAttachLiveGameIfIdle()
+        }
+    }
+
+    /// Preferred league order for auto-attach. Soccer first because it tends
+    /// to have overlapping live windows across European leagues, then the
+    /// big US leagues as fallbacks.
+    private static let autoAttachLeagueKeys: [String] = [
+        "epl", "laliga", "seriea", "bundesliga", "ligue1", "ucl", "mls",
+        "nba", "nfl", "nhl", "mlb"
+    ]
+
+    /// Probe ESPN's scoreboards in order and start streaming the first game
+    /// whose status indicates it's actually in progress. No-op if a stream
+    /// is already active — we never override an explicitly chosen feed.
+    func autoAttachLiveGameIfIdle() async {
+        if playByPlayStore.isStreaming {
+            print("[pbp] auto-attach skipped — stream already active")
+            return
+        }
+        for key in Self.autoAttachLeagueKeys {
+            guard let league = PlayByPlayKit.League.all.first(where: { $0.key == key }) else { continue }
+            do {
+                let games = try await PlayByPlay.getLiveGames(league)
+                guard let live = Self.pickInProgress(from: games) else {
+                    continue
+                }
+                playByPlayStore.selectLeague(league)
+                playByPlayStore.games = games
+                playByPlayStore.startStreaming(live)
+                print("[pbp] auto-attached \(league.displayName) — \(live.shortName) [\(live.status)]")
+                return
+            } catch {
+                print("[pbp] auto-attach probe failed for \(key): \(error.localizedDescription)")
+            }
+        }
+        print("[pbp] auto-attach: no live games found across \(Self.autoAttachLeagueKeys.count) leagues")
+    }
+
+    /// ESPN's scoreboard lists live + scheduled + final games mixed together.
+    /// We want the first one that's currently playing. Match on the status
+    /// string ESPN returns (e.g. "In Progress", "Halftime", "1st Half", "2nd
+    /// Quarter") and reject "Final" / "Scheduled" / "Postponed".
+    private static func pickInProgress(from games: [Game]) -> Game? {
+        let rejects = ["final", "schedul", "postpon", "cancel", "delayed", "pre"]
+        return games.first(where: { g in
+            let s = g.status.lowercased()
+            if rejects.contains(where: { s.contains($0) }) { return false }
+            return true
+        })
     }
 
     /// The bundled match_cache is only valid for the match it was authored
@@ -157,31 +216,133 @@ final class AppStore {
         selectedArchiveId = nil
         selectedSurface = .live
         showNewMatchSheet = false
-        startPlayByPlayIfNeeded(for: match)
+        // Always try to attach a stream so plays flow from the moment the
+        // session opens. If the match carries an explicit ESPN league+game
+        // id we use that; otherwise we search live scoreboards by team name.
+        attachLiveStream(for: match)
     }
 
-    /// Kick off (or resume) the play-by-play stream for a match that carries
-    /// an ESPN league + game id. Safe to call when no feed is linked — it's a
-    /// no-op in that case.
-    func startPlayByPlayIfNeeded(for match: Match) {
-        guard let leagueKey = match.leagueKey,
-              let gameId = match.gameId,
-              let league = League.all.first(where: { $0.key == leagueKey })
-        else { return }
-
-        if playByPlayStore.selectedGame?.id == gameId,
-           playByPlayStore.isStreaming {
+    /// Attach (or resume) the play-by-play stream for this match. Three paths:
+    ///   1. Match has leagueKey + gameId — stream that game directly.
+    ///   2. Match has team names — scan leagues matching the sport for a
+    ///      currently-playing game whose teams match.
+    ///   3. Neither applies — stop any stale stream so the new session isn't
+    ///      polluted by plays from a previous match.
+    ///
+    /// Writes plays to
+    /// `~/Library/Application Support/BroadcastBrain/playbyplay/<league>/<gameId>.json`
+    /// via PlayByPlayKit's LiveSession cache as polling proceeds.
+    func attachLiveStream(for match: Match) {
+        // 1. Explicit selection wins.
+        if let leagueKey = match.leagueKey,
+           let gameId = match.gameId,
+           let league = PlayByPlayKit.League.all.first(where: { $0.key == leagueKey }) {
+            if playByPlayStore.selectedGame?.id == gameId, playByPlayStore.isStreaming {
+                print("[pbp] stream already active for \(league.displayName) \(gameId)")
+                return
+            }
+            playByPlayStore.selectLeague(league)
+            Task { @MainActor in
+                await playByPlayStore.loadLiveGames()
+                if let game = playByPlayStore.games.first(where: { $0.id == gameId }) {
+                    playByPlayStore.startStreaming(game)
+                    print("[pbp] attached explicit game \(league.displayName) — \(game.shortName)")
+                } else {
+                    print("[pbp] explicit gameId \(gameId) not in \(league.displayName) scoreboard; searching by team")
+                    await searchAndStream(for: match)
+                }
+            }
             return
         }
 
-        playByPlayStore.selectLeague(league)
+        // 2. Search leagues that match this match's sport.
         Task { @MainActor in
-            await playByPlayStore.loadLiveGames()
-            let match = playByPlayStore.games.first(where: { $0.id == gameId })
-            if let match {
-                playByPlayStore.startStreaming(match)
+            await searchAndStream(for: match)
+        }
+    }
+
+    /// Keep the old name as a thin alias so legacy callers (session restore,
+    /// session switching) keep working.
+    func startPlayByPlayIfNeeded(for match: Match) {
+        attachLiveStream(for: match)
+    }
+
+    /// Iterate leagues whose sport matches the match's sport, call ESPN's
+    /// scoreboard for each, and start streaming the first in-progress game
+    /// whose team names line up with the match's homeTeam/awayTeam. Stops any
+    /// stale stream when nothing matches so the new session isn't grounded on
+    /// stale plays.
+    private func searchAndStream(for match: Match) async {
+        let candidateLeagues = Self.leaguesMatchingSport(match.sport)
+        let home = match.homeTeam.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+        let away = match.awayTeam.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+        let haveNames = !home.isEmpty && !away.isEmpty
+
+        for league in candidateLeagues {
+            do {
+                let games = try await PlayByPlay.getLiveGames(league)
+                let pick: Game?
+                if haveNames {
+                    pick = games.first(where: { Self.gameMatchesTeams($0, home: home, away: away) })
+                        ?? Self.pickInProgress(from: games.filter { Self.gameMentionsEitherTeam($0, home: home, away: away) })
+                } else {
+                    pick = Self.pickInProgress(from: games)
+                }
+                if let pick {
+                    playByPlayStore.selectLeague(league)
+                    playByPlayStore.games = games
+                    playByPlayStore.startStreaming(pick)
+                    print("[pbp] attached by search \(league.displayName) — \(pick.shortName) [\(pick.status)]")
+                    return
+                }
+            } catch {
+                print("[pbp] search probe failed for \(league.key): \(error.localizedDescription)")
             }
         }
+
+        // Nothing matched. Clear any stream that belonged to the previous
+        // session so whisper prompts don't show unrelated plays.
+        if playByPlayStore.isStreaming {
+            print("[pbp] no live game matched \(match.title); stopping stale stream")
+            playByPlayStore.stopStreaming()
+            playByPlayStore.clearSelection()
+        } else {
+            print("[pbp] no live game matched \(match.title)")
+        }
+    }
+
+    /// ESPN groups leagues by `sport` string ("soccer", "basketball", etc.).
+    /// Map our `Sport` enum to the subset of `PlayByPlayKit.League.all` with
+    /// the matching sport so a soccer match doesn't probe NBA scoreboards.
+    private static func leaguesMatchingSport(_ sport: Sport) -> [PlayByPlayKit.League] {
+        let sportString: String
+        switch sport {
+        case .soccer:           sportString = "soccer"
+        case .basketball:       sportString = "basketball"
+        case .baseball:         sportString = "baseball"
+        case .americanFootball: sportString = "football"
+        case .hockey:           sportString = "hockey"
+        case .cricket, .rugby, .tennis, .other:
+            // Not covered by our League.all list. Fall back to the full set so
+            // a match with an unusual sport still gets a best-effort probe.
+            return PlayByPlayKit.League.all
+        }
+        return PlayByPlayKit.League.all.filter { $0.sport == sportString }
+    }
+
+    private static func gameMatchesTeams(_ game: Game, home: String, away: String) -> Bool {
+        let gh = game.homeTeam.lowercased()
+        let ga = game.awayTeam.lowercased()
+        // Either orientation — the commentator might flip home/away.
+        let oriented = gh.contains(home) && ga.contains(away)
+        let flipped  = gh.contains(away) && ga.contains(home)
+        return oriented || flipped
+    }
+
+    private static func gameMentionsEitherTeam(_ game: Game, home: String, away: String) -> Bool {
+        let gh = game.homeTeam.lowercased()
+        let ga = game.awayTeam.lowercased()
+        return gh.contains(home) || ga.contains(home) || gh.contains(away) || ga.contains(away)
     }
 
     /// Used by endMatch — reuses the current match for a fresh session without

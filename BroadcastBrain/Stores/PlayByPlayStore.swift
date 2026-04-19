@@ -93,11 +93,19 @@ final class PlayByPlayStore {
         )
         activeSession = session
 
+        let gameLabel = "\(league.key) \(game.shortName) (\(game.id))"
+        print("[pbp] streaming started \(gameLabel)")
         streamTask = Task { [weak self] in
             await session.start()
             let stream = await session.deltas
+            var deltaCount = 0
             do {
                 for try await delta in stream {
+                    deltaCount += 1
+                    let playCount = delta.state.periods.reduce(0) { $0 + $1.plays.count }
+                    if deltaCount == 1 || delta.newPlays.count > 0 {
+                        print("[pbp] delta#\(deltaCount) \(gameLabel) plays=\(playCount) new=\(delta.newPlays.count)")
+                    }
                     await MainActor.run {
                         guard let self else { return }
                         self.currentCompact = delta.state
@@ -106,11 +114,13 @@ final class PlayByPlayStore {
                     if Task.isCancelled { break }
                 }
             } catch {
+                print("[pbp] stream error for \(gameLabel): \(error.localizedDescription)")
                 await MainActor.run {
                     self?.streamError = String(describing: error)
                     self?.isStreaming = false
                 }
             }
+            print("[pbp] stream ended \(gameLabel) after \(deltaCount) deltas")
             await MainActor.run {
                 self?.isStreaming = false
             }

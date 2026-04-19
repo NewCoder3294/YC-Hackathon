@@ -762,6 +762,15 @@ struct LivePaneView: View {
                 audio.onPartial = { partial in
                     Task { @MainActor in
                         guard store.liveState == .listening else { return }
+                        // The speakers feed audio back into the mic — STT
+                        // happily transcribes our own TTS. Drop everything
+                        // captured while speaking (plus a short cooldown) and
+                        // advance the cumulative marker so the echoed text
+                        // never re-enters the pipeline once TTS ends.
+                        if store.speech.isEchoLikely {
+                            lastHandledSegment = partial.trimmingCharacters(in: .whitespacesAndNewlines)
+                            return
+                        }
                         store.partialTranscript = partial
 
                         // Extract any COMPLETE sentences that ended since last
@@ -772,6 +781,11 @@ struct LivePaneView: View {
                 }
                 audio.onSegment = { segment in
                     Task { @MainActor in
+                        if store.speech.isEchoLikely {
+                            // Echoed TTS reached isFinal — discard it entirely.
+                            lastHandledSegment = ""
+                            return
+                        }
                         // SFSpeechRecognizer fired isFinal — treat whatever remains
                         // as a final sentence even if it doesn't end in punctuation.
                         await emitCompleteSentences(fromCumulative: segment, forceFinal: true)
@@ -917,6 +931,28 @@ struct LivePaneView: View {
         let haveFacts = !facts.isEmpty
         let haveGrounding = havePlays || haveFacts
 
+        // Short-circuit whisper-armed queries when we have nothing to ground on.
+        // Gemma-1B will happily invent "Currently, the score is 0-0." from thin
+        // air — distinguish between "feed hasn't polled yet" and "no stream
+        // attached" so the commentator knows which one.
+        if forceWhisper && !haveGrounding {
+            let isLoading = store.playByPlayStore.isStreaming
+            let msg = isLoading
+                ? "The live feed is still loading — give it a few seconds and try again."
+                : "No live feed is attached to this session, so I can't answer that."
+            let card = StatCard(
+                kind: .whisper,
+                player: "Agent",
+                rawTranscript: transcript,
+                latencyMs: 0,
+                answer: msg
+            )
+            store.appendStatCard(card)
+            store.speech.speak(msg)
+            print("[live] whisper skipped — no grounding (streaming=\(isLoading))")
+            return
+        }
+
         let system = """
         You are a sports broadcast agent for a live football commentator. Route the
         commentator's last utterance to one of two output kinds — this is the
@@ -968,6 +1004,14 @@ struct LivePaneView: View {
             store.inferenceWarning = nil
 
             if let card = parseStatCard(reply, raw: transcript, latencyMs: latency) {
+                // A whisper-type card must be grounded in plays or facts. Gemma
+                // emits confident answers even when the data block is empty, so
+                // guard this here — appending an ungrounded whisper to the UI
+                // is worse than surfacing nothing.
+                if card.kind == .whisper && !haveGrounding {
+                    print("[live] whisper rejected — ungrounded answer=\((card.answer ?? "").prefix(80))")
+                    return
+                }
                 store.appendStatCard(card)
                 // Whisper answers are user-directed prose — speak them. Stat
                 // cards are visual only.
