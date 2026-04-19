@@ -144,6 +144,7 @@ struct LivePaneView: View {
                     withAnimation { proxy.scrollTo("__bottom__", anchor: .bottom) }
                 }
             }
+            .frame(maxHeight: .infinity)
             .background(Color.bgRaised, in: RoundedRectangle(cornerRadius: 6))
             .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.bbBorder, lineWidth: 1))
         }
@@ -169,23 +170,27 @@ struct LivePaneView: View {
             ScrollView {
                 VStack(spacing: 12) {
                     if store.currentSession.statCards.isEmpty {
-                        StackCard(kind: .empty) {
-                            VStack(alignment: .leading, spacing: 6) {
-                                Text("Cards surface here as you speak.")
-                                    .font(Typography.body)
-                                    .foregroundStyle(Color.textMuted)
-                                Text("Try: \"Mbappé just scored his second\" · \"Messi takes the penalty\" · \"Di María finishes\"")
-                                    .font(Typography.chip)
-                                    .foregroundStyle(Color.textSubtle)
-                            }
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text("Cards surface here as you speak.")
+                                .font(Typography.body)
+                                .foregroundStyle(Color.textMuted)
+                            Text("Try: \"Mbappé just scored his second\" · \"Messi takes the penalty\" · \"Di María finishes\"")
+                                .font(Typography.chip)
+                                .foregroundStyle(Color.textSubtle)
                         }
+                        .frame(maxWidth: .infinity, alignment: .leading)
                     }
 
                     ForEach(store.currentSession.statCards.reversed()) { card in
                         StatCardView(card: card)
                     }
                 }
+                .padding(14)
+                .frame(maxWidth: .infinity, alignment: .topLeading)
             }
+            .frame(maxHeight: .infinity)
+            .background(Color.bgRaised, in: RoundedRectangle(cornerRadius: 6))
+            .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.bbBorder, lineWidth: 1))
         }
         .padding(20)
         .frame(minWidth: 360)
