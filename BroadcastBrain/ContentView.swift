@@ -27,6 +27,7 @@ struct ContentView: View {
         case .live:     LivePaneView()
         case .squads:   SquadsView()
         case .research: ResearchCenterView()
+        case .news:     NewsTabView()
         case .archive:  ArchivesListView()
         }
     }

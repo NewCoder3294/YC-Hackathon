@@ -2,7 +2,7 @@ import Foundation
 import Observation
 
 enum Surface: String, CaseIterable, Identifiable {
-    case live, squads, research, archive
+    case live, squads, research, news, archive
     var id: String { rawValue }
 }
 

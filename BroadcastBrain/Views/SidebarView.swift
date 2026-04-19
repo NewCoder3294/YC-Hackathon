@@ -10,6 +10,7 @@ struct SidebarView: View {
                     surfaceRow(title: "Live",     systemImage: "dot.radiowaves.left.and.right", surface: .live)
                     surfaceRow(title: "Squads",   systemImage: "person.2",                      surface: .squads)
                     surfaceRow(title: "Research", systemImage: "book",                          surface: .research)
+                    surfaceRow(title: "News",     systemImage: "newspaper",                     surface: .news)
                     surfaceRow(title: "Archive",  systemImage: "archivebox",                    surface: .archive)
                 }
             }
