@@ -153,71 +153,24 @@ export function Feature2Screen() {
           <View style={{ flex: 0.55, borderRightWidth: 1, borderRightColor: tokens.border }}>
             <ActivePlayersPane
               firedBeats={firedBeats}
-              clock={clock}
               listeningPlayerId={focusedPlayerId}
             />
           </View>
 
           {/* RIGHT — whisper agent */}
           <View style={{ flex: 0.45, backgroundColor: tokens.bgBase }}>
-            <View
-              style={{
-                paddingVertical: 14,
-                paddingHorizontal: 18,
-                borderBottomWidth: 1,
-                borderBottomColor: tokens.borderSoft,
-                backgroundColor: tokens.bgRaised,
-                flexDirection: 'row',
-                alignItems: 'center',
-                gap: 10,
-              }}
-            >
-              <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: tokens.verified }} />
-              <Text style={{ fontFamily: FONT_MONO, fontSize: 10, fontWeight: '700', letterSpacing: 2.2, color: tokens.text }}>
-                WHISPER AGENT
-              </Text>
-              <Text style={{ fontFamily: FONT_MONO, fontSize: 9, color: tokens.textSubtle, letterSpacing: 0.4, marginLeft: 6 }}>
-                Gemma 4 · on-device · &lt;1s
-              </Text>
-            </View>
-            <ScrollView
-              style={{ flex: 1 }}
-              contentContainerStyle={{ padding: 14, gap: 12, paddingBottom: 8 }}
-              showsVerticalScrollIndicator={false}
-            >
-              {/* Voice-triggered overlay + widget */}
-              {transcript && <TranscriptOverlay text={transcript} agoMs={800} />}
-              {widget && (
-                <VoiceWidget
-                  title="Mbappé — record in WC Finals (2018 · 2022)"
-                  rows={widget}
-                  pinned={widgetPinned}
-                  onTogglePin={() => setPinned((p) => !p)}
-                  onDismiss={dismissWidget}
-                />
-              )}
-
-              {/* Autonomous 3-card stack for the most recent beat */}
-              {latestCard?.card ? (
-                <>
-                  <ScorerStatCard {...latestCard.card.stat} />
-                  <PrecedentCard {...latestCard.card.precedent} />
-                  <CounterNarrativeCard {...latestCard.card.counter} />
-                </>
-              ) : (
-                <EmptyStackPlaceholder phase={phase} />
-              )}
-
-              {/* Running score */}
-              <RunningScorePanel
-                events={events}
-                momentum={momentum}
-                preKickoffLabel={phase === 'PRE-MATCH' ? 'KICK-OFF · TAP "▶ SIMULATE MATCH"' : undefined}
-              />
-
-              {/* Story queue */}
-              <StoryQueue items={stories} />
-            </ScrollView>
+            <WhisperAgentPane
+              phase={phase}
+              transcript={transcript}
+              widget={widget}
+              widgetPinned={widgetPinned}
+              onTogglePin={() => setPinned((p) => !p)}
+              onDismissWidget={dismissWidget}
+              latestCard={latestCard}
+              events={events}
+              momentum={momentum}
+              stories={stories}
+            />
 
             {/* Press-to-talk — anchored to the whisper column only */}
             <VoiceBezel
@@ -272,30 +225,198 @@ function SimControls({
   );
 }
 
-function EmptyStackPlaceholder({ phase }: { phase: Phase }) {
+type WhisperPaneProps = {
+  phase: Phase;
+  transcript: string | null;
+  widget: WidgetRow[] | null;
+  widgetPinned: boolean;
+  onTogglePin: () => void;
+  onDismissWidget: () => void;
+  latestCard: MatchBeat | null;
+  events: MatchEvent[];
+  momentum?: MomentumTag;
+  stories: StoryItem[];
+};
+
+// Right-column whisper agent — header, hero zone, tabbed reference zone.
+// Hero morphs by state: voice query → transcript+widget, live event → 3-card
+// stack, otherwise → compact standing-by hint. Timeline & stories live behind
+// tabs so pre-match doesn't bury users in empty panels.
+function WhisperAgentPane({
+  phase, transcript, widget, widgetPinned, onTogglePin, onDismissWidget,
+  latestCard, events, momentum, stories,
+}: WhisperPaneProps) {
+  const doneCount = stories.filter((s) => s.state === 'done').length;
+  const hasVoice = !!transcript || !!widget;
+  const hasCards = !!latestCard?.card;
+  const [tab, setTab] = useState<'timeline' | 'stories'>('timeline');
+
+  // Auto-switch to timeline once the match is live + events exist; keep
+  // stories visible pre-match since there's nothing on the clock yet.
+  useEffect(() => {
+    if (phase === 'PRE-MATCH') setTab('stories');
+    else if (events.length > 0) setTab('timeline');
+  }, [phase, events.length]);
+
+  return (
+    <View style={{ flex: 1 }}>
+      {/* Pane header */}
+      <View
+        style={{
+          paddingVertical: 14,
+          paddingHorizontal: 18,
+          borderBottomWidth: 1,
+          borderBottomColor: tokens.borderSoft,
+          backgroundColor: tokens.bgRaised,
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 10,
+        }}
+      >
+        <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: tokens.verified }} />
+        <Text style={{ fontFamily: FONT_MONO, fontSize: 10, fontWeight: '700', letterSpacing: 2.2, color: tokens.text }}>
+          WHISPER AGENT
+        </Text>
+        <Text style={{ fontFamily: FONT_MONO, fontSize: 9, color: tokens.textSubtle, letterSpacing: 0.4, marginLeft: 6 }}>
+          Gemma 4 · on-device · &lt;1s
+        </Text>
+      </View>
+
+      <ScrollView
+        style={{ flex: 1 }}
+        contentContainerStyle={{ padding: 14, gap: 14, paddingBottom: 8 }}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* ── HERO ── voice query > card stack > standing-by */}
+        {hasVoice ? (
+          <>
+            {transcript && <TranscriptOverlay text={transcript} agoMs={800} />}
+            {widget && (
+              <VoiceWidget
+                title="Mbappé — record in WC Finals (2018 · 2022)"
+                rows={widget}
+                pinned={widgetPinned}
+                onTogglePin={onTogglePin}
+                onDismiss={onDismissWidget}
+              />
+            )}
+          </>
+        ) : hasCards ? (
+          <>
+            <ScorerStatCard {...latestCard!.card!.stat} />
+            <PrecedentCard {...latestCard!.card!.precedent} />
+            <CounterNarrativeCard {...latestCard!.card!.counter} />
+          </>
+        ) : (
+          <StandingByHint phase={phase} />
+        )}
+
+        {/* ── SECONDARY ── tabbed reference */}
+        <View>
+          <TabRow
+            tabs={[
+              { id: 'timeline', label: 'TIMELINE', count: events.length || undefined },
+              { id: 'stories',  label: 'STORIES',  count: stories.length, done: doneCount },
+            ]}
+            active={tab}
+            onChange={(id) => setTab(id as 'timeline' | 'stories')}
+          />
+          <View style={{ marginTop: 10 }}>
+            {tab === 'timeline' ? (
+              <RunningScorePanel
+                events={events}
+                momentum={momentum}
+                preKickoffLabel={phase === 'PRE-MATCH' ? 'NO EVENTS YET · KICKOFF PENDING' : undefined}
+              />
+            ) : (
+              <StoryQueue items={stories} />
+            )}
+          </View>
+        </View>
+      </ScrollView>
+    </View>
+  );
+}
+
+// Slim, single-line standing-by hint. Replaces the heavy dashed empty card
+// that duplicated the RunningScorePanel's pre-kickoff placeholder.
+function StandingByHint({ phase }: { phase: Phase }) {
+  const primary = phase === 'PRE-MATCH' ? 'STANDING BY · KICKOFF' : 'STANDING BY · NEXT EVENT';
   return (
     <View
       style={{
-        paddingVertical: 26,
-        paddingHorizontal: 20,
+        paddingVertical: 14,
+        paddingHorizontal: 16,
         backgroundColor: tokens.bgRaised,
         borderWidth: 1,
-        borderStyle: 'dashed',
         borderColor: tokens.borderSoft,
         borderRadius: 8,
+        flexDirection: 'row',
         alignItems: 'center',
+        gap: 12,
       }}
     >
-      <Text style={{ fontFamily: FONT_MONO, fontSize: 10, letterSpacing: 2.2, color: tokens.textSubtle, fontWeight: '700' }}>
-        {phase === 'PRE-MATCH' ? 'WAITING FOR KICKOFF' : 'WAITING FOR NEXT EVENT'}
-      </Text>
-      <Text style={{ fontFamily: FONT_MONO, fontSize: 11, color: tokens.textMuted, marginTop: 8, textAlign: 'center', maxWidth: 360, lineHeight: 15 }}>
-        Gemma 4 listens continuously. When something stat-worthy happens, a 3-card stack materializes here —
-        under a second, from on-device.
-      </Text>
-      <Text style={{ fontFamily: FONT_MONO, fontSize: 9, color: tokens.textSubtle, marginTop: 10, letterSpacing: 1.4 }}>
-        · OR HOLD THE VOICE BUTTON TO ASK ANYTHING ·
-      </Text>
+      <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: tokens.verified }} />
+      <View style={{ flex: 1 }}>
+        <Text style={{ fontFamily: FONT_MONO, fontSize: 10, fontWeight: '700', letterSpacing: 2, color: tokens.text }}>
+          {primary}
+        </Text>
+        <Text style={{ fontFamily: FONT_MONO, fontSize: 10, color: tokens.textSubtle, letterSpacing: 0.4, marginTop: 3, lineHeight: 14 }}>
+          3-card stack materializes on each stat-worthy beat. Hold mic to ask anything.
+        </Text>
+      </View>
+    </View>
+  );
+}
+
+type TabDef = { id: string; label: string; count?: number; done?: number };
+
+function TabRow({
+  tabs, active, onChange,
+}: { tabs: TabDef[]; active: string; onChange: (id: string) => void }) {
+  return (
+    <View
+      style={{
+        flexDirection: 'row',
+        borderBottomWidth: 1,
+        borderBottomColor: tokens.borderSoft,
+        gap: 4,
+      }}
+    >
+      {tabs.map((t) => {
+        const isActive = active === t.id;
+        const label = t.done !== undefined && t.count !== undefined
+          ? `${t.label} · ${t.done}/${t.count}`
+          : t.count !== undefined
+            ? `${t.label} · ${t.count}`
+            : t.label;
+        return (
+          <Pressable
+            key={t.id}
+            onPress={() => onChange(t.id)}
+            style={({ hovered }: any) => ({
+              paddingVertical: 8,
+              paddingHorizontal: 12,
+              borderBottomWidth: 2,
+              borderBottomColor: isActive ? tokens.live : 'transparent',
+              backgroundColor: !isActive && hovered ? tokens.bgSubtle : 'transparent',
+              marginBottom: -1,
+            })}
+          >
+            <Text
+              style={{
+                fontFamily: FONT_MONO,
+                fontSize: 9,
+                fontWeight: '700',
+                letterSpacing: 1.8,
+                color: isActive ? tokens.text : tokens.textSubtle,
+              }}
+            >
+              {label}
+            </Text>
+          </Pressable>
+        );
+      })}
     </View>
   );
 }

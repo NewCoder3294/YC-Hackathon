@@ -3,7 +3,7 @@ import { Pressable, Text, View } from 'react-native';
 import Svg, { Circle, G, Path, Rect } from 'react-native-svg';
 import { FONT_MONO, tokens, useTheme } from '../theme/tokens';
 
-export type ScreenId = 'AGENT' | 'F1' | 'F2' | 'ARCHIVE';
+export type ScreenId = 'AGENT' | 'F1' | 'F2' | 'TACTICS' | 'ARCHIVE';
 
 type NavItem = {
   id: ScreenId;
@@ -40,6 +40,14 @@ const icons = {
       <Path d="M10 13h4" stroke={c} strokeWidth={1.6} strokeLinecap="round" />
     </Svg>
   ),
+  tactics: (c: string) => (
+    <Svg width={22} height={22} viewBox="0 0 24 24" fill="none">
+      <Rect x={3} y={4} width={18} height={16} rx={1.5} stroke={c} strokeWidth={1.6} />
+      <Path d="M12 4v16" stroke={c} strokeWidth={1.4} />
+      <Circle cx={12} cy={12} r={2.4} stroke={c} strokeWidth={1.4} />
+      <Path d="M3 9h3M3 15h3M18 9h3M18 15h3" stroke={c} strokeWidth={1.4} strokeLinecap="round" />
+    </Svg>
+  ),
   chevron: (c: string, dir: 'left' | 'right') => (
     <Svg width={14} height={14} viewBox="0 0 24 24" fill="none">
       <Path
@@ -57,6 +65,7 @@ const NAV: NavItem[] = [
   { id: 'AGENT',   label: 'AGENT',    sub: 'Home',           icon: icons.agent },
   { id: 'F1',      label: 'RESEARCH', sub: 'Spotting Board', icon: icons.board },
   { id: 'F2',      label: 'LIVE',     sub: 'Match Dashboard',icon: icons.live },
+  { id: 'TACTICS', label: 'TACTICS',  sub: 'Deep analysis',  icon: icons.tactics },
   { id: 'ARCHIVE', label: 'ARCHIVE',  sub: 'Past Sessions',  icon: icons.archive },
 ];
 

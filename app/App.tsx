@@ -20,6 +20,7 @@ import { AgentScreen } from './src/screens/AgentScreen';
 import { SpottingBoardScreen } from './src/screens/SpottingBoardScreen';
 import { Feature2Screen } from './src/screens/Feature2Screen';
 import { ArchiveScreen } from './src/screens/ArchiveScreen';
+import { TacticsScreen } from './src/screens/TacticsScreen';
 import { PatternProvider } from './src/ui/BackgroundPattern';
 import { AgentProvider, useAgent } from './src/agent/AgentContext';
 import { AgentPiP } from './src/agent/AgentPiP';
@@ -74,6 +75,7 @@ function AppShell() {
           {screen === 'AGENT'   && <AgentScreen />}
           {screen === 'F1'      && <SpottingBoardScreen />}
           {screen === 'F2'      && <Feature2Screen />}
+          {screen === 'TACTICS' && <TacticsScreen />}
           {screen === 'ARCHIVE' && <ArchiveScreen />}
         </View>
       </View>

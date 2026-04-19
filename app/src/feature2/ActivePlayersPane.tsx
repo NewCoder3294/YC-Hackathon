@@ -2,6 +2,8 @@ import React, { useMemo } from 'react';
 import { ScrollView, Text, View } from 'react-native';
 import Svg, { Circle, Path } from 'react-native-svg';
 import { FONT_MONO, tokens } from '../theme/tokens';
+import { getTeam, TeamBrand } from '../theme/teams';
+import { FlagSVG } from '../ui/TeamCrest';
 import { ARGENTINA_XI, FRANCE_XI } from '../fixtures/players';
 import { PlayerCellData } from '../types';
 import { MatchBeat } from '../fixtures/match';
@@ -26,11 +28,10 @@ function buildEventMap(firedBeats: MatchBeat[]): Map<string, PlayerEvent[]> {
 
 type Props = {
   firedBeats: MatchBeat[];
-  clock: string;
   listeningPlayerId?: string;   // "Gemma 4 is zoomed in on X"
 };
 
-export function ActivePlayersPane({ firedBeats, clock, listeningPlayerId }: Props) {
+export function ActivePlayersPane({ firedBeats, listeningPlayerId }: Props) {
   const events = useMemo(() => buildEventMap(firedBeats), [firedBeats]);
 
   return (
@@ -45,56 +46,51 @@ export function ActivePlayersPane({ firedBeats, clock, listeningPlayerId }: Prop
           backgroundColor: tokens.bgRaised,
           flexDirection: 'row',
           alignItems: 'center',
-          justifyContent: 'space-between',
+          gap: 10,
         }}
       >
-        <View>
-          <Text style={{ fontFamily: FONT_MONO, fontSize: 10, fontWeight: '700', letterSpacing: 2.2, color: tokens.text }}>
-            ACTIVE LINEUP
-          </Text>
-          <Text style={{ fontFamily: FONT_MONO, fontSize: 9, color: tokens.textSubtle, marginTop: 3, letterSpacing: 0.4 }}>
-            ARG vs FRA · 2022 WC FINAL
-          </Text>
-        </View>
-        <View
-          style={{
-            paddingVertical: 4,
-            paddingHorizontal: 8,
-            backgroundColor: tokens.bgSubtle,
-            borderWidth: 1,
-            borderColor: tokens.border,
-            borderRadius: 3,
-          }}
-        >
-          <Text style={{ fontFamily: FONT_MONO, fontSize: 10, letterSpacing: 1.4, color: tokens.textMuted }}>{clock}</Text>
-        </View>
+        <Text style={{ fontFamily: FONT_MONO, fontSize: 10, fontWeight: '700', letterSpacing: 2.2, color: tokens.text }}>
+          ACTIVE LINEUP
+        </Text>
+        <Text style={{ fontFamily: FONT_MONO, fontSize: 9, color: tokens.textSubtle, letterSpacing: 1.3 }}>
+          11 v 11 · ON PITCH
+        </Text>
       </View>
 
-      <View style={{ flex: 1, flexDirection: 'row' }}>
+      <View style={{ flex: 1, flexDirection: 'row', paddingVertical: 16, paddingHorizontal: 14, gap: 14 }}>
         <ScrollView
-          style={{ flex: 1 }}
-          contentContainerStyle={{ paddingVertical: 12, paddingHorizontal: 12 }}
+          style={{
+            flex: 1,
+            backgroundColor: tokens.bgRaised,
+            borderWidth: 1,
+            borderColor: tokens.border,
+            borderRadius: 10,
+          }}
+          contentContainerStyle={{ paddingVertical: 14, paddingHorizontal: 14 }}
           showsVerticalScrollIndicator={false}
         >
           <TeamBlock
-            nation="ARGENTINA"
-            code="ARG · 4-3-3"
-            accent={tokens.text}
+            team={getTeam('ARG')}
+            formation="4-3-3"
             players={ARGENTINA_XI}
             events={events}
             listeningPlayerId={listeningPlayerId}
           />
         </ScrollView>
-        <View style={{ width: 1, backgroundColor: tokens.borderSoft }} />
         <ScrollView
-          style={{ flex: 1 }}
-          contentContainerStyle={{ paddingVertical: 12, paddingHorizontal: 12 }}
+          style={{
+            flex: 1,
+            backgroundColor: tokens.bgRaised,
+            borderWidth: 1,
+            borderColor: tokens.border,
+            borderRadius: 10,
+          }}
+          contentContainerStyle={{ paddingVertical: 14, paddingHorizontal: 14 }}
           showsVerticalScrollIndicator={false}
         >
           <TeamBlock
-            nation="FRANCE"
-            code="FRA · 4-2-3-1"
-            accent={tokens.textMuted}
+            team={getTeam('FRA')}
+            formation="4-2-3-1"
             players={FRANCE_XI}
             events={events}
             listeningPlayerId={listeningPlayerId}
@@ -106,24 +102,27 @@ export function ActivePlayersPane({ firedBeats, clock, listeningPlayerId }: Prop
 }
 
 function TeamBlock({
-  nation, code, accent, players, events, listeningPlayerId,
+  team, formation, players, events, listeningPlayerId,
 }: {
-  nation: string;
-  code: string;
-  accent: string;
+  team: TeamBrand;
+  formation: string;
   players: PlayerCellData[];
   events: Map<string, PlayerEvent[]>;
   listeningPlayerId?: string;
 }) {
   return (
     <View>
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 8 }}>
-        <View style={{ width: 4, height: 18, backgroundColor: accent, borderRadius: 2 }} />
-        <Text style={{ fontFamily: FONT_MONO, fontSize: 11, fontWeight: '700', letterSpacing: 1.8, color: tokens.text }}>
-          {nation}
-        </Text>
-        <Text style={{ fontFamily: FONT_MONO, fontSize: 9, color: tokens.textSubtle, letterSpacing: 1.3 }}>{code}</Text>
-        <View style={{ flex: 1 }} />
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 14, paddingBottom: 12, borderBottomWidth: 1, borderBottomColor: tokens.borderSoft }}>
+        <View style={{ width: 5, height: 30, backgroundColor: team.primary, borderRadius: 2 }} />
+        <FlagSVG team={team} width={30} />
+        <View style={{ flex: 1 }}>
+          <Text style={{ fontFamily: FONT_MONO, fontSize: 20, fontWeight: '700', letterSpacing: 1.6, color: tokens.text, lineHeight: 22 }}>
+            {team.name.toUpperCase()}
+          </Text>
+          <Text style={{ fontFamily: FONT_MONO, fontSize: 9, color: tokens.textSubtle, letterSpacing: 1.4, marginTop: 3 }}>
+            {team.abbr} · {formation}
+          </Text>
+        </View>
         <Text style={{ fontFamily: FONT_MONO, fontSize: 9, color: tokens.textSubtle, letterSpacing: 1.3 }}>
           {players.length} ON PITCH
         </Text>
@@ -136,6 +135,7 @@ function TeamBlock({
             player={p}
             events={events.get(p.id) ?? []}
             listening={listeningPlayerId === p.id}
+            teamColor={team.primary}
           />
         ))}
       </View>
@@ -144,8 +144,8 @@ function TeamBlock({
 }
 
 function PlayerRow({
-  player, events, listening,
-}: { player: PlayerCellData; events: PlayerEvent[]; listening: boolean }) {
+  player, events, listening, teamColor,
+}: { player: PlayerCellData; events: PlayerEvent[]; listening: boolean; teamColor: string }) {
   const scored = events.some((e) => e.kind === 'goal');
   return (
     <View
@@ -154,9 +154,9 @@ function PlayerRow({
         alignItems: 'center',
         paddingVertical: 7,
         paddingHorizontal: 10,
-        backgroundColor: scored ? 'rgba(239,68,68,0.04)' : tokens.bgRaised,
+        backgroundColor: scored ? `${teamColor}12` : tokens.bgSubtle,
         borderWidth: 1,
-        borderColor: scored ? 'rgba(239,68,68,0.3)' : tokens.borderSoft,
+        borderColor: scored ? `${teamColor}70` : tokens.borderSoft,
         borderRadius: 5,
         gap: 10,
       }}
@@ -214,14 +214,14 @@ function PlayerRow({
       {/* Event badges */}
       <View style={{ flexDirection: 'row', gap: 4 }}>
         {events.map((e, i) => (
-          <GoalBadge key={i} minute={e.minute} />
+          <GoalBadge key={i} minute={e.minute} color={teamColor} />
         ))}
       </View>
     </View>
   );
 }
 
-function GoalBadge({ minute }: { minute: string }) {
+function GoalBadge({ minute, color }: { minute: string; color: string }) {
   return (
     <View
       style={{
@@ -231,16 +231,16 @@ function GoalBadge({ minute }: { minute: string }) {
         paddingVertical: 2,
         paddingHorizontal: 6,
         borderRadius: 3,
-        backgroundColor: 'rgba(239,68,68,0.12)',
+        backgroundColor: `${color}20`,
         borderWidth: 1,
-        borderColor: 'rgba(239,68,68,0.5)',
+        borderColor: `${color}80`,
       }}
     >
       <Svg width={10} height={10} viewBox="0 0 24 24" fill="none">
-        <Circle cx={12} cy={12} r={9} stroke={tokens.live} strokeWidth={1.5} />
-        <Path d="M12 3v18M3 12h18" stroke={tokens.live} strokeWidth={1} />
+        <Circle cx={12} cy={12} r={9} stroke={color} strokeWidth={1.5} />
+        <Path d="M12 3v18M3 12h18" stroke={color} strokeWidth={1} />
       </Svg>
-      <Text style={{ fontFamily: FONT_MONO, fontSize: 9, fontWeight: '700', letterSpacing: 0.5, color: tokens.live }}>
+      <Text style={{ fontFamily: FONT_MONO, fontSize: 9, fontWeight: '700', letterSpacing: 0.5, color }}>
         {minute}
       </Text>
     </View>
