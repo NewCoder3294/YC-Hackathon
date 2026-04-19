@@ -1,34 +1,62 @@
-jest.mock('cactus-react-native', () => ({
-  Cactus: {
-    load: jest.fn().mockResolvedValue({ sessionId: 'mock' }),
-    generate: jest.fn().mockResolvedValue('{"transcript":"hi","stat_opportunity":false}'),
-    close: jest.fn().mockResolvedValue(undefined),
-  },
-}));
+const downloadMock = jest.fn().mockResolvedValue(undefined);
+const completeMock = jest.fn().mockResolvedValue({
+  success: true,
+  response: 'hello',
+  functionCalls: [],
+  totalTimeMs: 12,
+  timeToFirstTokenMs: 0,
+  prefillTokens: 0,
+  prefillTps: 0,
+  decodeTokens: 0,
+  decodeTps: 0,
+  totalTokens: 0,
+});
+const destroyMock = jest.fn().mockResolvedValue(undefined);
+const ctorSpy = jest.fn();
 
-import { CactusClient } from '../client';
+jest.mock('cactus-react-native', () => {
+  class CactusLM {
+    constructor(params: unknown) { ctorSpy(params); }
+    download = downloadMock;
+    complete = completeMock;
+    destroy  = destroyMock;
+  }
+  return { CactusLM };
+});
+
+import { CactusClient, DEFAULT_MODEL } from '../client';
+
+beforeEach(() => {
+  ctorSpy.mockClear();
+  downloadMock.mockClear();
+  completeMock.mockClear();
+});
 
 describe('CactusClient', () => {
-  it('loads the model once and reuses the session', async () => {
+  it('loads the model once and reuses the instance across calls', async () => {
     const c = new CactusClient();
-    await c.ensureLoaded('google/functiongemma-270m-it');
-    await c.ensureLoaded('google/functiongemma-270m-it');
-    const mod = require('cactus-react-native');
-    expect(mod.Cactus.load).toHaveBeenCalledTimes(1);
+    await c.ensureLoaded(DEFAULT_MODEL);
+    await c.ensureLoaded(DEFAULT_MODEL);
+    expect(ctorSpy).toHaveBeenCalledTimes(1);
+    expect(downloadMock).toHaveBeenCalledTimes(1);
   });
 
-  it('generate returns string output', async () => {
+  it('complete returns response + functionCalls + totalTimeMs', async () => {
     const c = new CactusClient();
-    await c.ensureLoaded('google/functiongemma-270m-it');
-    const out = await c.generate({ prompt: 'x' });
-    expect(typeof out).toBe('string');
+    await c.ensureLoaded(DEFAULT_MODEL);
+    const out = await c.complete({ messages: [{ role: 'user', content: 'hi' }] });
+    expect(out.response).toBe('hello');
+    expect(Array.isArray(out.functionCalls)).toBe(true);
+    expect(out.totalTimeMs).toBeGreaterThanOrEqual(0);
   });
 
-  it('generate respects AbortSignal', async () => {
+  it('complete respects AbortSignal', async () => {
     const c = new CactusClient();
-    await c.ensureLoaded('google/functiongemma-270m-it');
+    await c.ensureLoaded(DEFAULT_MODEL);
     const ac = new AbortController();
     ac.abort();
-    await expect(c.generate({ prompt: 'x', signal: ac.signal })).rejects.toThrow(/abort/i);
+    await expect(
+      c.complete({ messages: [{ role: 'user', content: 'x' }], signal: ac.signal }),
+    ).rejects.toThrow(/abort/i);
   });
 });

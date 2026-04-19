@@ -1,12 +1,11 @@
-import { CactusClient } from './client';
+import { CactusClient, DEFAULT_MODEL } from './client';
+import type { CactusLMMessage } from 'cactus-react-native';
 import { AUTONOMOUS_PROMPT, GENERATE_PROMPT, QUERY_OR_COMMAND_PROMPT } from './prompts';
 import * as functions from './functions';
 import type { MatchContext } from './functions';
 import type { WidgetSpec } from './state/eventBus';
 import type { PrecedentPattern } from './schema';
 import { getMatchCache } from './state/matchCache';
-
-const MODEL_ID = 'google/functiongemma-270m-it';
 
 const client = new CactusClient();
 
@@ -31,38 +30,35 @@ export type AskGemmaResult = {
   counter_narrative?: { text: string; for_team: 'home' | 'away' };
 };
 
-const TOOLS = {
-  get_player_stat: functions.get_player_stat,
-  get_team_stat: functions.get_team_stat,
-  get_match_context: functions.get_match_context,
-  get_historical: functions.get_historical,
-  get_commentator_profile: functions.get_commentator_profile,
-};
-
 export async function askGemma(
   input: AskGemmaInput,
   context: AskGemmaContext,
   routing: AskGemmaRouting,
 ): Promise<AskGemmaResult> {
   const t0 = Date.now();
-  await client.ensureLoaded(MODEL_ID);
+  await client.ensureLoaded(DEFAULT_MODEL);
 
   const hint = routing === 'cloud' ? 'CLOUD' : 'LOCAL';
-  const prompt = [
-    QUERY_OR_COMMAND_PROMPT,
+  const userContent = [
     `ROUTING=${hint}`,
     `MODE=${context.mode}`,
     `MATCH_STATE=${JSON.stringify(context.match_state)}`,
     `RECENT_TRANSCRIPT=${context.recent_transcripts.slice(-3).join(' | ')}`,
-    input.prompt ? `QUESTION=${input.prompt}` : '',
-  ].filter(Boolean).join('\n');
+    input.prompt ? `QUESTION=${input.prompt}` : 'Transcribe and answer the press-to-talk audio.',
+  ].join('\n');
 
-  const raw = await client.generate({ prompt, audio: input.audio, tools: TOOLS });
+  const messages: CactusLMMessage[] = [
+    { role: 'system', content: QUERY_OR_COMMAND_PROMPT },
+    { role: 'user',   content: userContent },
+  ];
 
-  const parsed = safeJson(raw);
+  const audioPcm = input.audio ? arrayBufferToPcm(input.audio) : undefined;
+  const out = await client.complete({ messages, audio: audioPcm });
+
+  const parsed = safeJson(out.response);
   const latency_ms = Date.now() - t0;
 
-  if (!parsed || parsed.trust_escape) {
+  if (!parsed || parsed.trust_escape || parsed.intent === 'ungrounded') {
     return {
       stat_text: "I don't have verified data on that.",
       source: 'trust_escape',
@@ -98,5 +94,11 @@ function safeJson(raw: string): any {
   try { return JSON.parse(raw); } catch { return null; }
 }
 
-// exported for orchestrator + smoke harness
+function arrayBufferToPcm(buf: ArrayBuffer): number[] {
+  const view = new Int16Array(buf);
+  const out = new Array(view.length);
+  for (let i = 0; i < view.length; i++) out[i] = view[i];
+  return out;
+}
+
 export const __internal__ = { AUTONOMOUS_PROMPT, GENERATE_PROMPT, QUERY_OR_COMMAND_PROMPT, client };

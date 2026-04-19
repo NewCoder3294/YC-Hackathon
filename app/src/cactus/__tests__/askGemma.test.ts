@@ -1,10 +1,11 @@
 jest.mock('../client', () => {
   return {
+    DEFAULT_MODEL: 'google/gemma-4-E2B-it',
     CactusClient: class {
       async ensureLoaded() {}
-      async generate(opts: any) {
-        if (opts.prompt?.includes('press-to-talk audio recording')) {
-          return JSON.stringify({
+      async complete() {
+        return {
+          response: JSON.stringify({
             transcript: 'how many goals has mbappe scored',
             intent: 'query',
             answer: 'Mbappé has 9 WC career goals.',
@@ -12,9 +13,10 @@ jest.mock('../client', () => {
             confidence_high: true,
             widget_spec: null,
             trust_escape: false,
-          });
-        }
-        return JSON.stringify({ transcript: '', stat_opportunity: false });
+          }),
+          functionCalls: [],
+          totalTimeMs: 12,
+        };
       }
     },
   };

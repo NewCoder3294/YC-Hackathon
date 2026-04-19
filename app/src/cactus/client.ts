@@ -1,48 +1,84 @@
-// cactus-react-native is resolved at install-time in Task 0 + Task 7 spike.
-// The surface below is the assumed shape. Adjust imports after the SDK spike.
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const cactusMod: { Cactus: any } = require('cactus-react-native');
-const { Cactus } = cactusMod;
+import {
+  CactusLM,
+  type CactusLMMessage,
+  type CactusLMTool,
+  type CactusLMCompleteResult,
+} from 'cactus-react-native';
 
-export type GenerateInput = {
-  prompt?: string;
-  audio?: ArrayBuffer;
-  tools?: unknown;
+export const DEFAULT_MODEL = 'google/gemma-4-E2B-it';
+
+export type FunctionCall = NonNullable<CactusLMCompleteResult['functionCalls']>[number];
+
+export type CompleteInput = {
+  messages: CactusLMMessage[];
+  tools?: CactusLMTool[];
+  audio?: number[];
+  maxTokens?: number;
+  temperature?: number;
   signal?: AbortSignal;
 };
 
+export type CompleteResult = {
+  response: string;
+  functionCalls: FunctionCall[];
+  totalTimeMs: number;
+};
+
 export class CactusClient {
-  private session: { sessionId: string } | null = null;
+  private lm: CactusLM | null = null;
   private loading: Promise<void> | null = null;
   private modelId: string | null = null;
+  private downloaded = false;
 
-  async ensureLoaded(modelId: string): Promise<void> {
-    if (this.session && this.modelId === modelId) return;
+  async ensureLoaded(
+    modelId: string = DEFAULT_MODEL,
+    onDownloadProgress?: (p: number) => void,
+  ): Promise<void> {
+    if (this.lm && this.modelId === modelId) return;
     if (this.loading) return this.loading;
+
     this.loading = (async () => {
-      this.session = await Cactus.load({ model: modelId });
+      const lm = new CactusLM({
+        model: modelId,
+        options: { quantization: 'int4', pro: false },
+      });
+      if (!this.downloaded) {
+        await lm.download({ onProgress: onDownloadProgress });
+        this.downloaded = true;
+      }
+      this.lm = lm;
       this.modelId = modelId;
       this.loading = null;
     })();
     return this.loading;
   }
 
-  async generate(input: GenerateInput): Promise<string> {
-    if (!this.session) throw new Error('Cactus session not loaded');
-    if (input.signal?.aborted) throw new Error('Cactus.generate aborted before dispatch');
-    const genPromise = Cactus.generate({
-      sessionId: this.session.sessionId,
-      prompt: input.prompt,
-      audio: input.audio,
+  async complete(input: CompleteInput): Promise<CompleteResult> {
+    if (!this.lm) throw new Error('Cactus model not loaded — call ensureLoaded() first');
+    if (input.signal?.aborted) throw new Error('Cactus.complete aborted before dispatch');
+
+    const completePromise = this.lm.complete({
+      messages: input.messages,
       tools: input.tools,
+      audio: input.audio,
+      options: {
+        maxTokens: input.maxTokens ?? 512,
+        temperature: input.temperature ?? 0.2,
+      },
     });
-    return withAbort(genPromise, input.signal);
+
+    const result = await withAbort(completePromise, input.signal);
+    return {
+      response: result.response,
+      functionCalls: result.functionCalls ?? [],
+      totalTimeMs: result.totalTimeMs,
+    };
   }
 
-  async close(): Promise<void> {
-    if (!this.session) return;
-    await Cactus.close({ sessionId: this.session.sessionId });
-    this.session = null;
+  async destroy(): Promise<void> {
+    if (!this.lm) return;
+    await this.lm.destroy();
+    this.lm = null;
     this.modelId = null;
   }
 }
@@ -50,7 +86,7 @@ export class CactusClient {
 function withAbort<T>(p: Promise<T>, signal?: AbortSignal): Promise<T> {
   if (!signal) return p;
   return new Promise<T>((resolve, reject) => {
-    const onAbort = () => reject(new Error('Cactus.generate aborted'));
+    const onAbort = () => reject(new Error('Cactus.complete aborted'));
     signal.addEventListener('abort', onAbort, { once: true });
     p.then(
       (v) => { signal.removeEventListener('abort', onAbort); resolve(v); },
