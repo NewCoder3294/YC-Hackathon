@@ -6,19 +6,7 @@ struct SidebarView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            List {
-                Section {
-                    surfaceRow(title: "Live",     systemImage: "dot.radiowaves.left.and.right", surface: .live)
-                    surfaceRow(title: "Squads",   systemImage: "person.2",                      surface: .squads)
-                    surfaceRow(title: "Research", systemImage: "book",                          surface: .research)
-                    surfaceRow(title: "Archive",  systemImage: "archivebox",                    surface: .archive)
-                    surfaceRow(title: "Plays",    systemImage: "sportscourt",                   surface: .plays)
-                    surfaceRow(title: "Plays DB", systemImage: "tray.full",                     surface: .playsDB)
-                }
-            }
-            .listStyle(.sidebar)
-            .scrollContentBackground(.hidden)
-            .background(Color.bgBase)
+            BrandHeader(collapsed: theme.sidebarCollapsed)
 
             ScrollView {
                 VStack(spacing: theme.sidebarCollapsed ? 10 : 18) {
@@ -41,6 +29,8 @@ struct SidebarView: View {
                             surfaceRow(title: "Squads",   systemImage: "person.2.fill",                 surface: .squads)
                             surfaceRow(title: "Research", systemImage: "book.fill",                     surface: .research)
                             surfaceRow(title: "Archive",  systemImage: "archivebox.fill",               surface: .archive)
+                            surfaceRow(title: "Plays",    systemImage: "sportscourt.fill",              surface: .plays)
+                            surfaceRow(title: "Plays DB", systemImage: "tray.full.fill",                surface: .playsDB)
                         }
                         .padding(.horizontal, theme.sidebarCollapsed ? 8 : 8)
                     }
