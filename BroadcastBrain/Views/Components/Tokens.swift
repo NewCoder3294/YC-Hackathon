@@ -34,6 +34,10 @@ extension Color {
     static let textMuted   = Color.themed(light: "#525251", dark: "#A3A3A3")
     static let textSubtle  = Color.themed(light: "#8A8A89", dark: "#737373")
 
+    // Strong edge used to separate the sidebar from the main content — inverts
+    // with theme so it's always visible: near-black in light mode, near-white in dark.
+    static let sidebarEdge = Color.themed(light: "#0A0A0A", dark: "#FAFAFA")
+
     // Semantic accents — same hue, slightly shifted for contrast in light mode.
     static let live        = Color.themed(light: "#DC2626", dark: "#EF4444")
     static let verified    = Color.themed(light: "#059669", dark: "#10B981")

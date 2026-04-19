@@ -7,15 +7,16 @@ struct ContentView: View {
     var body: some View {
         @Bindable var bindable = store
 
-        NavigationSplitView {
+        HStack(spacing: 0) {
             SidebarView()
-                .navigationSplitViewColumnWidth(theme.sidebarCollapsed ? 68 : 260)
-                .toolbar(removing: .sidebarToggle)
-        } detail: {
+                .frame(width: theme.sidebarCollapsed ? 68 : 260)
+
             detailView
-                .ignoresSafeArea(.container, edges: .top)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
+        .ignoresSafeArea(.container, edges: .top)
         .background(Color.bgBase)
+        .animation(.easeInOut(duration: 0.2), value: theme.sidebarCollapsed)
         .sheet(isPresented: $bindable.showNewMatchSheet) {
             NewMatchSheet()
                 .environment(store)
