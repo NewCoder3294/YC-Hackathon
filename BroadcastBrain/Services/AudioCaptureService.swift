@@ -18,23 +18,27 @@ enum AudioError: Error, LocalizedError {
     }
 }
 
-/// Mic capture + on-device STT via Apple's Speech framework.
+/// Always-on mic capture with on-device STT via Apple's Speech framework.
 ///
-/// Why Apple Speech and not cactusStreamTranscribe: reliability. Apple's recognizer
-/// has on-device support on macOS 14+ and is battle-tested. We free Cactus to focus
-/// on the text completion step. This also means MOCK_MODE demos work end-to-end
-/// without the Cactus SDK integrated at all.
+/// Why Apple Speech and not cactusStreamTranscribe: reliability + segment-restart
+/// is natively supported. Apple's recognizer emits `isFinal=true` on natural pauses
+/// in speech; we use that as a segment boundary. After each final, we restart the
+/// recognition task with a fresh request so the mic keeps listening continuously.
+/// Cactus is freed to focus on text completion.
+///
+/// Contract:
+///   - `onPartial(text)`: fires frequently during a segment with the running transcript
+///   - `onSegment(text)`: fires once per completed utterance (natural pause / end-of-segment)
+///   - `onError(err)`: fires on unrecoverable errors
 final class AudioCaptureService {
     private let engine = AVAudioEngine()
     private let recognizer: SFSpeechRecognizer?
     private var request: SFSpeechAudioBufferRecognitionRequest?
     private var task: SFSpeechRecognitionTask?
+    private var isRunning = false
 
-    /// Called with partial transcripts while recording.
     var onPartial: ((String) -> Void)?
-    /// Called once with the final transcript on stop. If no speech detected, empty string.
-    var onFinal: ((String) -> Void)?
-    /// Called on any error after start.
+    var onSegment: ((String) -> Void)?
     var onError: ((AudioError) -> Void)?
 
     init(locale: Locale = Locale(identifier: "en-US")) {
@@ -59,19 +63,10 @@ final class AudioCaptureService {
         }
     }
 
+    /// Start capture + continuous STT. Calls `onSegment` for every natural pause.
     func start() throws {
         guard let recognizer else { throw AudioError.recognizerUnavailable }
-
-        // Clean state from any prior run
-        task?.cancel()
-        task = nil
-
-        let req = SFSpeechAudioBufferRecognitionRequest()
-        req.shouldReportPartialResults = true
-        if #available(macOS 13.0, *), recognizer.supportsOnDeviceRecognition {
-            req.requiresOnDeviceRecognition = true
-        }
-        self.request = req
+        guard !isRunning else { return }
 
         let input = engine.inputNode
         let format = input.outputFormat(forBus: 0)
@@ -89,37 +84,73 @@ final class AudioCaptureService {
             throw AudioError.engineStartFailed(error)
         }
 
-        task = recognizer.recognitionTask(with: req) { [weak self] result, error in
-            guard let self else { return }
-            if let result {
-                let text = result.bestTranscription.formattedString
-                if result.isFinal {
-                    self.onFinal?(text)
-                    self.cleanup()
-                } else {
-                    self.onPartial?(text)
-                }
-            }
-            if let error {
-                // Cancelled during stop() is expected; ignore unless it's a real failure
-                let nsError = error as NSError
-                if nsError.domain != "kAFAssistantErrorDomain" || nsError.code != 203 {
-                    self.onError?(.engineStartFailed(error))
-                }
-                self.cleanup()
-            }
-        }
+        isRunning = true
+        startRecognitionSegment(recognizer: recognizer)
     }
 
-    /// Call on user release. Triggers end-of-speech and fires `onFinal`.
+    /// Stop everything. Call when user toggles mic off.
     func stop() {
+        isRunning = false
         request?.endAudio()
+        task?.cancel()
+        task = nil
+        request = nil
         engine.stop()
         engine.inputNode.removeTap(onBus: 0)
     }
 
-    private func cleanup() {
-        task = nil
-        request = nil
+    private func startRecognitionSegment(recognizer: SFSpeechRecognizer) {
+        let req = SFSpeechAudioBufferRecognitionRequest()
+        req.shouldReportPartialResults = true
+        if recognizer.supportsOnDeviceRecognition {
+            req.requiresOnDeviceRecognition = true
+        }
+        if #available(macOS 13.0, *) {
+            req.addsPunctuation = true
+        }
+        self.request = req
+
+        task = recognizer.recognitionTask(with: req) { [weak self] result, error in
+            guard let self else { return }
+
+            if let result {
+                let text = result.bestTranscription.formattedString
+                if result.isFinal {
+                    if !text.isEmpty {
+                        self.onSegment?(text)
+                    }
+                    // Segment ended (natural pause) — restart immediately to keep listening.
+                    self.request = nil
+                    self.task = nil
+                    if self.isRunning, let rec = self.recognizer {
+                        self.startRecognitionSegment(recognizer: rec)
+                    }
+                } else {
+                    self.onPartial?(text)
+                }
+            }
+
+            if let error {
+                let nsError = error as NSError
+                // Cancellation during stop() — ignore
+                let isCancel = nsError.domain == "kAFAssistantErrorDomain" && nsError.code == 203
+                // "No speech detected" at end of segment — benign, restart
+                let isNoSpeech = nsError.domain == "kAFAssistantErrorDomain" && nsError.code == 1110
+
+                self.request = nil
+                self.task = nil
+
+                if isCancel {
+                    return
+                }
+
+                if isNoSpeech && self.isRunning, let rec = self.recognizer {
+                    self.startRecognitionSegment(recognizer: rec)
+                    return
+                }
+
+                self.onError?(.engineStartFailed(error))
+            }
+        }
     }
 }

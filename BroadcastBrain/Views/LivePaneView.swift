@@ -14,7 +14,7 @@ struct LivePaneView: View {
 
             ScrollView {
                 VStack(spacing: 12) {
-                    if !store.partialTranscript.isEmpty && store.liveState != .idle {
+                    if !store.partialTranscript.isEmpty && store.liveState == .listening {
                         TranscriptOverlay(text: store.partialTranscript)
                     }
 
@@ -25,9 +25,12 @@ struct LivePaneView: View {
                     if store.currentSession.statCards.isEmpty && store.liveState == .idle {
                         StackCard(kind: .empty) {
                             VStack(alignment: .leading, spacing: 6) {
-                                Text("Hold the mic to surface a stat.")
+                                Text("Tap the mic to go live.")
                                     .font(Typography.body)
                                     .foregroundStyle(Color.textMuted)
+                                Text("BroadcastBrain will listen continuously and surface a stat card when it hears something worth surfacing.")
+                                    .font(Typography.chip)
+                                    .foregroundStyle(Color.textSubtle)
                                 Text("Try: \"Mbappé just scored his second\" or \"Messi steps up for the penalty\"")
                                     .font(Typography.chip)
                                     .foregroundStyle(Color.textSubtle)
@@ -50,13 +53,26 @@ struct LivePaneView: View {
 
             PressToTalkButton(
                 isListening: store.liveState == .listening,
-                onStart: startListening,
-                onStop: stopListening
+                onToggle: toggleListening
             )
             .padding(.vertical, 20)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.bgBase)
+        .onDisappear {
+            if store.liveState == .listening {
+                audio.stop()
+                store.liveState = .idle
+            }
+        }
+    }
+
+    private func toggleListening() {
+        if store.liveState == .listening {
+            stopListening()
+        } else {
+            startListening()
+        }
     }
 
     private func startListening() {
@@ -65,22 +81,21 @@ struct LivePaneView: View {
                 try await audio.requestPermissions()
 
                 audio.onPartial = { partial in
-                    Task { @MainActor in store.partialTranscript = partial }
-                }
-                audio.onFinal = { final in
                     Task { @MainActor in
-                        let transcript = final.isEmpty ? store.partialTranscript : final
-                        store.partialTranscript = transcript
-                        if !transcript.isEmpty {
-                            store.appendTranscript(transcript)
-                            await processAgent(transcript: transcript)
-                        } else {
-                            store.liveState = .idle
+                        if store.liveState == .listening {
+                            store.partialTranscript = partial
                         }
                     }
                 }
+                audio.onSegment = { segment in
+                    Task { @MainActor in
+                        await handleSegment(segment)
+                    }
+                }
                 audio.onError = { err in
-                    Task { @MainActor in store.liveState = .error(err.localizedDescription) }
+                    Task { @MainActor in
+                        store.liveState = .error(err.localizedDescription)
+                    }
                 }
 
                 try audio.start()
@@ -96,11 +111,19 @@ struct LivePaneView: View {
 
     private func stopListening() {
         audio.stop()
-        store.liveState = .processing
+        store.liveState = .idle
+        store.partialTranscript = ""
     }
 
     @MainActor
-    private func processAgent(transcript: String) async {
+    private func handleSegment(_ segment: String) async {
+        let transcript = segment.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !transcript.isEmpty else { return }
+
+        store.appendTranscript(transcript)
+        // Clear partial so next segment's partials don't collide with this finished one
+        store.partialTranscript = ""
+
         let started = Date()
 
         let facts = store.matchCache?.facts.prefix(8).joined(separator: "\n- ") ?? ""
@@ -125,9 +148,10 @@ struct LivePaneView: View {
             if let card = parseStatCard(reply, raw: transcript, latencyMs: latency) {
                 store.appendStatCard(card)
             }
-            store.liveState = .idle
+            // Keep listening — do not flip state back to idle
         } catch {
-            store.liveState = .error(error.localizedDescription)
+            // Swallow per-segment errors so one bad segment doesn't kill listening.
+            print("Gemma error on segment '\(transcript)': \(error)")
         }
     }
 

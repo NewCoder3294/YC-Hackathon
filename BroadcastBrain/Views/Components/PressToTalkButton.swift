@@ -1,33 +1,36 @@
 import SwiftUI
 
+/// Always-on mic toggle. Click to start listening, click again to stop.
+///
+/// Named `PressToTalkButton` for file-path continuity with earlier commits;
+/// the semantic is now toggle-to-listen (continuous capture + segment STT).
 struct PressToTalkButton: View {
     let isListening: Bool
-    let onStart: () -> Void
-    let onStop: () -> Void
+    let onToggle: () -> Void
 
     var body: some View {
         VStack(spacing: 14) {
             Waveform(isActive: isListening)
-            ZStack {
-                Circle()
-                    .fill(isListening ? Color.live : Color.bgRaised)
-                    .frame(width: 80, height: 80)
-                Circle()
-                    .stroke(Color.live, lineWidth: isListening ? 3 : 2)
-                    .frame(width: 80, height: 80)
-                Image(systemName: "mic.fill")
-                    .font(.system(size: 30))
-                    .foregroundStyle(isListening ? Color.textPrimary : Color.live)
+
+            Button(action: onToggle) {
+                ZStack {
+                    Circle()
+                        .fill(isListening ? Color.live : Color.bgRaised)
+                        .frame(width: 80, height: 80)
+                    Circle()
+                        .stroke(Color.live, lineWidth: isListening ? 3 : 2)
+                        .frame(width: 80, height: 80)
+                    Image(systemName: isListening ? "mic.fill" : "mic.slash.fill")
+                        .font(.system(size: 30))
+                        .foregroundStyle(isListening ? Color.textPrimary : Color.live)
+                }
             }
-            .contentShape(Circle())
-            .gesture(
-                DragGesture(minimumDistance: 0)
-                    .onChanged { _ in if !isListening { onStart() } }
-                    .onEnded { _ in if isListening { onStop() } }
-            )
-            Text(isListening ? "LISTENING · RELEASE TO SEND" : "HOLD TO TALK")
+            .buttonStyle(.plain)
+
+            Text(isListening ? "LISTENING · TAP TO STOP" : "TAP TO LISTEN")
                 .font(Typography.chip)
-                .foregroundStyle(Color.textSubtle)
+                .foregroundStyle(isListening ? Color.live : Color.textSubtle)
+                .animation(.easeInOut(duration: 0.15), value: isListening)
         }
     }
 }
