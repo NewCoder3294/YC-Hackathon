@@ -4,6 +4,13 @@ import os
 
 private let log = Logger(subsystem: "com.broadcastbrain.mac", category: "tts")
 
+/// Injectable so tests can spy on TTS without firing `AVSpeechSynthesizer`.
+protocol SpeechSynthesizing: AnyObject {
+    var isSpeaking: Bool { get }
+    func speak(_ text: String)
+    func stop()
+}
+
 /// Thin wrapper over `AVSpeechSynthesizer` used by the WhisperEngine to read
 /// agent whispers aloud. Interrupts any in-flight utterance so slow whispers
 /// don't stack across 30-second ticks.
@@ -12,7 +19,7 @@ private let log = Logger(subsystem: "com.broadcastbrain.mac", category: "tts")
 /// the speakers, which STT happily transcribes. The live pipeline consults
 /// this flag to drop partial/final segments while we're speaking (plus a
 /// short cooldown after) so Gemma doesn't get fed its own voice.
-final class SpeechSynthesisService: NSObject, AVSpeechSynthesizerDelegate {
+final class SpeechSynthesisService: NSObject, SpeechSynthesizing, AVSpeechSynthesizerDelegate {
     private let synth = AVSpeechSynthesizer()
     private var lastFinishedAt: Date?
     /// Keep the mic gated for this long after TTS ends — covers the trailing

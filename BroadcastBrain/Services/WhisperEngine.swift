@@ -20,11 +20,11 @@ final class WhisperEngine {
 
     private weak var store: AppStore?
     private let cactus: CactusService
-    private let tts: SpeechSynthesisService
+    private let tts: any SpeechSynthesizing
 
     private var loopTask: Task<Void, Never>?
 
-    init(cactus: CactusService, tts: SpeechSynthesisService) {
+    init(cactus: CactusService, tts: any SpeechSynthesizing) {
         self.cactus = cactus
         self.tts = tts
     }
@@ -179,7 +179,7 @@ final class WhisperEngine {
         }.joined(separator: "\n")
     }
 
-    private static func tailLines(of transcript: String, limit: Int) -> String {
+    static func tailLines(of transcript: String, limit: Int) -> String {
         let lines = transcript.split(separator: "\n", omittingEmptySubsequences: true)
         guard !lines.isEmpty else { return "" }
         let tail = lines.suffix(limit)
@@ -195,7 +195,7 @@ final class WhisperEngine {
         case unparseable
     }
 
-    private static func parseWhisper(_ raw: String, latencyMs: Int) -> WhisperParseResult {
+    static func parseWhisper(_ raw: String, latencyMs: Int) -> WhisperParseResult {
         // Cactus sometimes wraps JSON in chatter. Grab the first {...} block.
         guard let jsonString = extractFirstJSON(raw),
               let data = jsonString.data(using: .utf8),
@@ -217,7 +217,7 @@ final class WhisperEngine {
         ))
     }
 
-    private static func extractFirstJSON(_ s: String) -> String? {
+    static func extractFirstJSON(_ s: String) -> String? {
         guard let firstBrace = s.firstIndex(of: "{") else { return nil }
         var depth = 0
         var end: String.Index?

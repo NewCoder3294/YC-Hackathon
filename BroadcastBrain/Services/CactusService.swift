@@ -104,7 +104,7 @@ final class RealCactusService: CactusService {
     /// Gemma also likes to wrap structured output in ```json ... ``` fences even
     /// when the prompt asks for raw JSON. Normalize all of that here so callers
     /// only ever see the model's actual content, free of framing.
-    private static func extractContent(from raw: String) -> String {
+    static func extractContent(from raw: String) -> String {
         var content = raw
         if let data = raw.data(using: .utf8),
            let top = try? JSONSerialization.jsonObject(with: data) as? [String: Any] {
@@ -128,7 +128,7 @@ final class RealCactusService: CactusService {
 
     /// Trim a single surrounding markdown fence like ```json\n...\n``` or ```...```.
     /// Leaves content alone if no fence is present.
-    private static func stripCodeFences(_ s: String) -> String {
+    static func stripCodeFences(_ s: String) -> String {
         let trimmed = s.trimmingCharacters(in: .whitespacesAndNewlines)
         guard trimmed.hasPrefix("```") else { return trimmed }
         // Drop the opening fence (optionally "```json" / "```JSON" etc.)
