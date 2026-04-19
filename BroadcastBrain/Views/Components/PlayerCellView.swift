@@ -7,12 +7,14 @@ struct PlayerCellView: View {
     let mode: SpottingMode
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 10) {
             header
             body(for: mode)
+            Spacer(minLength: 0)
         }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 10)
+        .padding(.horizontal, 14)
+        .padding(.vertical, 14)
+        .frame(maxWidth: .infinity, minHeight: 170, alignment: .topLeading)
         .background(Color.bgRaised)
         .overlay(
             RoundedRectangle(cornerRadius: 6)

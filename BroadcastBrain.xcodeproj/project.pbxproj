@@ -53,6 +53,7 @@
 		E05C57FFDF0F3B9977139753 /* LatencyTag.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AE6D73A8667738DD33BAF2B /* LatencyTag.swift */; };
 		E31D20151B71FBD3257BF1D8 /* MockResponder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7CE728CE31ACC8F9DB7324B9 /* MockResponder.swift */; };
 		ED24D8E788873134C2FEEBCA /* SessionStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9F5FE8926459F794E4A039D /* SessionStore.swift */; };
+		FC54722D2160DEDE13F882C0 /* GlassSegmentedPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = E53DB1034B149B17293FE383 /* GlassSegmentedPicker.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -123,6 +124,7 @@
 		C9F5FE8926459F794E4A039D /* SessionStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionStore.swift; sourceTree = "<group>"; };
 		CD1186F00AC31EE683675AE6 /* SessionStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionStoreTests.swift; sourceTree = "<group>"; };
 		E5059B3472C8B2022AC33356 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		E53DB1034B149B17293FE383 /* GlassSegmentedPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlassSegmentedPicker.swift; sourceTree = "<group>"; };
 		E714CFC5D1F7C7748D159C9D /* NewMatchSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewMatchSheet.swift; sourceTree = "<group>"; };
 		EE877181D0D2EB6F44FCF490 /* ListeningDot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListeningDot.swift; sourceTree = "<group>"; };
 		EF6CAC9075A33368706F52FE /* ThemeStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeStore.swift; sourceTree = "<group>"; };
@@ -196,6 +198,7 @@
 				B4F1237976FCC7179733FC75 /* ChatMessageRow.swift */,
 				82A885FF039D9F376DE27C84 /* DottedGrid.swift */,
 				B9C5C443A7D8D3D41E5B0E13 /* FlowLayout.swift */,
+				E53DB1034B149B17293FE383 /* GlassSegmentedPicker.swift */,
 				8AE6D73A8667738DD33BAF2B /* LatencyTag.swift */,
 				EE877181D0D2EB6F44FCF490 /* ListeningDot.swift */,
 				B79E4BA0F9248D3466873BBE /* LivePill.swift */,
@@ -410,6 +413,7 @@
 				B28DD1DE6BE6197370BB602C /* ContentView.swift in Sources */,
 				43DB7EFEFC8C19A84E734EF6 /* DottedGrid.swift in Sources */,
 				45CB73E5789C135680D10F96 /* FlowLayout.swift in Sources */,
+				FC54722D2160DEDE13F882C0 /* GlassSegmentedPicker.swift in Sources */,
 				E05C57FFDF0F3B9977139753 /* LatencyTag.swift in Sources */,
 				DF2E26836A96D0D12400BA94 /* ListeningDot.swift in Sources */,
 				73474C0EE14E2A4A9B79742C /* LivePaneView.swift in Sources */,

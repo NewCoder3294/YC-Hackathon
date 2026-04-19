@@ -3,6 +3,7 @@ import SwiftUI
 struct SidebarView: View {
     @Environment(AppStore.self) private var store
     @Environment(ThemeStore.self) private var theme
+    @Namespace private var glassNamespace
 
     var body: some View {
         VStack(spacing: 0) {
@@ -79,10 +80,13 @@ struct SidebarView: View {
             systemImage: systemImage,
             selected: selected,
             accessory: accessory,
-            collapsed: theme.sidebarCollapsed
+            collapsed: theme.sidebarCollapsed,
+            glassNamespace: glassNamespace
         ) {
-            store.selectedArchiveId = nil
-            store.selectedSurface = surface
+            withAnimation(.spring(response: 0.38, dampingFraction: 0.82)) {
+                store.selectedArchiveId = nil
+                store.selectedSurface = surface
+            }
         }
     }
 }
@@ -278,6 +282,7 @@ private struct SidebarRow: View {
     let selected: Bool
     let accessory: SidebarRowAccessory?
     let collapsed: Bool
+    let glassNamespace: Namespace.ID
     let action: () -> Void
 
     @State private var hovering = false
@@ -340,6 +345,7 @@ private struct SidebarRow: View {
     private var rowBackground: some View {
         if selected {
             LiquidGlassBackground(intensity: 1.0)
+                .matchedGeometryEffect(id: "sidebar.selection.glass", in: glassNamespace)
         } else if hovering {
             LiquidGlassBackground(intensity: 0.45)
         } else {

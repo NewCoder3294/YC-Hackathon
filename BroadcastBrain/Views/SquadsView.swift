@@ -21,9 +21,16 @@ struct SquadsView: View {
                 DottedGrid()
 
                 ScrollView {
-                    HStack(alignment: .top, spacing: 16) {
+                    HStack(alignment: .top, spacing: 0) {
                         teamColumn(team: "Argentina", accent: Color(hex: "#7AB8E3"))
-                        teamColumn(team: "France",    accent: Color(hex: "#D06060"))
+                            .padding(.trailing, 20)
+
+                        Rectangle()
+                            .fill(Color.bbBorder)
+                            .frame(width: 1)
+
+                        teamColumn(team: "France", accent: Color(hex: "#D06060"))
+                            .padding(.leading, 20)
                     }
                     .padding(20)
                 }
@@ -95,25 +102,11 @@ struct SquadsView: View {
     }
 
     private var modePicker: some View {
-        HStack(spacing: 0) {
-            ForEach(SpottingMode.allCases) { m in
-                Button(action: { mode = m }) {
-                    Text(m.label)
-                        .font(Typography.chip)
-                        .tracking(0.5)
-                        .foregroundStyle(mode == m ? Color.textPrimary : Color.textSubtle)
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 6)
-                        .background(mode == m ? Color.bgHover : Color.clear)
-                }
-                .buttonStyle(.plain)
-                if m != SpottingMode.allCases.last {
-                    Rectangle().fill(Color.bbBorder).frame(width: 1, height: 16)
-                }
-            }
-        }
-        .overlay(RoundedRectangle(cornerRadius: 4).stroke(Color.bbBorder, lineWidth: 1))
-        .clipShape(RoundedRectangle(cornerRadius: 4))
+        GlassSegmentedPicker(
+            selection: $mode,
+            options: SpottingMode.allCases,
+            label: { $0.label }
+        )
     }
 
     // MARK: - Team column
