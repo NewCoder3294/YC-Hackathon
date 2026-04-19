@@ -697,7 +697,9 @@ struct LivePaneView: View {
                             guard store.liveState == .listening else { return }
                             guard store.partialTranscript == snapshot, !snapshot.isEmpty else { return }
                             guard snapshot != lastHandledSegment else { return }
-                            lastHandledSegment = snapshot
+                            // handleSegment updates lastHandledSegment AFTER it
+                            // strips the cumulative prefix — do NOT set it here
+                            // or the prefix-strip collapses to empty.
                             await handleSegment(snapshot)
                         }
                     }
@@ -706,7 +708,6 @@ struct LivePaneView: View {
                     Task { @MainActor in
                         debounceTask?.cancel()
                         guard segment != lastHandledSegment else { return }
-                        lastHandledSegment = segment
                         await handleSegment(segment)
                     }
                 }
