@@ -130,26 +130,23 @@ final class AudioCaptureService {
                 }
             }
 
-            if let error {
-                let nsError = error as NSError
-                // Cancellation during stop() — ignore
-                let isCancel = nsError.domain == "kAFAssistantErrorDomain" && nsError.code == 203
-                // "No speech detected" at end of segment — benign, restart
-                let isNoSpeech = nsError.domain == "kAFAssistantErrorDomain" && nsError.code == 1110
-
+            if let _ = error {
                 self.request = nil
                 self.task = nil
-
-                if isCancel {
-                    return
+                // While we're still supposed to be listening, silently restart
+                // on ANY recognition error — no-speech timeouts, cancellations,
+                // on-device-recognizer hiccups, Apple's undocumented codes, etc.
+                // Engine-level failures (mic access, AVAudioEngine start) already
+                // throw from `start()` before we get here, so anything reaching
+                // this callback during active listening is recoverable.
+                if self.isRunning, let rec = self.recognizer {
+                    // Small delay avoids tight spin loops if errors fire immediately
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) { [weak self] in
+                        guard let self, self.isRunning else { return }
+                        self.startRecognitionSegment(recognizer: rec)
+                    }
                 }
-
-                if isNoSpeech && self.isRunning, let rec = self.recognizer {
-                    self.startRecognitionSegment(recognizer: rec)
-                    return
-                }
-
-                self.onError?(.engineStartFailed(error))
+                // else: we're stopping, error is expected — ignore
             }
         }
     }
