@@ -2,7 +2,7 @@ import Foundation
 import Observation
 
 enum Surface: String, CaseIterable, Identifiable {
-    case live, squads, research, news, archive
+    case live, squads, research, news, archive, plays, playsDB
     var id: String { rawValue }
 }
 
@@ -38,15 +38,17 @@ final class AppStore {
 
     let sessionStore: SessionStore
     let cactus: CactusService
+    let playByPlayStore: PlayByPlayStore
 
     // Saved cache location — overrides bundled resource after first user fetch
     private static let savedCacheURL: URL = FileManager.default
         .urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
         .appendingPathComponent("BroadcastBrain/match_cache.json")
 
-    init(sessionStore: SessionStore, cactus: CactusService) {
+    init(sessionStore: SessionStore, cactus: CactusService, playByPlayStore: PlayByPlayStore) {
         self.sessionStore = sessionStore
         self.cactus = cactus
+        self.playByPlayStore = playByPlayStore
 
         // Only user-saved cache counts — no bundled fallback, so first launch always
         // forces the team setup screen for a tailored experience.
