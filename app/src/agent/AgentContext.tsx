@@ -1,5 +1,6 @@
 import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { useEventBus, BusEvent } from '../cactus/state/eventBus';
+import { useModelLoader } from '../cactus/state/modelLoader';
 
 export type AgentPoint = {
   id: string;
@@ -66,6 +67,11 @@ export function AgentProvider({ children }: { children: React.ReactNode }) {
   const startedRef = useRef<number>(0);
 
   const start = useCallback(() => {
+    const modelStatus = useModelLoader.getState().status;
+    if (modelStatus !== 'ready') {
+      console.warn('[agent] start() called while model status =', modelStatus, '— ignoring');
+      return;
+    }
     setActive(true);
     setPipV(true);
     setPoints([]);
