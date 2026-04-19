@@ -19,7 +19,7 @@ struct ArchivesListView: View {
         VStack(spacing: 0) {
             StatusBarView(
                 matchTitle: "Archive",
-                isAirplane: true,
+                sport: nil,
                 latencyMs: nil
             )
 

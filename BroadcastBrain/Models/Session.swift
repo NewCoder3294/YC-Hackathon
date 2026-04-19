@@ -18,6 +18,21 @@ enum Sport: String, Codable, CaseIterable, Identifiable {
         case .other: return "Other"
         }
     }
+
+    /// SF Symbol used in the live status bar. Cricket and rugby fall back to
+    /// `sportscourt.fill` — dedicated symbols don't ship on macOS 14.
+    var symbolName: String {
+        switch self {
+        case .soccer:            return "soccerball"
+        case .basketball:        return "basketball.fill"
+        case .baseball:          return "baseball.fill"
+        case .americanFootball:  return "football.fill"
+        case .hockey:            return "hockey.puck.fill"
+        case .tennis:            return "tennisball.fill"
+        case .cricket, .rugby:   return "sportscourt.fill"
+        case .other:             return "sportscourt.fill"
+        }
+    }
 }
 
 struct Match: Codable, Equatable {
