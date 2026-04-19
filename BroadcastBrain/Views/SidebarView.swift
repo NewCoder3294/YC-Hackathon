@@ -1,3 +1,4 @@
+import AppKit
 import SwiftUI
 
 struct SidebarView: View {
@@ -465,12 +466,17 @@ private struct SidebarFooterControls: View {
     let collapsed: Bool
     @Environment(ThemeStore.self) private var theme
 
+    private static let landingURL = URL(string: "http://localhost:3000")!
+
     var body: some View {
         VStack(spacing: 8) {
             if collapsed {
                 IconButton(systemImage: theme.mode == .dark ? "sun.max" : "moon",
                            help: theme.mode == .dark ? "Light mode" : "Dark mode") {
                     theme.toggleMode()
+                }
+                IconButton(systemImage: "globe", help: "View landing page") {
+                    NSWorkspace.shared.open(Self.landingURL)
                 }
                 IconButton(systemImage: "sidebar.left", help: "Expand sidebar") {
                     theme.toggleSidebar()
@@ -481,6 +487,12 @@ private struct SidebarFooterControls: View {
                     label: theme.mode == .dark ? "LIGHT MODE" : "DARK MODE"
                 ) {
                     theme.toggleMode()
+                }
+                FooterPillButton(
+                    systemImage: "arrow.up.right.square",
+                    label: "LANDING PAGE"
+                ) {
+                    NSWorkspace.shared.open(Self.landingURL)
                 }
             }
         }
