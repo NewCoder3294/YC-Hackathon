@@ -49,6 +49,11 @@ struct SidebarView: View {
                 .padding(.bottom, 12)
         }
         .background(Color.bgBase)
+        .overlay(alignment: .trailing) {
+            Rectangle()
+                .fill(Color.sidebarEdge)
+                .frame(width: 1)
+        }
     }
 
     private func surfaceRow(title: String, systemImage: String, surface: Surface) -> some View {
@@ -84,32 +89,61 @@ struct SidebarView: View {
 
 private struct BrandHeader: View {
     let collapsed: Bool
+    @Environment(ThemeStore.self) private var theme
 
     var body: some View {
-        HStack(spacing: 10) {
-            LogoMark()
-                .frame(width: 30, height: 30)
-            if !collapsed {
-                VStack(alignment: .leading, spacing: 1) {
-                    Text("BROADCAST")
-                        .font(.system(size: 11, weight: .bold, design: .monospaced))
-                        .tracking(1.6)
-                        .foregroundStyle(Color.textPrimary)
-                    Text("BRAIN")
-                        .font(.system(size: 11, weight: .bold, design: .monospaced))
-                        .tracking(1.6)
-                        .foregroundStyle(Color.textPrimary)
+        Group {
+            if collapsed {
+                VStack(spacing: 10) {
+                    LogoMark()
+                        .frame(width: 30, height: 30)
+                    CollapseChevron(collapsed: true) { theme.toggleSidebar() }
                 }
-                Spacer()
+            } else {
+                HStack(spacing: 10) {
+                    LogoMark()
+                        .frame(width: 30, height: 30)
+                    VStack(alignment: .leading, spacing: 1) {
+                        Text("BROADCAST")
+                            .font(.system(size: 11, weight: .bold, design: .monospaced))
+                            .tracking(1.6)
+                            .foregroundStyle(Color.textPrimary)
+                        Text("BRAIN")
+                            .font(.system(size: 11, weight: .bold, design: .monospaced))
+                            .tracking(1.6)
+                            .foregroundStyle(Color.textPrimary)
+                    }
+                    Spacer()
+                    CollapseChevron(collapsed: false) { theme.toggleSidebar() }
+                }
             }
         }
         .frame(maxWidth: .infinity, alignment: collapsed ? .center : .leading)
         .padding(.horizontal, collapsed ? 0 : 16)
-        .padding(.top, 18)
+        .padding(.top, 34)
         .padding(.bottom, 14)
         .overlay(alignment: .bottom) {
             Rectangle().fill(Color.borderSoft).frame(height: 1)
         }
+    }
+}
+
+private struct CollapseChevron: View {
+    let collapsed: Bool
+    let action: () -> Void
+    @State private var hovering = false
+
+    var body: some View {
+        Button(action: action) {
+            Image(systemName: collapsed ? "chevron.right" : "chevron.left")
+                .font(.system(size: 11, weight: .semibold))
+                .foregroundStyle(hovering ? Color.textPrimary : Color.textSubtle)
+                .frame(width: 24, height: 24)
+                .background(hovering ? Color.bgSubtle : Color.clear, in: RoundedRectangle(cornerRadius: 4))
+        }
+        .buttonStyle(.plain)
+        .onHover { hovering = $0 }
+        .help(collapsed ? "Expand sidebar" : "Collapse sidebar")
     }
 }
 
@@ -383,24 +417,12 @@ private struct SidebarFooterControls: View {
                     theme.toggleSidebar()
                 }
             } else {
-                HStack(spacing: 6) {
-                    FooterPillButton(
-                        systemImage: theme.mode == .dark ? "sun.max" : "moon",
-                        label: theme.mode == .dark ? "LIGHT" : "DARK"
-                    ) {
-                        theme.toggleMode()
-                    }
-                    FooterPillButton(systemImage: "sidebar.left", label: "COLLAPSE") {
-                        theme.toggleSidebar()
-                    }
+                FooterPillButton(
+                    systemImage: theme.mode == .dark ? "sun.max" : "moon",
+                    label: theme.mode == .dark ? "LIGHT MODE" : "DARK MODE"
+                ) {
+                    theme.toggleMode()
                 }
-
-                HStack(spacing: 10) {
-                    StatusDot(label: "AIRPLANE", color: .verified)
-                    StatusDot(label: "GEMMA 4",  color: .verified)
-                    Spacer()
-                }
-                .padding(.top, 4)
             }
         }
     }

@@ -1,9 +1,58 @@
 import Foundation
 
+enum Sport: String, Codable, CaseIterable, Identifiable {
+    case soccer, basketball, baseball, americanFootball, hockey, cricket, rugby, tennis, other
+
+    var id: String { rawValue }
+
+    var displayName: String {
+        switch self {
+        case .soccer: return "Soccer"
+        case .basketball: return "Basketball"
+        case .baseball: return "Baseball"
+        case .americanFootball: return "Football"
+        case .hockey: return "Hockey"
+        case .cricket: return "Cricket"
+        case .rugby: return "Rugby"
+        case .tennis: return "Tennis"
+        case .other: return "Other"
+        }
+    }
+}
+
+struct Match: Codable, Equatable {
+    var sport: Sport
+    var homeTeam: String
+    var awayTeam: String
+    var tournament: String
+    var venue: String
+    var matchDate: Date?
+
+    /// "Home vs Away · Tournament · Venue"
+    var title: String {
+        var pieces: [String] = []
+        let matchup = "\(homeTeam) vs \(awayTeam)"
+        pieces.append(matchup)
+        if !tournament.isEmpty { pieces.append(tournament) }
+        if !venue.isEmpty { pieces.append(venue) }
+        return pieces.joined(separator: " · ")
+    }
+
+    static let sampleArgFra2022 = Match(
+        sport: .soccer,
+        homeTeam: "Argentina",
+        awayTeam: "France",
+        tournament: "2022 WC Final",
+        venue: "Lusail Stadium",
+        matchDate: nil
+    )
+}
+
 struct Session: Codable, Identifiable, Equatable {
     let id: UUID
     let createdAt: Date
     var title: String
+    var match: Match?           // optional for legacy sessions on disk
     var transcript: String
     var notes: String
     var statCards: [StatCard]
@@ -13,6 +62,7 @@ struct Session: Codable, Identifiable, Equatable {
         id: UUID = UUID(),
         createdAt: Date = Date(),
         title: String,
+        match: Match? = nil,
         transcript: String = "",
         notes: String = "",
         statCards: [StatCard] = [],
@@ -21,10 +71,27 @@ struct Session: Codable, Identifiable, Equatable {
         self.id = id
         self.createdAt = createdAt
         self.title = title
+        self.match = match
         self.transcript = transcript
         self.notes = notes
         self.statCards = statCards
         self.researchMessages = researchMessages
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case id, createdAt, title, match, transcript, notes, statCards, researchMessages
+    }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        id = try c.decode(UUID.self, forKey: .id)
+        createdAt = try c.decode(Date.self, forKey: .createdAt)
+        title = try c.decode(String.self, forKey: .title)
+        match = try c.decodeIfPresent(Match.self, forKey: .match)
+        transcript = try c.decode(String.self, forKey: .transcript)
+        notes = try c.decode(String.self, forKey: .notes)
+        statCards = try c.decode([StatCard].self, forKey: .statCards)
+        researchMessages = try c.decode([ChatMessage].self, forKey: .researchMessages)
     }
 }
 

@@ -41,6 +41,7 @@
 		B6F4346E4C192BF816F68EAA /* Cactus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82B9451069B6343C41C337AC /* Cactus.swift */; };
 		BA8DD13242C5D90231FBF21E /* ArchiveDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05EF9474EB26DF74B8D7FDAA /* ArchiveDetailView.swift */; };
 		C2EC1CB5DC0D4914B540E12A /* Session.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF9FC0FE9D60DC37A1594C96 /* Session.swift */; };
+		C418A911A2E29B77BEAEDAF8 /* NewMatchSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = E714CFC5D1F7C7748D159C9D /* NewMatchSheet.swift */; };
 		C51482DD2F2F981AD8D640F5 /* SportradarBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46EAD55D55FDE50021FA38E3 /* SportradarBadge.swift */; };
 		D2F4BB6524F4500D144AF80C /* CactusService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90AFD39809B3E0BE8DF8644B /* CactusService.swift */; };
 		DF2E26836A96D0D12400BA94 /* ListeningDot.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE877181D0D2EB6F44FCF490 /* ListeningDot.swift */; };
@@ -113,6 +114,7 @@
 		C9F5FE8926459F794E4A039D /* SessionStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionStore.swift; sourceTree = "<group>"; };
 		CD1186F00AC31EE683675AE6 /* SessionStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionStoreTests.swift; sourceTree = "<group>"; };
 		E5059B3472C8B2022AC33356 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		E714CFC5D1F7C7748D159C9D /* NewMatchSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewMatchSheet.swift; sourceTree = "<group>"; };
 		EE877181D0D2EB6F44FCF490 /* ListeningDot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListeningDot.swift; sourceTree = "<group>"; };
 		EF6CAC9075A33368706F52FE /* ThemeStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeStore.swift; sourceTree = "<group>"; };
 		FD1F4DAD40C5C4BFB52EA58D /* SidebarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarView.swift; sourceTree = "<group>"; };
@@ -137,6 +139,7 @@
 				05EF9474EB26DF74B8D7FDAA /* ArchiveDetailView.swift */,
 				8CC045EB8451818A6CD5A1ED /* ArchivesListView.swift */,
 				01550DE4B92113B1173C6B2F /* LivePaneView.swift */,
+				E714CFC5D1F7C7748D159C9D /* NewMatchSheet.swift */,
 				2268C5BB146969E1B046A49E /* ResearchCenterView.swift */,
 				FD1F4DAD40C5C4BFB52EA58D /* SidebarView.swift */,
 				8F4CA2B25FE5241CA80B742B /* SquadsView.swift */,
@@ -385,6 +388,7 @@
 				4888A82003BDA03F00D954CD /* LivePill.swift in Sources */,
 				3689ED92510A4D081B6CBB1E /* MatchCache.swift in Sources */,
 				E31D20151B71FBD3257BF1D8 /* MockResponder.swift in Sources */,
+				C418A911A2E29B77BEAEDAF8 /* NewMatchSheet.swift in Sources */,
 				AE9607AB8A5E0C197FFB861E /* PlayerCellView.swift in Sources */,
 				41B921C4FB590088E94910D6 /* PressToTalkButton.swift in Sources */,
 				67EED72EDEC3D8621574A4BC /* ResearchCenterView.swift in Sources */,

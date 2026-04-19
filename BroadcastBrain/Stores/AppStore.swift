@@ -34,6 +34,9 @@ final class AppStore {
     var liveState: LiveState = .idle
     var partialTranscript: String = ""
     var lastLatencyMs: Int?
+    /// When true the ContentView presents NewMatchSheet. Driven by the sidebar
+    /// `+ New Session` button. Dismissed on Cancel or Create.
+    var showNewMatchSheet: Bool = false
 
     let sessionStore: SessionStore
     let cactus: CactusService
@@ -51,10 +54,11 @@ final class AppStore {
             self.matchCache = nil
         }
 
-        let title = matchCache?.title ?? "Argentina vs France · 2022 WC Final"
+        // Seed the default hackathon match so first launch has something live.
+        let seededMatch = Match.sampleArgFra2022
+        let title = seededMatch.title
 
         // Reuse an empty session for today's match if one already exists.
-        // Prevents the archives list from accumulating one empty entry per launch.
         let cal = Calendar.current
         if let reusable = sessionStore.sessions.first(where: { s in
             s.title == title
@@ -66,7 +70,7 @@ final class AppStore {
         }) {
             self.currentSession = reusable
         } else {
-            let fresh = Session(title: title)
+            let fresh = Session(title: title, match: seededMatch)
             self.currentSession = fresh
             sessionStore.save(fresh)
         }
@@ -96,9 +100,27 @@ final class AppStore {
         sessionStore.save(currentSession)
     }
 
+    /// Triggered by the sidebar `+ New Session` button. Opens the match form.
+    /// The actual session is created when the user submits via `createSession(from:)`.
     func newSession() {
-        let title = matchCache?.title ?? "New Session"
-        let s = Session(title: title)
+        showNewMatchSheet = true
+    }
+
+    /// Called from NewMatchSheet when the user taps Create.
+    func createSession(from match: Match) {
+        let s = Session(title: match.title, match: match)
+        sessionStore.save(s)
+        currentSession = s
+        selectedArchiveId = nil
+        selectedSurface = .live
+        showNewMatchSheet = false
+    }
+
+    /// Used by endMatch — reuses the current match for a fresh session without
+    /// asking the commentator to re-enter match details.
+    func newSessionKeepingCurrentMatch() {
+        let reusedMatch = currentSession.match ?? Match.sampleArgFra2022
+        let s = Session(title: reusedMatch.title, match: reusedMatch)
         sessionStore.save(s)
         currentSession = s
         selectedArchiveId = nil

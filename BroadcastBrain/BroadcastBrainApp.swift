@@ -13,6 +13,7 @@ struct BroadcastBrainApp: App {
                 .frame(minWidth: 900, minHeight: 600)
                 .preferredColorScheme(theme.mode.colorScheme)
         }
+        .windowStyle(.hiddenTitleBar)
     }
 
     private static func makeStore() -> AppStore {

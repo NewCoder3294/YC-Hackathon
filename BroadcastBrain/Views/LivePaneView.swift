@@ -440,8 +440,8 @@ struct LivePaneView: View {
             .count
 
         return HStack(alignment: .center, spacing: 28) {
-            // Left: on-air status + whisper trigger
-            VStack(alignment: .leading, spacing: 10) {
+            // Left: on-air status centered above the BTW · WHISPER button
+            VStack(spacing: 8) {
                 TimelineView(.periodic(from: .now, by: 1)) { ctx in
                     Text(isListening ? "ON AIR · \(clockString(at: ctx.date))" : "OFF AIR")
                         .font(Typography.chip)
@@ -451,7 +451,7 @@ struct LivePaneView: View {
                 }
                 whisperButton
             }
-            .frame(minWidth: 160, alignment: .leading)
+            .frame(minWidth: 160)
 
             Spacer()
 
@@ -617,7 +617,9 @@ struct LivePaneView: View {
             || !store.currentSession.statCards.isEmpty
 
         if hadContent {
-            store.newSession()
+            // Reuse the same match for the next recording — don't re-prompt
+            // the commentator for team/sport info after each match.
+            store.newSessionKeepingCurrentMatch()
         }
 
         // 4. Route to Archive detail view for the just-ended session

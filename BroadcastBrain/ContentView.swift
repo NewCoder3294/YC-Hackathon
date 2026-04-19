@@ -5,13 +5,21 @@ struct ContentView: View {
     @Environment(ThemeStore.self) private var theme
 
     var body: some View {
+        @Bindable var bindable = store
+
         NavigationSplitView {
             SidebarView()
                 .navigationSplitViewColumnWidth(theme.sidebarCollapsed ? 68 : 260)
+                .toolbar(removing: .sidebarToggle)
         } detail: {
             detailView
+                .ignoresSafeArea(.container, edges: .top)
         }
         .background(Color.bgBase)
+        .sheet(isPresented: $bindable.showNewMatchSheet) {
+            NewMatchSheet()
+                .environment(store)
+        }
     }
 
     @ViewBuilder

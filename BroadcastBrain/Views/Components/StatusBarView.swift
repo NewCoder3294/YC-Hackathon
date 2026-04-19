@@ -21,7 +21,8 @@ struct StatusBarView: View {
             LivePill()
         }
         .padding(.horizontal, 16)
-        .padding(.vertical, 10)
+        .padding(.top, 34)
+        .padding(.bottom, 12)
         .background(Color.bgRaised)
         .overlay(alignment: .bottom) {
             Rectangle().fill(Color.bbBorder).frame(height: 1)
