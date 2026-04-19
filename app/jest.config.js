@@ -7,4 +7,7 @@ module.exports = {
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json'],
   setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
   testPathIgnorePatterns: ['/node_modules/', '/.expo/'],
+  moduleNameMapper: {
+    '^cactus-react-native$': '<rootDir>/__mocks__/cactus-react-native.ts',
+  },
 };
