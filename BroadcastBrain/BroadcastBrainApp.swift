@@ -3,13 +3,15 @@ import SwiftUI
 @main
 struct BroadcastBrainApp: App {
     @State private var store: AppStore = Self.makeStore()
+    @State private var theme: ThemeStore = ThemeStore()
 
     var body: some Scene {
         WindowGroup {
             ContentView()
                 .environment(store)
+                .environment(theme)
                 .frame(minWidth: 900, minHeight: 600)
-                .preferredColorScheme(.dark)
+                .preferredColorScheme(theme.mode.colorScheme)
         }
     }
 

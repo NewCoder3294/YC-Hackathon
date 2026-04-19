@@ -11,6 +11,7 @@ struct LivePaneView: View {
     @State private var lastHandledSegment: String = ""
     @State private var showEndConfirm: Bool = false
     @State private var whisperArmed: Bool = false
+    @State private var recordingStartedAt: Date?
 
     enum PermissionState: Equatable {
         case unknown
@@ -48,16 +49,7 @@ struct LivePaneView: View {
 
                 Divider().background(Color.bbBorder)
 
-                HStack(alignment: .center, spacing: 32) {
-                    Spacer()
-                    PressToTalkButton(
-                        isListening: store.liveState == .listening,
-                        onToggle: matchButtonTapped
-                    )
-                    whisperButton
-                    Spacer()
-                }
-                .padding(.vertical, 20)
+                broadcastConsole
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(Color.bgBase)
@@ -233,36 +225,27 @@ struct LivePaneView: View {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 14) {
                         if store.currentSession.transcript.isEmpty && store.partialTranscript.isEmpty {
-                            Text(permState.bannerText != nil
-                                 ? "Grant permissions above, then tap the mic."
-                                 : "Tap the mic to start listening. Everything you say will appear here live.")
-                                .font(Typography.body)
-                                .foregroundStyle(Color.textSubtle)
+                            transcriptEmptyState
                         }
 
                         if !store.currentSession.transcript.isEmpty {
-                            ForEach(Array(store.currentSession.transcript.split(separator: "\n").enumerated()), id: \.offset) { _, line in
-                                Text(String(line))
-                                    .font(.system(size: 16, weight: .regular, design: .monospaced))
-                                    .foregroundStyle(Color.textPrimary)
-                                    .frame(maxWidth: .infinity, alignment: .leading)
-                                    .fixedSize(horizontal: false, vertical: true)
+                            let lines = store.currentSession.transcript.split(separator: "\n")
+                            ForEach(Array(lines.enumerated()), id: \.offset) { idx, line in
+                                transcriptLine(
+                                    text: String(line),
+                                    isLatest: idx == lines.count - 1 && store.partialTranscript.isEmpty
+                                )
                             }
                         }
 
                         if !store.partialTranscript.isEmpty && store.liveState == .listening {
-                            Text(store.partialTranscript)
-                                .font(.system(size: 16, weight: .regular, design: .monospaced))
-                                .foregroundStyle(Color.textMuted)
-                                .italic()
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .fixedSize(horizontal: false, vertical: true)
+                            partialLine(store.partialTranscript)
                                 .id("__partial__")
                         }
 
                         Color.clear.frame(height: 1).id("__bottom__")
                     }
-                    .padding(14)
+                    .padding(18)
                 }
                 .onChange(of: store.partialTranscript) { _, _ in
                     withAnimation { proxy.scrollTo("__bottom__", anchor: .bottom) }
@@ -278,6 +261,94 @@ struct LivePaneView: View {
         .padding(20)
         .frame(minWidth: 360)
         .background(Color.bgBase)
+    }
+
+    /// Empty state for the LIVE TRANSCRIPT column — big graphic + example pills.
+    private var transcriptEmptyState: some View {
+        VStack(alignment: .leading, spacing: 18) {
+            HStack(spacing: 12) {
+                ZStack {
+                    Circle()
+                        .stroke(Color.live.opacity(0.4), lineWidth: 1)
+                        .frame(width: 44, height: 44)
+                    Image(systemName: "dot.radiowaves.left.and.right")
+                        .font(.system(size: 18))
+                        .foregroundStyle(Color.live)
+                }
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("READY FOR KICK-OFF")
+                        .font(Typography.sectionHead)
+                        .foregroundStyle(Color.textPrimary)
+                    Text(permState.bannerText != nil
+                         ? "Grant permissions above first."
+                         : "Tap the mic to go live. Every phrase you say appears here.")
+                        .font(Typography.body)
+                        .foregroundStyle(Color.textMuted)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+
+            Divider().background(Color.bbBorder.opacity(0.5))
+
+            VStack(alignment: .leading, spacing: 8) {
+                Text("TRY SAYING")
+                    .font(Typography.chip)
+                    .foregroundStyle(Color.textSubtle)
+                FlowLayout(spacing: 6) {
+                    examplePill("Mbappé just scored his second")
+                    examplePill("Messi takes the penalty")
+                    examplePill("Di María finishes the move")
+                }
+                Text("OR WHISPER")
+                    .font(Typography.chip)
+                    .foregroundStyle(Color.textSubtle)
+                    .padding(.top, 4)
+                FlowLayout(spacing: 6) {
+                    examplePill("How many WC goals does Mbappé have?", amber: true)
+                    examplePill("Tell me about Di María", amber: true)
+                }
+            }
+        }
+    }
+
+    private func examplePill(_ text: String, amber: Bool = false) -> some View {
+        Text("\"\(text)\"")
+            .font(Typography.chip)
+            .foregroundStyle(amber ? Color.esoteric : Color.textMuted)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 5)
+            .background((amber ? Color.esoteric : Color.textMuted).opacity(0.08),
+                        in: Capsule())
+            .overlay(Capsule().stroke((amber ? Color.esoteric : Color.textMuted).opacity(0.3), lineWidth: 1))
+    }
+
+    private func transcriptLine(text: String, isLatest: Bool) -> some View {
+        HStack(alignment: .firstTextBaseline, spacing: 10) {
+            Rectangle()
+                .fill(isLatest ? Color.live.opacity(0.6) : Color.bbBorder)
+                .frame(width: 2)
+            Text(text)
+                .font(.system(size: 16, weight: .regular, design: .monospaced))
+                .foregroundStyle(isLatest ? Color.textPrimary : Color.textMuted)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private func partialLine(_ text: String) -> some View {
+        HStack(alignment: .firstTextBaseline, spacing: 10) {
+            Rectangle()
+                .fill(Color.live)
+                .frame(width: 2)
+                .opacity(0.9)
+            (Text(text) + Text(" ▋").foregroundColor(Color.live))
+                .font(.system(size: 16, weight: .regular, design: .monospaced))
+                .foregroundStyle(Color.textPrimary)
+                .italic()
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .fixedSize(horizontal: false, vertical: true)
+        }
     }
 
     private var statCardsColumn: some View {
@@ -358,6 +429,100 @@ struct LivePaneView: View {
         }
     }
 
+    /// Bottom-anchored broadcast console. Unifies mic, whisper, and live
+    /// ambient counters into one visually coherent dock.
+    private var broadcastConsole: some View {
+        let isListening = store.liveState == .listening
+        let statCount = store.currentSession.statCards.filter { $0.kind == .stat }.count
+        let whisperCount = store.currentSession.statCards.filter { $0.kind == .whisper }.count
+        let wordCount = store.currentSession.transcript
+            .split(whereSeparator: { $0.isWhitespace })
+            .count
+
+        return HStack(alignment: .center, spacing: 28) {
+            // Left ambient counters
+            VStack(alignment: .leading, spacing: 8) {
+                Text("SESSION")
+                    .font(Typography.chip)
+                    .foregroundStyle(Color.textSubtle)
+                    .tracking(1.2)
+                consoleMetric(
+                    systemImage: "checkmark.seal.fill",
+                    tint: .verified,
+                    label: "STATS",
+                    value: "\(statCount)"
+                )
+                consoleMetric(
+                    systemImage: "bubble.left.and.text.bubble.right.fill",
+                    tint: .esoteric,
+                    label: "WHISPERS",
+                    value: "\(whisperCount)"
+                )
+                consoleMetric(
+                    systemImage: "text.alignleft",
+                    tint: .textMuted,
+                    label: "WORDS",
+                    value: "\(wordCount)"
+                )
+            }
+            .frame(minWidth: 160, alignment: .leading)
+
+            Spacer()
+
+            // Centered primary mic + waveform
+            PressToTalkButton(
+                isListening: isListening,
+                onToggle: matchButtonTapped
+            )
+
+            Spacer()
+
+            // Right whisper + status
+            VStack(alignment: .trailing, spacing: 8) {
+                TimelineView(.periodic(from: .now, by: 1)) { ctx in
+                    Text(isListening ? "ON AIR · \(clockString(at: ctx.date))" : "OFF AIR")
+                        .font(Typography.chip)
+                        .foregroundStyle(isListening ? Color.live : Color.textSubtle)
+                        .tracking(1.2)
+                        .monospacedDigit()
+                }
+                whisperButton
+            }
+            .frame(minWidth: 160, alignment: .trailing)
+        }
+        .padding(.horizontal, 28)
+        .padding(.vertical, 18)
+        .background(Color.bgRaised.opacity(0.6))
+        .overlay(alignment: .top) {
+            Rectangle().fill(Color.bbBorder).frame(height: 1)
+        }
+    }
+
+    private func consoleMetric(systemImage: String, tint: Color, label: String, value: String) -> some View {
+        HStack(spacing: 8) {
+            Image(systemName: systemImage)
+                .font(.system(size: 11))
+                .foregroundStyle(tint)
+                .frame(width: 14)
+            Text(label)
+                .font(Typography.chip)
+                .foregroundStyle(Color.textSubtle)
+                .tracking(0.5)
+            Spacer()
+            Text(value)
+                .font(.system(size: 14, weight: .semibold, design: .monospaced))
+                .foregroundStyle(Color.textPrimary)
+        }
+    }
+
+    private func clockString(at now: Date) -> String {
+        guard let started = recordingStartedAt else { return "00:00" }
+        let secs = max(0, Int(now.timeIntervalSince(started)))
+        let m = secs / 60
+        let s = secs % 60
+        return String(format: "%02d:%02d", m, s)
+    }
+
     /// Small floating whisper trigger — the `/btw` equivalent. Only active while
     /// recording. One tap arms the next segment to be routed as a whisper.
     private var whisperButton: some View {
@@ -405,6 +570,7 @@ struct LivePaneView: View {
         debounceTask?.cancel()
         lastHandledSegment = ""
         whisperArmed = false
+        recordingStartedAt = nil
         store.liveState = .idle
         store.partialTranscript = ""
 
@@ -521,6 +687,7 @@ struct LivePaneView: View {
                 try audio.start()
                 store.liveState = .listening
                 store.partialTranscript = ""
+                if recordingStartedAt == nil { recordingStartedAt = Date() }
                 print("[live] LISTENING")
             } catch let e as AudioError {
                 print("[live] AudioError: \(e.localizedDescription)")
@@ -540,6 +707,7 @@ struct LivePaneView: View {
         lastHandledSegment = ""
         store.liveState = .idle
         store.partialTranscript = ""
+        recordingStartedAt = nil
     }
 
     @MainActor
