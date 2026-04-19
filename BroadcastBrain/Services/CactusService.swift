@@ -1,9 +1,24 @@
 import Foundation
 
-/// Contract for whatever backend surfaces stat-card JSON.
-/// Both `RealCactusService` (Gemma on Cactus) and `MockResponder` conform.
+/// Contract for the on-device LLM backend. Implemented by `RealCactusService`
+/// (Gemma on Cactus).
 protocol CactusService: AnyObject {
     func complete(system: String, user: String) async throws -> String
+}
+
+/// Stand-in used when the Gemma model is missing or failed to initialize.
+/// It throws from every call so the UI can surface a clear error — this is
+/// NOT a mock and never returns canned data.
+final class UnavailableCactusService: CactusService {
+    private let reason: String
+
+    init(reason: String) {
+        self.reason = reason
+    }
+
+    func complete(system: String, user: String) async throws -> String {
+        throw CactusError.initFailed(reason)
+    }
 }
 
 enum CactusError: Error, LocalizedError {
@@ -31,6 +46,15 @@ enum CactusError: Error, LocalizedError {
 ///   - `cactusDestroy(model)`
 final class RealCactusService: CactusService {
     private let model: CactusModelT
+    // cactus_complete is not thread-safe against itself on the same model
+    // pointer; overlapping calls corrupt the native runtime's KV state and
+    // crash the process. Funnel every invocation through one serial queue so
+    // the live-pane segment stream, the 30-second whisper tick, and the
+    // research pane can never run inference concurrently.
+    private let inferenceQueue = DispatchQueue(
+        label: "com.broadcastbrain.cactus.inference",
+        qos: .userInitiated
+    )
 
     init(modelPath: String) throws {
         guard FileManager.default.fileExists(atPath: modelPath) else {
@@ -57,11 +81,18 @@ final class RealCactusService: CactusService {
             throw CactusError.invalidResponse
         }
 
-        // Run off the MainActor — cactusComplete is synchronous/blocking.
         let modelRef = self.model
-        let raw: String = try await Task.detached(priority: .userInitiated) {
-            try cactusComplete(modelRef, messagesJson, nil, nil, nil)
-        }.value
+        let queue = self.inferenceQueue
+        let raw: String = try await withCheckedThrowingContinuation { cont in
+            queue.async {
+                do {
+                    let value = try cactusComplete(modelRef, messagesJson, nil, nil, nil)
+                    cont.resume(returning: value)
+                } catch {
+                    cont.resume(throwing: error)
+                }
+            }
+        }
 
         return Self.extractContent(from: raw)
     }

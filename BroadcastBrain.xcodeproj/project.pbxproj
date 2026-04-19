@@ -13,14 +13,16 @@
 		0F02EBD664051BF052EF7012 /* ModelCodableTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2491DE25F4F75DA94526903 /* ModelCodableTests.swift */; };
 		162B595396D5974D448E5A8C /* AppStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5C2E3CFAB5CA8C1AD68FB5B /* AppStore.swift */; };
 		164F7E394D28280CBD14A11D /* StackCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10B521A0B659765D883F5E4C /* StackCard.swift */; };
-		1D668774F84B594E8B249C09 /* MockResponderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57DC475ADA91F2B5E0A8A94C /* MockResponderTests.swift */; };
 		30702CFDAB6E91475D9965F5 /* ChatMessageRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4F1237976FCC7179733FC75 /* ChatMessageRow.swift */; };
 		3689ED92510A4D081B6CBB1E /* MatchCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3A6A719D484016893C42760 /* MatchCache.swift */; };
+		3B2F18B5B6543736BD699485 /* ModelSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4AB5137E64A892F3AD5B6E2 /* ModelSetupView.swift */; };
 		4159423CA0FA24C223DB38E0 /* Waveform.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1227A240F189BB798494FD0F /* Waveform.swift */; };
 		41B921C4FB590088E94910D6 /* PressToTalkButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 757AB2F3C722DB4440337D1A /* PressToTalkButton.swift */; };
 		43DB7EFEFC8C19A84E734EF6 /* DottedGrid.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82A885FF039D9F376DE27C84 /* DottedGrid.swift */; };
 		45CB73E5789C135680D10F96 /* FlowLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9C5C443A7D8D3D41E5B0E13 /* FlowLayout.swift */; };
 		4888A82003BDA03F00D954CD /* LivePill.swift in Sources */ = {isa = PBXBuildFile; fileRef = B79E4BA0F9248D3466873BBE /* LivePill.swift */; };
+		57015F98A968ED10EC4E21A1 /* SpeechSynthesisService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 417593F6AF33889059160790 /* SpeechSynthesisService.swift */; };
+		5762330EE915C89A5F296047 /* ZIPFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = F449643EC9EA6D40E8E3C210 /* ZIPFoundation */; };
 		5874FC398254108334E944D0 /* PlaysSearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 721C2BA2DE9BCD5F29F526F0 /* PlaysSearchView.swift */; };
 		5982407B776A2A4BF04125BA /* StatCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE64AD9C32691F3111C8595F /* StatCardView.swift */; };
 		67EED72EDEC3D8621574A4BC /* ResearchCenterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2268C5BB146969E1B046A49E /* ResearchCenterView.swift */; };
@@ -33,6 +35,7 @@
 		7EE3DFD6034A989F9599CB72 /* ThemeStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF6CAC9075A33368706F52FE /* ThemeStore.swift */; };
 		8597296F58177F87BE1CEE5E /* TranscriptOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AAA500ADFDDF5CAD7707BAD /* TranscriptOverlay.swift */; };
 		875A1F9F21CE58F78EBD1DAE /* ArchivesListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CC045EB8451818A6CD5A1ED /* ArchivesListView.swift */; };
+		922D8E5F66990FD389F95CAD /* ModelInstaller.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6C9BEB6725DF3FCEF228A54 /* ModelInstaller.swift */; };
 		9336FDBA329EA3138DAC0282 /* CactusServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE192E5776E2B9A67F110CB8 /* CactusServiceTests.swift */; };
 		A3F44B0C25FFA20F2D5926FC /* AudioCaptureService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B83E5A0C129A26A3CC625311 /* AudioCaptureService.swift */; };
 		A89965156588F66B60F4788A /* cactus-macos.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 4132AE323E5FEB98D3E225B8 /* cactus-macos.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -40,7 +43,6 @@
 		B0DA6E09C0BD2DD22E1CCC99 /* match_cache.json in Resources */ = {isa = PBXBuildFile; fileRef = AF50D005DA852CAE53DC0E99 /* match_cache.json */; };
 		B28DD1DE6BE6197370BB602C /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAB90A6DC8002673826C8BD0 /* ContentView.swift */; };
 		B2FBCA5535B628A8827395B7 /* PlaysStreamView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C131AA2D56A147325E0E848 /* PlaysStreamView.swift */; };
-		B5ABF69FE9AFDAD11C56621B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 154FDBDC815FD074D17C258E /* Assets.xcassets */; };
 		B6F4346E4C192BF816F68EAA /* Cactus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82B9451069B6343C41C337AC /* Cactus.swift */; };
 		BA8DD13242C5D90231FBF21E /* ArchiveDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05EF9474EB26DF74B8D7FDAA /* ArchiveDetailView.swift */; };
 		BBE476D5CF788B4125A50962 /* PlaysDBView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1762BD9961ECE5CAC332508 /* PlaysDBView.swift */; };
@@ -51,8 +53,9 @@
 		DC5AA753C120F87BE6240707 /* PlayByPlayKit in Frameworks */ = {isa = PBXBuildFile; productRef = 5C1A4F9118E151B9F0F57F22 /* PlayByPlayKit */; };
 		DF2E26836A96D0D12400BA94 /* ListeningDot.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE877181D0D2EB6F44FCF490 /* ListeningDot.swift */; };
 		E05C57FFDF0F3B9977139753 /* LatencyTag.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AE6D73A8667738DD33BAF2B /* LatencyTag.swift */; };
-		E31D20151B71FBD3257BF1D8 /* MockResponder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7CE728CE31ACC8F9DB7324B9 /* MockResponder.swift */; };
+		E62E673B7510F8836F233C33 /* GamePickerSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3FDFF807FEA6B6676655170 /* GamePickerSection.swift */; };
 		ED24D8E788873134C2FEEBCA /* SessionStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9F5FE8926459F794E4A039D /* SessionStore.swift */; };
+		EEFBFCCA69EEBE73B8C60048 /* WhisperEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2E07D63CC5BC4EF184BC54E /* WhisperEngine.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -85,17 +88,15 @@
 		05EF9474EB26DF74B8D7FDAA /* ArchiveDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArchiveDetailView.swift; sourceTree = "<group>"; };
 		10B521A0B659765D883F5E4C /* StackCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StackCard.swift; sourceTree = "<group>"; };
 		1227A240F189BB798494FD0F /* Waveform.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Waveform.swift; sourceTree = "<group>"; };
-		154FDBDC815FD074D17C258E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		1BDB3FB2A46D89FB8F6E528D /* BroadcastBrain.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BroadcastBrain.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2268C5BB146969E1B046A49E /* ResearchCenterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResearchCenterView.swift; sourceTree = "<group>"; };
 		4132AE323E5FEB98D3E225B8 /* cactus-macos.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = "cactus-macos.xcframework"; path = "BroadcastBrain/Frameworks/cactus-macos.xcframework"; sourceTree = "<group>"; };
+		417593F6AF33889059160790 /* SpeechSynthesisService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechSynthesisService.swift; sourceTree = "<group>"; };
 		46EAD55D55FDE50021FA38E3 /* SportradarBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SportradarBadge.swift; sourceTree = "<group>"; };
 		51919B20535309C89D4E15B9 /* Tokens.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tokens.swift; sourceTree = "<group>"; };
-		57DC475ADA91F2B5E0A8A94C /* MockResponderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockResponderTests.swift; sourceTree = "<group>"; };
 		721C2BA2DE9BCD5F29F526F0 /* PlaysSearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaysSearchView.swift; sourceTree = "<group>"; };
 		757AB2F3C722DB4440337D1A /* PressToTalkButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PressToTalkButton.swift; sourceTree = "<group>"; };
 		7C131AA2D56A147325E0E848 /* PlaysStreamView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaysStreamView.swift; sourceTree = "<group>"; };
-		7CE728CE31ACC8F9DB7324B9 /* MockResponder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockResponder.swift; sourceTree = "<group>"; };
 		7DD86CEF67DA77208349168F /* BroadcastBrainTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BroadcastBrainTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		82A885FF039D9F376DE27C84 /* DottedGrid.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DottedGrid.swift; sourceTree = "<group>"; };
 		82B9451069B6343C41C337AC /* Cactus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cactus.swift; sourceTree = "<group>"; };
@@ -107,21 +108,25 @@
 		90AFD39809B3E0BE8DF8644B /* CactusService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CactusService.swift; sourceTree = "<group>"; };
 		9AAA500ADFDDF5CAD7707BAD /* TranscriptOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptOverlay.swift; sourceTree = "<group>"; };
 		A2069035A22848052FAF13B0 /* StatusBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBarView.swift; sourceTree = "<group>"; };
+		A3FDFF807FEA6B6676655170 /* GamePickerSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GamePickerSection.swift; sourceTree = "<group>"; };
 		A5C2E3CFAB5CA8C1AD68FB5B /* AppStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStore.swift; sourceTree = "<group>"; };
 		AE192E5776E2B9A67F110CB8 /* CactusServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CactusServiceTests.swift; sourceTree = "<group>"; };
 		AE64AD9C32691F3111C8595F /* StatCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatCardView.swift; sourceTree = "<group>"; };
 		AF50D005DA852CAE53DC0E99 /* match_cache.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = match_cache.json; sourceTree = "<group>"; };
 		B2491DE25F4F75DA94526903 /* ModelCodableTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelCodableTests.swift; sourceTree = "<group>"; };
 		B4F1237976FCC7179733FC75 /* ChatMessageRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatMessageRow.swift; sourceTree = "<group>"; };
+		B6C9BEB6725DF3FCEF228A54 /* ModelInstaller.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelInstaller.swift; sourceTree = "<group>"; };
 		B79E4BA0F9248D3466873BBE /* LivePill.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LivePill.swift; sourceTree = "<group>"; };
 		B83E5A0C129A26A3CC625311 /* AudioCaptureService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioCaptureService.swift; sourceTree = "<group>"; };
 		B94DFFB69D5F724350D835B4 /* PlayByPlayKit */ = {isa = PBXFileReference; lastKnownFileType = folder; name = PlayByPlayKit; path = PlayByPlayKit; sourceTree = SOURCE_ROOT; };
 		B9C5C443A7D8D3D41E5B0E13 /* FlowLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlowLayout.swift; sourceTree = "<group>"; };
 		BAB90A6DC8002673826C8BD0 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		C2E07D63CC5BC4EF184BC54E /* WhisperEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhisperEngine.swift; sourceTree = "<group>"; };
 		C3A6A719D484016893C42760 /* MatchCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MatchCache.swift; sourceTree = "<group>"; };
 		C706D6F845EC11E12CA3B0F5 /* BroadcastBrain.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = BroadcastBrain.entitlements; sourceTree = "<group>"; };
 		C9F5FE8926459F794E4A039D /* SessionStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionStore.swift; sourceTree = "<group>"; };
 		CD1186F00AC31EE683675AE6 /* SessionStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionStoreTests.swift; sourceTree = "<group>"; };
+		D4AB5137E64A892F3AD5B6E2 /* ModelSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelSetupView.swift; sourceTree = "<group>"; };
 		E5059B3472C8B2022AC33356 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		E714CFC5D1F7C7748D159C9D /* NewMatchSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewMatchSheet.swift; sourceTree = "<group>"; };
 		EE877181D0D2EB6F44FCF490 /* ListeningDot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListeningDot.swift; sourceTree = "<group>"; };
@@ -138,6 +143,7 @@
 			files = (
 				70BC25E15A41151CA931A4B9 /* cactus-macos.xcframework in Frameworks */,
 				DC5AA753C120F87BE6240707 /* PlayByPlayKit in Frameworks */,
+				5762330EE915C89A5F296047 /* ZIPFoundation in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -149,7 +155,9 @@
 			children = (
 				05EF9474EB26DF74B8D7FDAA /* ArchiveDetailView.swift */,
 				8CC045EB8451818A6CD5A1ED /* ArchivesListView.swift */,
+				A3FDFF807FEA6B6676655170 /* GamePickerSection.swift */,
 				01550DE4B92113B1173C6B2F /* LivePaneView.swift */,
+				D4AB5137E64A892F3AD5B6E2 /* ModelSetupView.swift */,
 				E714CFC5D1F7C7748D159C9D /* NewMatchSheet.swift */,
 				F1762BD9961ECE5CAC332508 /* PlaysDBView.swift */,
 				721C2BA2DE9BCD5F29F526F0 /* PlaysSearchView.swift */,
@@ -174,7 +182,6 @@
 			isa = PBXGroup;
 			children = (
 				AE192E5776E2B9A67F110CB8 /* CactusServiceTests.swift */,
-				57DC475ADA91F2B5E0A8A94C /* MockResponderTests.swift */,
 				B2491DE25F4F75DA94526903 /* ModelCodableTests.swift */,
 				CD1186F00AC31EE683675AE6 /* SessionStoreTests.swift */,
 			);
@@ -215,7 +222,6 @@
 		5E133AC1178766FED41CC012 /* BroadcastBrain */ = {
 			isa = PBXGroup;
 			children = (
-				154FDBDC815FD074D17C258E /* Assets.xcassets */,
 				C706D6F845EC11E12CA3B0F5 /* BroadcastBrain.entitlements */,
 				90487A3CA3F809A1CFB8ED20 /* BroadcastBrainApp.swift */,
 				BAB90A6DC8002673826C8BD0 /* ContentView.swift */,
@@ -244,7 +250,9 @@
 				B83E5A0C129A26A3CC625311 /* AudioCaptureService.swift */,
 				82B9451069B6343C41C337AC /* Cactus.swift */,
 				90AFD39809B3E0BE8DF8644B /* CactusService.swift */,
-				7CE728CE31ACC8F9DB7324B9 /* MockResponder.swift */,
+				B6C9BEB6725DF3FCEF228A54 /* ModelInstaller.swift */,
+				417593F6AF33889059160790 /* SpeechSynthesisService.swift */,
+				C2E07D63CC5BC4EF184BC54E /* WhisperEngine.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -324,6 +332,7 @@
 			name = BroadcastBrain;
 			packageProductDependencies = (
 				5C1A4F9118E151B9F0F57F22 /* PlayByPlayKit */,
+				F449643EC9EA6D40E8E3C210 /* ZIPFoundation */,
 			);
 			productName = BroadcastBrain;
 			productReference = 1BDB3FB2A46D89FB8F6E528D /* BroadcastBrain.app */;
@@ -349,7 +358,6 @@
 				};
 			};
 			buildConfigurationList = D91C260419C657C9D93090DB /* Build configuration list for PBXProject "BroadcastBrain" */;
-			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -359,9 +367,11 @@
 			mainGroup = AFF55C48CD22E09820BEB37C;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
+				33CB722F5AFD2AB4BB42E990 /* XCRemoteSwiftPackageReference "ZIPFoundation" */,
 				D325D9FCCDF26CC90AFB3972 /* XCLocalSwiftPackageReference "PlayByPlayKit" */,
 			);
 			preferredProjectObjectVersion = 77;
+			productRefGroup = 65A284292BEEBC0943964CCE /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
@@ -376,7 +386,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B5ABF69FE9AFDAD11C56621B /* Assets.xcassets in Resources */,
 				B0DA6E09C0BD2DD22E1CCC99 /* match_cache.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -389,7 +398,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				9336FDBA329EA3138DAC0282 /* CactusServiceTests.swift in Sources */,
-				1D668774F84B594E8B249C09 /* MockResponderTests.swift in Sources */,
 				0F02EBD664051BF052EF7012 /* ModelCodableTests.swift in Sources */,
 				034498E25A8850984493C9E2 /* SessionStoreTests.swift in Sources */,
 			);
@@ -410,12 +418,14 @@
 				B28DD1DE6BE6197370BB602C /* ContentView.swift in Sources */,
 				43DB7EFEFC8C19A84E734EF6 /* DottedGrid.swift in Sources */,
 				45CB73E5789C135680D10F96 /* FlowLayout.swift in Sources */,
+				E62E673B7510F8836F233C33 /* GamePickerSection.swift in Sources */,
 				E05C57FFDF0F3B9977139753 /* LatencyTag.swift in Sources */,
 				DF2E26836A96D0D12400BA94 /* ListeningDot.swift in Sources */,
 				73474C0EE14E2A4A9B79742C /* LivePaneView.swift in Sources */,
 				4888A82003BDA03F00D954CD /* LivePill.swift in Sources */,
 				3689ED92510A4D081B6CBB1E /* MatchCache.swift in Sources */,
-				E31D20151B71FBD3257BF1D8 /* MockResponder.swift in Sources */,
+				922D8E5F66990FD389F95CAD /* ModelInstaller.swift in Sources */,
+				3B2F18B5B6543736BD699485 /* ModelSetupView.swift in Sources */,
 				C418A911A2E29B77BEAEDAF8 /* NewMatchSheet.swift in Sources */,
 				0CC48F247E683B3FB185A6FB /* PlayByPlayStore.swift in Sources */,
 				AE9607AB8A5E0C197FFB861E /* PlayerCellView.swift in Sources */,
@@ -427,6 +437,7 @@
 				C2EC1CB5DC0D4914B540E12A /* Session.swift in Sources */,
 				ED24D8E788873134C2FEEBCA /* SessionStore.swift in Sources */,
 				053617CC8A80BFBB884CF402 /* SidebarView.swift in Sources */,
+				57015F98A968ED10EC4E21A1 /* SpeechSynthesisService.swift in Sources */,
 				C51482DD2F2F981AD8D640F5 /* SportradarBadge.swift in Sources */,
 				70BA18D24CCC880D502CADD7 /* SquadsView.swift in Sources */,
 				164F7E394D28280CBD14A11D /* StackCard.swift in Sources */,
@@ -436,6 +447,7 @@
 				75823BF5B5A04A60E2C364D1 /* Tokens.swift in Sources */,
 				8597296F58177F87BE1CEE5E /* TranscriptOverlay.swift in Sources */,
 				4159423CA0FA24C223DB38E0 /* Waveform.swift in Sources */,
+				EEFBFCCA69EEBE73B8C60048 /* WhisperEngine.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -700,10 +712,26 @@
 		};
 /* End XCLocalSwiftPackageReference section */
 
+/* Begin XCRemoteSwiftPackageReference section */
+		33CB722F5AFD2AB4BB42E990 /* XCRemoteSwiftPackageReference "ZIPFoundation" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/weichsel/ZIPFoundation";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.9.19;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
 /* Begin XCSwiftPackageProductDependency section */
 		5C1A4F9118E151B9F0F57F22 /* PlayByPlayKit */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = PlayByPlayKit;
+		};
+		F449643EC9EA6D40E8E3C210 /* ZIPFoundation */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 33CB722F5AFD2AB4BB42E990 /* XCRemoteSwiftPackageReference "ZIPFoundation" */;
+			productName = ZIPFoundation;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

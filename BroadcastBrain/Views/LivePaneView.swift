@@ -213,6 +213,10 @@ struct LivePaneView: View {
                 permissionBanner(banner)
             }
 
+            if let warning = store.inferenceWarning {
+                inferenceBanner(warning)
+            }
+
             if case .error(let msg) = store.liveState {
                 StackCard(kind: .counter) {
                     Text(msg)
@@ -584,6 +588,51 @@ struct LivePaneView: View {
                 .font(Typography.chip)
                 .foregroundStyle(whisperArmed ? Color.esoteric : Color.textSubtle)
                 .tracking(0.5)
+
+            agentWhisperChip
+        }
+    }
+
+    /// Small pill that shows whether the always-on 30s whisper engine is
+    /// running. Tapping it toggles the engine while the mic is still open —
+    /// it does NOT stop the mic.
+    private var agentWhisperChip: some View {
+        let isListening = store.liveState == .listening
+        let running = store.whisperEngine.isRunning
+
+        return Button(action: toggleAgentWhisper) {
+            HStack(spacing: 5) {
+                Image(systemName: running ? "waveform.circle.fill" : "waveform.circle")
+                    .font(.system(size: 10))
+                    .foregroundStyle(running ? Color.verified : Color.textSubtle)
+                Text(running ? "AGENT · 30s" : "AGENT · OFF")
+                    .font(.system(size: 9, weight: .semibold, design: .monospaced))
+                    .tracking(0.6)
+                    .foregroundStyle(running ? Color.verified : Color.textSubtle)
+            }
+            .padding(.horizontal, 8)
+            .padding(.vertical, 4)
+            .background(
+                (running ? Color.verified.opacity(0.12) : Color.bgSubtle),
+                in: Capsule()
+            )
+            .overlay(
+                Capsule()
+                    .stroke(running ? Color.verified.opacity(0.5) : Color.bbBorder, lineWidth: 1)
+            )
+        }
+        .buttonStyle(.plain)
+        .disabled(!isListening)
+        .opacity(isListening ? 1 : 0.5)
+        .help("Auto-whisper: every 30 seconds the agent surfaces a stat useful for the next play.")
+    }
+
+    private func toggleAgentWhisper() {
+        guard store.liveState == .listening else { return }
+        if store.whisperEngine.isRunning {
+            store.whisperEngine.stop()
+        } else {
+            store.whisperEngine.start()
         }
     }
 
@@ -607,6 +656,8 @@ struct LivePaneView: View {
         recordingStartedAt = nil
         store.liveState = .idle
         store.partialTranscript = ""
+        store.whisperEngine.stop()
+        store.speech.stop()
 
         // 2. Save any final transcript progress
         store.sessionStore.save(store.currentSession)
@@ -639,6 +690,31 @@ struct LivePaneView: View {
         if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?\(section)") {
             NSWorkspace.shared.open(url)
         }
+    }
+
+    private func inferenceBanner(_ text: String) -> some View {
+        HStack(alignment: .top, spacing: 10) {
+            Image(systemName: "exclamationmark.triangle.fill")
+                .font(.system(size: 12))
+                .foregroundStyle(Color.esoteric)
+            VStack(alignment: .leading, spacing: 4) {
+                Text("AI UNAVAILABLE")
+                    .font(Typography.sectionHead)
+                    .foregroundStyle(Color.esoteric)
+                    .tracking(0.5)
+                Text(text)
+                    .font(Typography.body)
+                    .foregroundStyle(Color.textMuted)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            Spacer()
+        }
+        .padding(12)
+        .background(Color.esoteric.opacity(0.08), in: RoundedRectangle(cornerRadius: 6))
+        .overlay(
+            RoundedRectangle(cornerRadius: 6)
+                .stroke(Color.esoteric.opacity(0.5), lineWidth: 1)
+        )
     }
 
     private func refreshPermissionState() {
@@ -716,6 +792,7 @@ struct LivePaneView: View {
                 store.liveState = .listening
                 store.partialTranscript = ""
                 if recordingStartedAt == nil { recordingStartedAt = Date() }
+                store.whisperEngine.start()
                 print("[live] LISTENING")
             } catch let e as AudioError {
                 print("[live] AudioError: \(e.localizedDescription)")
@@ -736,6 +813,8 @@ struct LivePaneView: View {
         store.liveState = .idle
         store.partialTranscript = ""
         recordingStartedAt = nil
+        store.whisperEngine.stop()
+        store.speech.stop()
     }
 
     /// Extract any complete sentences from the current cumulative transcript
@@ -844,8 +923,8 @@ struct LivePaneView: View {
         Answer ONLY from the verified match facts below. If no fact matches, return
         {"no_verified_data":true}. Return ONLY JSON, no other text.
         """
-        // Prefix [BTW] so both Gemma (via prompt directive) and MockResponder
-        // (via substring detection) force whisper routing.
+        // Prefix [BTW] so Gemma's system prompt routes this as a whisper
+        // regardless of phrasing.
         let utterance = forceWhisper ? "[BTW] \(transcript)" : transcript
         let user = """
         Match facts:
@@ -858,12 +937,14 @@ struct LivePaneView: View {
             let reply = try await store.cactus.complete(system: system, user: user)
             let latency = Int(Date().timeIntervalSince(started) * 1000)
             store.lastLatencyMs = latency
+            store.inferenceWarning = nil
 
             if let card = parseStatCard(reply, raw: transcript, latencyMs: latency) {
                 store.appendStatCard(card)
             }
         } catch {
             print("Gemma error on segment '\(transcript)': \(error)")
+            store.inferenceWarning = "Inference failed: \(error.localizedDescription)"
         }
     }
 

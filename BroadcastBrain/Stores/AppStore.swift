@@ -1,5 +1,6 @@
 import Foundation
 import Observation
+import PlayByPlayKit
 
 enum Surface: String, CaseIterable, Identifiable {
     case live, squads, research, archive, plays, playsDB
@@ -26,6 +27,7 @@ enum LiveState: Equatable {
     case error(String)
 }
 
+@MainActor
 @Observable
 final class AppStore {
     var selectedSurface: Surface = .live
@@ -34,6 +36,10 @@ final class AppStore {
     var liveState: LiveState = .idle
     var partialTranscript: String = ""
     var lastLatencyMs: Int?
+    /// Last inference failure shown as a persistent banner on the Live pane.
+    /// Set when Cactus isn't loaded or a completion fails. Nil when things
+    /// are healthy.
+    var inferenceWarning: String?
     /// When true the ContentView presents NewMatchSheet. Driven by the sidebar
     /// `+ New Session` button. Dismissed on Cancel or Create.
     var showNewMatchSheet: Bool = false
@@ -42,11 +48,21 @@ final class AppStore {
     let cactus: CactusService
     let matchCache: MatchCache?
     let playByPlayStore: PlayByPlayStore
+    let speech: SpeechSynthesisService
+    let whisperEngine: WhisperEngine
 
-    init(sessionStore: SessionStore, cactus: CactusService, playByPlayStore: PlayByPlayStore) {
+    init(
+        sessionStore: SessionStore,
+        cactus: CactusService,
+        playByPlayStore: PlayByPlayStore,
+        speech: SpeechSynthesisService,
+        whisperEngine: WhisperEngine
+    ) {
         self.sessionStore = sessionStore
         self.cactus = cactus
         self.playByPlayStore = playByPlayStore
+        self.speech = speech
+        self.whisperEngine = whisperEngine
 
         if let url = Bundle.main.url(forResource: "match_cache", withExtension: "json"),
            let data = try? Data(contentsOf: url),
@@ -79,6 +95,15 @@ final class AppStore {
 
         // Sweep any stray empty duplicate sessions (from pre-fix launches)
         sessionStore.purgeEmptyDuplicates(except: self.currentSession.id)
+
+        // Back-link whisper engine to self so it can read transcript + plays.
+        whisperEngine.attach(store: self)
+
+        // Surface cactus availability up front so the first mic tap isn't a
+        // silent no-op when the model is missing.
+        if cactus is UnavailableCactusService {
+            self.inferenceWarning = "Gemma model not found. Install `gemma.gguf` (see README) and relaunch — the app starts but cannot produce stats until the model is present."
+        }
     }
 
     func appendStatCard(_ card: StatCard) {
@@ -116,6 +141,31 @@ final class AppStore {
         selectedArchiveId = nil
         selectedSurface = .live
         showNewMatchSheet = false
+        startPlayByPlayIfNeeded(for: match)
+    }
+
+    /// Kick off (or resume) the play-by-play stream for a match that carries
+    /// an ESPN league + game id. Safe to call when no feed is linked — it's a
+    /// no-op in that case.
+    func startPlayByPlayIfNeeded(for match: Match) {
+        guard let leagueKey = match.leagueKey,
+              let gameId = match.gameId,
+              let league = League.all.first(where: { $0.key == leagueKey })
+        else { return }
+
+        if playByPlayStore.selectedGame?.id == gameId,
+           playByPlayStore.isStreaming {
+            return
+        }
+
+        playByPlayStore.selectLeague(league)
+        Task { @MainActor in
+            await playByPlayStore.loadLiveGames()
+            let match = playByPlayStore.games.first(where: { $0.id == gameId })
+            if let match {
+                playByPlayStore.startStreaming(match)
+            }
+        }
     }
 
     /// Used by endMatch — reuses the current match for a fresh session without
