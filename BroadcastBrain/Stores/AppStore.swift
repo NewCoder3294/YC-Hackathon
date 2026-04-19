@@ -2,7 +2,7 @@ import Foundation
 import Observation
 
 enum Surface: String, CaseIterable, Identifiable {
-    case live, squads, research, archive
+    case live, squads, research, archive, plays, playsDB
     var id: String { rawValue }
 }
 
@@ -41,10 +41,12 @@ final class AppStore {
     let sessionStore: SessionStore
     let cactus: CactusService
     let matchCache: MatchCache?
+    let playByPlayStore: PlayByPlayStore
 
-    init(sessionStore: SessionStore, cactus: CactusService) {
+    init(sessionStore: SessionStore, cactus: CactusService, playByPlayStore: PlayByPlayStore) {
         self.sessionStore = sessionStore
         self.cactus = cactus
+        self.playByPlayStore = playByPlayStore
 
         if let url = Bundle.main.url(forResource: "match_cache", withExtension: "json"),
            let data = try? Data(contentsOf: url),

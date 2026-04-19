@@ -19,7 +19,11 @@ struct BroadcastBrainApp: App {
     private static func makeStore() -> AppStore {
         let sessionStore = SessionStore()
         let cactus: CactusService = makeCactusService()
-        return AppStore(sessionStore: sessionStore, cactus: cactus)
+        let cacheDir = FileManager.default
+            .urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+            .appendingPathComponent("BroadcastBrain/playbyplay", isDirectory: true)
+        let pbp = PlayByPlayStore(cacheDirectory: cacheDir)
+        return AppStore(sessionStore: sessionStore, cactus: cactus, playByPlayStore: pbp)
     }
 
     private static func makeCactusService() -> CactusService {
