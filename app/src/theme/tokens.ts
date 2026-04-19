@@ -49,7 +49,7 @@ const LIGHT = {
   shadowDrawer: '-14px 0 40px rgba(0,0,0,0.2)',
 } as const;
 
-const PALETTES: Record<ThemeMode, typeof DARK> = { dark: DARK, light: LIGHT };
+const PALETTES: Record<ThemeMode, Record<keyof typeof DARK, string>> = { dark: DARK, light: LIGHT };
 
 const VAR = {
   bgBase:     '--bb-bg-base',
