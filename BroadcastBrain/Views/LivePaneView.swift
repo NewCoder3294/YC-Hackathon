@@ -440,30 +440,16 @@ struct LivePaneView: View {
             .count
 
         return HStack(alignment: .center, spacing: 28) {
-            // Left ambient counters
-            VStack(alignment: .leading, spacing: 8) {
-                Text("SESSION")
-                    .font(Typography.chip)
-                    .foregroundStyle(Color.textSubtle)
-                    .tracking(1.2)
-                consoleMetric(
-                    systemImage: "checkmark.seal.fill",
-                    tint: .verified,
-                    label: "STATS",
-                    value: "\(statCount)"
-                )
-                consoleMetric(
-                    systemImage: "bubble.left.and.text.bubble.right.fill",
-                    tint: .esoteric,
-                    label: "WHISPERS",
-                    value: "\(whisperCount)"
-                )
-                consoleMetric(
-                    systemImage: "text.alignleft",
-                    tint: .textMuted,
-                    label: "WORDS",
-                    value: "\(wordCount)"
-                )
+            // Left: on-air status + whisper trigger
+            VStack(alignment: .leading, spacing: 10) {
+                TimelineView(.periodic(from: .now, by: 1)) { ctx in
+                    Text(isListening ? "ON AIR · \(clockString(at: ctx.date))" : "OFF AIR")
+                        .font(Typography.chip)
+                        .foregroundStyle(isListening ? Color.live : Color.textSubtle)
+                        .tracking(1.2)
+                        .monospacedDigit()
+                }
+                whisperButton
             }
             .frame(minWidth: 160, alignment: .leading)
 
@@ -477,18 +463,9 @@ struct LivePaneView: View {
 
             Spacer()
 
-            // Right whisper + status
-            VStack(alignment: .trailing, spacing: 8) {
-                TimelineView(.periodic(from: .now, by: 1)) { ctx in
-                    Text(isListening ? "ON AIR · \(clockString(at: ctx.date))" : "OFF AIR")
-                        .font(Typography.chip)
-                        .foregroundStyle(isListening ? Color.live : Color.textSubtle)
-                        .tracking(1.2)
-                        .monospacedDigit()
-                }
-                whisperButton
-            }
-            .frame(minWidth: 160, alignment: .trailing)
+            // Right: compact SESSION stat box
+            sessionStatsBox(stats: statCount, whispers: whisperCount, words: wordCount)
+                .frame(minWidth: 160, alignment: .trailing)
         }
         .padding(.horizontal, 28)
         .padding(.vertical, 18)
@@ -498,19 +475,57 @@ struct LivePaneView: View {
         }
     }
 
-    private func consoleMetric(systemImage: String, tint: Color, label: String, value: String) -> some View {
-        HStack(spacing: 8) {
-            Image(systemName: systemImage)
-                .font(.system(size: 11))
-                .foregroundStyle(tint)
-                .frame(width: 14)
-            Text(label)
-                .font(Typography.chip)
+    /// Compact session-stats card. Smaller type, tighter padding, boxed.
+    private func sessionStatsBox(stats: Int, whispers: Int, words: Int) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text("SESSION")
+                .font(.system(size: 9, weight: .semibold, design: .monospaced))
                 .foregroundStyle(Color.textSubtle)
-                .tracking(0.5)
-            Spacer()
+                .tracking(1.4)
+
+            Divider().background(Color.bbBorder.opacity(0.5))
+
+            compactMetric(
+                systemImage: "checkmark.seal.fill",
+                tint: .verified,
+                label: "STATS",
+                value: "\(stats)"
+            )
+            compactMetric(
+                systemImage: "bubble.left.and.text.bubble.right.fill",
+                tint: .esoteric,
+                label: "WHISPERS",
+                value: "\(whispers)"
+            )
+            compactMetric(
+                systemImage: "text.alignleft",
+                tint: .textMuted,
+                label: "WORDS",
+                value: "\(words)"
+            )
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 10)
+        .background(Color.bgSubtle, in: RoundedRectangle(cornerRadius: 5))
+        .overlay(
+            RoundedRectangle(cornerRadius: 5)
+                .stroke(Color.bbBorder, lineWidth: 1)
+        )
+    }
+
+    private func compactMetric(systemImage: String, tint: Color, label: String, value: String) -> some View {
+        HStack(spacing: 6) {
+            Image(systemName: systemImage)
+                .font(.system(size: 9))
+                .foregroundStyle(tint)
+                .frame(width: 11)
+            Text(label)
+                .font(.system(size: 9, weight: .medium, design: .monospaced))
+                .foregroundStyle(Color.textSubtle)
+                .tracking(0.3)
+            Spacer(minLength: 14)
             Text(value)
-                .font(.system(size: 14, weight: .semibold, design: .monospaced))
+                .font(.system(size: 11, weight: .semibold, design: .monospaced))
                 .foregroundStyle(Color.textPrimary)
         }
     }
