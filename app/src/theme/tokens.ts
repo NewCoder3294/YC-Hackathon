@@ -22,3 +22,11 @@ export type Token = keyof typeof tokens;
 
 // iPad landscape design canvas — matches handoff proportions.
 export const IPAD = { WIDTH: 1366, HEIGHT: 1024 } as const;
+
+// Font family string. Use the Google-Fonts-loaded name once loaded,
+// with system monospace fallback strings that browsers understand.
+export const FONT_MONO = 'IBMPlexMono';
+
+// em-to-px letter-spacing helper. RN letterSpacing is numeric (px).
+// Matches handoff values: tracking="0.14em" at fontSize 12 → 12 * 0.14 = 1.68.
+export const tracking = (emFraction: number, fontSize: number) => emFraction * fontSize;
