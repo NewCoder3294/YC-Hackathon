@@ -10,6 +10,7 @@ struct LivePaneView: View {
     @State private var debounceTask: Task<Void, Never>?
     @State private var lastHandledSegment: String = ""
     @State private var showEndConfirm: Bool = false
+    @State private var whisperArmed: Bool = false
 
     enum PermissionState: Equatable {
         case unknown
@@ -46,15 +47,13 @@ struct LivePaneView: View {
 
             Divider().background(Color.bbBorder)
 
-            HStack(spacing: 20) {
+            HStack(alignment: .center, spacing: 32) {
                 Spacer()
                 PressToTalkButton(
                     isListening: store.liveState == .listening,
-                    onToggle: toggleListening
+                    onToggle: matchButtonTapped
                 )
-                Spacer()
-                    .frame(width: 40)
-                endMatchButton
+                whisperButton
                 Spacer()
             }
             .padding(.vertical, 20)
@@ -251,36 +250,44 @@ struct LivePaneView: View {
         }
     }
 
-    private var endMatchButton: some View {
-        let hasContent = !store.currentSession.transcript.isEmpty
-            || !store.currentSession.statCards.isEmpty
-        let canEnd = hasContent || store.liveState == .listening
+    /// Small floating whisper trigger — the `/btw` equivalent. Only active while
+    /// recording. One tap arms the next segment to be routed as a whisper.
+    private var whisperButton: some View {
+        let isListening = store.liveState == .listening
+        let canArm = isListening
 
-        return VStack(spacing: 10) {
-            Button(action: { showEndConfirm = true }) {
-                HStack(spacing: 8) {
-                    Image(systemName: "stop.fill")
-                        .font(.system(size: 14, weight: .medium))
-                    Text("END MATCH")
-                        .font(Typography.chip)
-                        .tracking(0.5)
+        return VStack(spacing: 8) {
+            Button(action: { if canArm { whisperArmed.toggle() } }) {
+                ZStack {
+                    Circle()
+                        .fill(whisperArmed ? Color.esoteric : Color.bgRaised)
+                        .frame(width: 56, height: 56)
+                    Circle()
+                        .stroke(whisperArmed ? Color.esoteric : Color.bbBorder, lineWidth: whisperArmed ? 3 : 1)
+                        .frame(width: 56, height: 56)
+                    Image(systemName: "bubble.left.and.text.bubble.right")
+                        .font(.system(size: 18, weight: .medium))
+                        .foregroundStyle(whisperArmed ? Color.bgBase : (canArm ? Color.esoteric : Color.textSubtle))
                 }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 12)
-                .foregroundStyle(canEnd ? Color.textPrimary : Color.textSubtle)
-                .background(canEnd ? Color.live.opacity(0.15) : Color.bgRaised)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 6)
-                        .stroke(canEnd ? Color.live : Color.bbBorder, lineWidth: 1)
-                )
-                .clipShape(RoundedRectangle(cornerRadius: 6))
             }
             .buttonStyle(.plain)
-            .disabled(!canEnd)
+            .disabled(!canArm)
 
-            Text(canEnd ? "FINALIZE · SAVE TO ARCHIVE" : "NO SESSION YET")
+            Text(whisperArmed ? "WHISPER ARMED" : "BTW · WHISPER")
                 .font(Typography.chip)
-                .foregroundStyle(Color.textSubtle)
+                .foregroundStyle(whisperArmed ? Color.esoteric : Color.textSubtle)
+                .tracking(0.5)
+        }
+    }
+
+    /// Match mic tap routing:
+    ///   - If not listening → start the match (no dialog — kick-off should be fast)
+    ///   - If listening → open confirm dialog (end-of-match ritual)
+    private func matchButtonTapped() {
+        if store.liveState == .listening {
+            showEndConfirm = true
+        } else {
+            startListening()
         }
     }
 
@@ -289,28 +296,27 @@ struct LivePaneView: View {
         audio.stop()
         debounceTask?.cancel()
         lastHandledSegment = ""
+        whisperArmed = false
         store.liveState = .idle
         store.partialTranscript = ""
 
         // 2. Save any final transcript progress
         store.sessionStore.save(store.currentSession)
 
-        // 3. Navigate to Archive tab showing this just-ended session
+        // 3. Capture id, prepare fresh session so next match is clean
         let finishedId = store.currentSession.id
-        store.selectedSurface = .archive
-        store.selectedArchiveId = finishedId
-
-        // 4. Start a fresh session for the next match so the user has a clean slate
-        //    when they come back to Live. Only create one if current had content.
         let hadContent = !store.currentSession.transcript.isEmpty
             || !store.currentSession.statCards.isEmpty
+
         if hadContent {
             store.newSession()
-            // newSession flips us back to Live — reroute to archive detail
-            store.selectedSurface = .archive
-            store.selectedArchiveId = finishedId
         }
+
+        // 4. Route to Archive detail view for the just-ended session
+        store.selectedSurface = .archive
+        store.selectedArchiveId = finishedId
     }
+
 
     private func clearSession() {
         store.currentSession.transcript = ""
@@ -433,7 +439,11 @@ struct LivePaneView: View {
         let transcript = segment.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !transcript.isEmpty else { return }
 
-        print("[live] segment: \(transcript)")
+        // Consume whisper-armed flag: next segment is forced as a whisper answer.
+        let forceWhisper = whisperArmed
+        if forceWhisper { whisperArmed = false }
+
+        print("[live] segment: \(transcript) · forceWhisper=\(forceWhisper)")
 
         store.appendTranscript(transcript)
         store.partialTranscript = ""
@@ -456,14 +466,20 @@ struct LivePaneView: View {
            or is otherwise interrogative), return a WHISPER ANSWER:
            {"type":"whisper","player":"…optional subject player…","answer":"a 1-2 sentence grounded answer","source":"Sportradar"}
 
+        If the utterance is prefixed with [BTW], the commentator explicitly
+        triggered whisper mode — FORCE a whisper answer regardless of phrasing.
+
         Answer ONLY from the verified match facts below. If no fact matches, return
         {"no_verified_data":true}. Return ONLY JSON, no other text.
         """
+        // Prefix [BTW] so both Gemma (via prompt directive) and MockResponder
+        // (via substring detection) force whisper routing.
+        let utterance = forceWhisper ? "[BTW] \(transcript)" : transcript
         let user = """
         Match facts:
         - \(facts)
 
-        Commentator just said: "\(transcript)". Match: \(store.currentSession.title).
+        Commentator just said: "\(utterance)". Match: \(store.currentSession.title).
         """
 
         do {

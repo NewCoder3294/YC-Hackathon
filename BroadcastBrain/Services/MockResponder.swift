@@ -58,14 +58,21 @@ final class MockResponder: CactusService {
             return "I don't have verified data on that."
         }
 
+        // [BTW] prefix = commentator explicitly armed whisper via the side button.
+        // Force a whisper regardless of phrasing.
+        let forced = lower.contains("[btw]")
+
         // Route live-stream inputs by intent — this is the lightweight equivalent
         // of Cactus routing. Queries become whisper answers; non-queries are
         // broadcast moments that get a stat card.
-        if Self.isQuery(lower) {
+        if forced || Self.isQuery(lower) {
             for (key, answer) in researchAnswers where lower.contains(key) {
                 return Self.whisperJson(player: Self.extractPlayer(from: lower) ?? "Whisper", answer: answer)
             }
-            return Self.whisperJson(player: "Whisper", answer: "I don't have verified data on that.")
+            return Self.whisperJson(
+                player: Self.extractPlayer(from: lower) ?? "Whisper",
+                answer: "I don't have verified data on that."
+            )
         }
 
         // Broadcast moment: return a stat card.
