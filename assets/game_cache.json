@@ -1,0 +1,995 @@
+{
+  "match": {
+    "id": "toronto-maple-leafs-ottawa-senators",
+    "home_team": "Toronto Maple Leafs",
+    "away_team": "Ottawa Senators",
+    "competition": "NHL",
+    "venue": "TBD",
+    "kickoff_iso": "2026-04-19T04:24:05.474493+00:00"
+  },
+  "teams": {
+    "home": {
+      "id": "toronto-maple-leafs",
+      "name": "Toronto Maple Leafs",
+      "color_hex": "#003E7E",
+      "record": {}
+    },
+    "away": {
+      "id": "ottawa-senators",
+      "name": "Ottawa Senators",
+      "color_hex": "#1A1A2E",
+      "record": {}
+    }
+  },
+  "players": [
+    {
+      "id": "toronto-maple-leafs-max-domi",
+      "team_id": "toronto-maple-leafs",
+      "shirt_number": 11,
+      "name": "Max Domi",
+      "position": "C",
+      "age": 31,
+      "stats": {
+        "season": {
+          "goals": "12",
+          "assists": "24",
+          "points": "36",
+          "plusMinus": "-29",
+          "pim": "95",
+          "shots": "118",
+          "gamesPlayed": "80"
+        },
+        "form_last_5": {},
+        "vs_opponent": {}
+      },
+      "storyline": "Max Domi | Post Game vs. Dallas Stars | April 13, 2026",
+      "matchup_note": "Max Domi faces Ottawa Senators — a key individual battle to monitor throughout.",
+      "top_stats": [
+        "12 goals",
+        "24 assists",
+        "36 points"
+      ],
+      "status": "fit",
+      "news_headlines": [
+        "Max Domi | Post Game vs. Dallas Stars | April 13, 2026",
+        "Stars 6-5 Maple Leafs (Apr 13, 2026) Game Recap",
+        "Max Domi with a Goal vs. Dallas Stars"
+      ]
+    },
+    {
+      "id": "toronto-maple-leafs-bo-groulx",
+      "team_id": "toronto-maple-leafs",
+      "shirt_number": 29,
+      "name": "Bo Groulx",
+      "position": "C",
+      "age": 26,
+      "stats": {
+        "season": {
+          "goals": "27",
+          "assists": "24",
+          "points": "51",
+          "plusMinus": "8",
+          "pim": "32",
+          "gamesPlayed": "57"
+        },
+        "form_last_5": {},
+        "vs_opponent": {}
+      },
+      "storyline": "Bo Groulx | Pre Game vs Anaheim Ducks | March 12, 2026 | Toronto Maple Leafs",
+      "matchup_note": "Bo Groulx faces Ottawa Senators — a key individual battle to monitor throughout.",
+      "top_stats": [
+        "27 goals",
+        "24 assists",
+        "51 points"
+      ],
+      "status": "fit",
+      "news_headlines": [
+        "Bo Groulx | Pre Game vs Anaheim Ducks | March 12, 2026 | Toronto Maple Leafs",
+        "How Bo Groulx became a late-season surprise for the Maple Leafs",
+        "Why Bo Groulx’s Season With The Maple Leafs Is Effectively Over"
+      ]
+    },
+    {
+      "id": "toronto-maple-leafs-luke-haymes",
+      "team_id": "toronto-maple-leafs",
+      "shirt_number": 43,
+      "name": "Luke Haymes",
+      "position": "C",
+      "age": 22,
+      "stats": {
+        "season": {
+          "goals": "17",
+          "assists": "15",
+          "points": "32",
+          "plusMinus": "-5",
+          "pim": "22",
+          "gamesPlayed": "64"
+        },
+        "form_last_5": {},
+        "vs_opponent": {}
+      },
+      "storyline": "Luke Haymes | Pre Game at Ottawa Senators | April 15, 2026",
+      "matchup_note": "Luke Haymes faces Ottawa Senators — a key individual battle to monitor throughout.",
+      "top_stats": [
+        "17 goals",
+        "15 assists",
+        "32 points"
+      ],
+      "status": "fit",
+      "news_headlines": [
+        "Luke Haymes | Pre Game at Ottawa Senators | April 15, 2026",
+        "Will Maple Leafs Call-Ups William Villeneuve And Luke Haymes Make NHL Debut Before Season Ends?",
+        "Maple Leafs Prospect Roundup: Multiple Marlies make NHL debuts, Leafs sign Landon Sim"
+      ]
+    },
+    {
+      "id": "toronto-maple-leafs-calle-jarnkrok",
+      "team_id": "toronto-maple-leafs",
+      "shirt_number": 19,
+      "name": "Calle Jarnkrok",
+      "position": "C",
+      "age": 34,
+      "stats": {
+        "season": {
+          "goals": "6",
+          "assists": "2",
+          "points": "8",
+          "plusMinus": "-15",
+          "pim": "8",
+          "shots": "45",
+          "gamesPlayed": "56"
+        },
+        "form_last_5": {},
+        "vs_opponent": {}
+      },
+      "storyline": "Calle Jarnkrok refusing to leave the NHL after false rumors sets up pure payback",
+      "matchup_note": "Calle Jarnkrok faces Ottawa Senators — a key individual battle to monitor throughout.",
+      "top_stats": [
+        "6 goals",
+        "2 assists",
+        "8 points"
+      ],
+      "status": "fit",
+      "news_headlines": [
+        "Calle Jarnkrok refusing to leave the NHL after false rumors sets up pure payback",
+        "'A Lot Of Hardships': Ryan Tverberg Describes Emotions Ahead Of NHL Debut With Maple Leafs",
+        "Maple Leafs at Islanders projected lineups"
+      ]
+    },
+    {
+      "id": "toronto-maple-leafs-dakota-joshua",
+      "team_id": "toronto-maple-leafs",
+      "shirt_number": 81,
+      "name": "Dakota Joshua",
+      "position": "C",
+      "age": 29,
+      "stats": {
+        "season": {
+          "goals": "10",
+          "assists": "8",
+          "points": "18",
+          "plusMinus": "-2",
+          "pim": "49",
+          "shots": "52",
+          "gamesPlayed": "55"
+        },
+        "form_last_5": {},
+        "vs_opponent": {}
+      },
+      "storyline": "Dakota Joshua | Pre Game @ Anaheim Ducks | March 30, 2026",
+      "matchup_note": "Dakota Joshua faces Ottawa Senators — a key individual battle to monitor throughout.",
+      "top_stats": [
+        "10 goals",
+        "8 assists",
+        "18 points"
+      ],
+      "status": "fit",
+      "news_headlines": [
+        "Dakota Joshua | Pre Game @ Anaheim Ducks | March 30, 2026",
+        "Maple Leafs Shut Down Three Players For The Remainder Of The Season",
+        "Maple Leafs 4-3 Rangers (Mar 25, 2026) Game Recap"
+      ]
+    },
+    {
+      "id": "toronto-maple-leafs-matthew-knies",
+      "team_id": "toronto-maple-leafs",
+      "shirt_number": 23,
+      "name": "Matthew Knies",
+      "position": "L",
+      "age": 23,
+      "stats": {
+        "season": {
+          "goals": "23",
+          "assists": "43",
+          "points": "66",
+          "plusMinus": "-30",
+          "pim": "29",
+          "shots": "140",
+          "gamesPlayed": "79"
+        },
+        "form_last_5": {},
+        "vs_opponent": {}
+      },
+      "storyline": "Matthew Knies is listed as injured — his availability is the key team news heading in.",
+      "matchup_note": "Matthew Knies faces Ottawa Senators — a key individual battle to monitor throughout.",
+      "top_stats": [
+        "23 goals",
+        "43 assists",
+        "66 points"
+      ],
+      "status": "injured",
+      "news_headlines": [
+        "Matthew Knies | End of Season Media Availability | April 16, 2026",
+        "Toronto Maple Leafs forward Matthew Knies emerges as Chicago Blackhawks target in latest NHL trade rumors",
+        "How Maple Leafs’ Monday loss affected Bruins’ potential first-round pick"
+      ]
+    },
+    {
+      "id": "toronto-maple-leafs-steven-lorentz",
+      "team_id": "toronto-maple-leafs",
+      "shirt_number": 18,
+      "name": "Steven Lorentz",
+      "position": "C",
+      "age": 30,
+      "stats": {
+        "season": {
+          "goals": "7",
+          "assists": "11",
+          "points": "18",
+          "plusMinus": "-2",
+          "pim": "16",
+          "shots": "70",
+          "gamesPlayed": "71"
+        },
+        "form_last_5": {},
+        "vs_opponent": {}
+      },
+      "storyline": "Steven Lorentz brings 7 goals into this matchup — one of the key figures to watch.",
+      "matchup_note": "Steven Lorentz faces Ottawa Senators — a key individual battle to monitor throughout.",
+      "top_stats": [
+        "7 goals",
+        "11 assists",
+        "18 points"
+      ],
+      "status": "fit",
+      "news_headlines": []
+    },
+    {
+      "id": "toronto-maple-leafs-matias-maccelli",
+      "team_id": "toronto-maple-leafs",
+      "shirt_number": 63,
+      "name": "Matias Maccelli",
+      "position": "L",
+      "age": 25,
+      "stats": {
+        "season": {
+          "goals": "14",
+          "assists": "25",
+          "points": "39",
+          "plusMinus": "-23",
+          "pim": "16",
+          "shots": "90",
+          "gamesPlayed": "71"
+        },
+        "form_last_5": {},
+        "vs_opponent": {}
+      },
+      "storyline": "Matias Maccelli brings 14 goals into this matchup — one of the key figures to watch.",
+      "matchup_note": "Matias Maccelli faces Ottawa Senators — a key individual battle to monitor throughout.",
+      "top_stats": [
+        "14 goals",
+        "25 assists",
+        "39 points"
+      ],
+      "status": "fit",
+      "news_headlines": []
+    },
+    {
+      "id": "toronto-maple-leafs-auston-matthews",
+      "team_id": "toronto-maple-leafs",
+      "shirt_number": 34,
+      "name": "Auston Matthews",
+      "position": "C",
+      "age": 28,
+      "stats": {
+        "season": {
+          "goals": "3",
+          "assists": "4",
+          "points": "7",
+          "plusMinus": "3",
+          "pim": "4",
+          "shots": "16",
+          "gamesPlayed": "6"
+        },
+        "form_last_5": {},
+        "vs_opponent": {}
+      },
+      "storyline": "Auston Matthews is listed as injured — his availability is the key team news heading in.",
+      "matchup_note": "Auston Matthews faces Ottawa Senators — a key individual battle to monitor throughout.",
+      "top_stats": [
+        "3 goals",
+        "4 assists",
+        "7 points"
+      ],
+      "status": "injured",
+      "news_headlines": []
+    },
+    {
+      "id": "toronto-maple-leafs-william-nylander",
+      "team_id": "toronto-maple-leafs",
+      "shirt_number": 88,
+      "name": "William Nylander",
+      "position": "R",
+      "age": 29,
+      "stats": {
+        "season": {
+          "goals": "2",
+          "assists": "2",
+          "points": "4",
+          "plusMinus": "2",
+          "pim": "4",
+          "shots": "17",
+          "gamesPlayed": "5"
+        },
+        "form_last_5": {},
+        "vs_opponent": {}
+      },
+      "storyline": "William Nylander brings 2 goals into this matchup — one of the key figures to watch.",
+      "matchup_note": "William Nylander faces Ottawa Senators — a key individual battle to monitor throughout.",
+      "top_stats": [
+        "2 goals",
+        "2 assists",
+        "4 points"
+      ],
+      "status": "fit",
+      "news_headlines": []
+    },
+    {
+      "id": "toronto-maple-leafs-nicholas-robertson",
+      "team_id": "toronto-maple-leafs",
+      "shirt_number": 89,
+      "name": "Nicholas Robertson",
+      "position": "L",
+      "age": 24,
+      "stats": {
+        "season": {},
+        "form_last_5": {},
+        "vs_opponent": {}
+      },
+      "storyline": "Nicholas Robertson is a key L piece in this lineup — watch how they influence the game.",
+      "matchup_note": "Nicholas Robertson faces Ottawa Senators — a key individual battle to monitor throughout.",
+      "top_stats": [],
+      "status": "fit",
+      "news_headlines": []
+    },
+    {
+      "id": "toronto-maple-leafs-john-tavares",
+      "team_id": "toronto-maple-leafs",
+      "shirt_number": 91,
+      "name": "John Tavares",
+      "position": "C",
+      "age": 35,
+      "stats": {
+        "season": {},
+        "form_last_5": {},
+        "vs_opponent": {}
+      },
+      "storyline": "John Tavares is a key C piece in this lineup — watch how they influence the game.",
+      "matchup_note": "John Tavares faces Ottawa Senators — a key individual battle to monitor throughout.",
+      "top_stats": [],
+      "status": "fit",
+      "news_headlines": []
+    },
+    {
+      "id": "toronto-maple-leafs-simon-benoit",
+      "team_id": "toronto-maple-leafs",
+      "shirt_number": 2,
+      "name": "Simon Benoit",
+      "position": "D",
+      "age": 27,
+      "stats": {
+        "season": {},
+        "form_last_5": {},
+        "vs_opponent": {}
+      },
+      "storyline": "Simon Benoit is a key D piece in this lineup — watch how they influence the game.",
+      "matchup_note": "Simon Benoit faces Ottawa Senators — a key individual battle to monitor throughout.",
+      "top_stats": [],
+      "status": "fit",
+      "news_headlines": []
+    },
+    {
+      "id": "toronto-maple-leafs-brandon-carlo",
+      "team_id": "toronto-maple-leafs",
+      "shirt_number": 25,
+      "name": "Brandon Carlo",
+      "position": "D",
+      "age": 29,
+      "stats": {
+        "season": {},
+        "form_last_5": {},
+        "vs_opponent": {}
+      },
+      "storyline": "Brandon Carlo is a key D piece in this lineup — watch how they influence the game.",
+      "matchup_note": "Brandon Carlo faces Ottawa Senators — a key individual battle to monitor throughout.",
+      "top_stats": [],
+      "status": "fit",
+      "news_headlines": []
+    },
+    {
+      "id": "toronto-maple-leafs-oliver-ekman-larsson",
+      "team_id": "toronto-maple-leafs",
+      "shirt_number": 95,
+      "name": "Oliver Ekman-Larsson",
+      "position": "D",
+      "age": 34,
+      "stats": {
+        "season": {},
+        "form_last_5": {},
+        "vs_opponent": {}
+      },
+      "storyline": "Oliver Ekman-Larsson is a key D piece in this lineup — watch how they influence the game.",
+      "matchup_note": "Oliver Ekman-Larsson faces Ottawa Senators — a key individual battle to monitor throughout.",
+      "top_stats": [],
+      "status": "fit",
+      "news_headlines": []
+    },
+    {
+      "id": "toronto-maple-leafs-jake-mccabe",
+      "team_id": "toronto-maple-leafs",
+      "shirt_number": 22,
+      "name": "Jake McCabe",
+      "position": "D",
+      "age": 32,
+      "stats": {
+        "season": {},
+        "form_last_5": {},
+        "vs_opponent": {}
+      },
+      "storyline": "Jake McCabe is a key D piece in this lineup — watch how they influence the game.",
+      "matchup_note": "Jake McCabe faces Ottawa Senators — a key individual battle to monitor throughout.",
+      "top_stats": [],
+      "status": "fit",
+      "news_headlines": []
+    },
+    {
+      "id": "toronto-maple-leafs-philippe-myers",
+      "team_id": "toronto-maple-leafs",
+      "shirt_number": 51,
+      "name": "Philippe Myers",
+      "position": "D",
+      "age": 29,
+      "stats": {
+        "season": {},
+        "form_last_5": {},
+        "vs_opponent": {}
+      },
+      "storyline": "Philippe Myers is a key D piece in this lineup — watch how they influence the game.",
+      "matchup_note": "Philippe Myers faces Ottawa Senators — a key individual battle to monitor throughout.",
+      "top_stats": [],
+      "status": "fit",
+      "news_headlines": []
+    },
+    {
+      "id": "toronto-maple-leafs-morgan-rielly",
+      "team_id": "toronto-maple-leafs",
+      "shirt_number": 44,
+      "name": "Morgan Rielly",
+      "position": "D",
+      "age": 32,
+      "stats": {
+        "season": {},
+        "form_last_5": {},
+        "vs_opponent": {}
+      },
+      "storyline": "Morgan Rielly is a key D piece in this lineup — watch how they influence the game.",
+      "matchup_note": "Morgan Rielly faces Ottawa Senators — a key individual battle to monitor throughout.",
+      "top_stats": [],
+      "status": "fit",
+      "news_headlines": []
+    },
+    {
+      "id": "toronto-maple-leafs-troy-stecher",
+      "team_id": "toronto-maple-leafs",
+      "shirt_number": 28,
+      "name": "Troy Stecher",
+      "position": "D",
+      "age": 32,
+      "stats": {
+        "season": {},
+        "form_last_5": {},
+        "vs_opponent": {}
+      },
+      "storyline": "Troy Stecher is a key D piece in this lineup — watch how they influence the game.",
+      "matchup_note": "Troy Stecher faces Ottawa Senators — a key individual battle to monitor throughout.",
+      "top_stats": [],
+      "status": "fit",
+      "news_headlines": []
+    },
+    {
+      "id": "toronto-maple-leafs-chris-tanev",
+      "team_id": "toronto-maple-leafs",
+      "shirt_number": 8,
+      "name": "Chris Tanev",
+      "position": "D",
+      "age": 36,
+      "stats": {
+        "season": {},
+        "form_last_5": {},
+        "vs_opponent": {}
+      },
+      "storyline": "Chris Tanev is a key D piece in this lineup — watch how they influence the game.",
+      "matchup_note": "Chris Tanev faces Ottawa Senators — a key individual battle to monitor throughout.",
+      "top_stats": [],
+      "status": "fit",
+      "news_headlines": []
+    },
+    {
+      "id": "ottawa-senators-michael-amadio",
+      "team_id": "ottawa-senators",
+      "shirt_number": 22,
+      "name": "Michael Amadio",
+      "position": "R",
+      "age": 29,
+      "stats": {
+        "season": {
+          "plusMinus": "-1",
+          "shots": "1",
+          "gamesPlayed": "1"
+        },
+        "form_last_5": {},
+        "vs_opponent": {}
+      },
+      "storyline": "Michael Amadio with a Goal vs. New York Islanders",
+      "matchup_note": "Michael Amadio faces Toronto Maple Leafs — a key individual battle to monitor throughout.",
+      "top_stats": [
+        "-1 plusMinus",
+        "1 shots",
+        "1 gamesPlayed"
+      ],
+      "status": "fit",
+      "news_headlines": [
+        "Michael Amadio with a Goal vs. New York Islanders",
+        "Ottawa Senators clinch playoff spot with win over Isles, Detroit losing to New Jersey - The Athletic",
+        "Michael Amadio with a Goal vs. New York Islanders"
+      ]
+    },
+    {
+      "id": "ottawa-senators-drake-batherson",
+      "team_id": "ottawa-senators",
+      "shirt_number": 19,
+      "name": "Drake Batherson",
+      "position": "R",
+      "age": 27,
+      "stats": {
+        "season": {
+          "shots": "3",
+          "gamesPlayed": "1"
+        },
+        "form_last_5": {},
+        "vs_opponent": {}
+      },
+      "storyline": "Drake Batherson Postgame Media vs CAR Game One",
+      "matchup_note": "Drake Batherson faces Toronto Maple Leafs — a key individual battle to monitor throughout.",
+      "top_stats": [
+        "3 shots",
+        "1 gamesPlayed"
+      ],
+      "status": "fit",
+      "news_headlines": [
+        "Drake Batherson Postgame Media vs CAR Game One",
+        "Hurricanes 2-0 Senators (Apr 18, 2026) Final Score",
+        "2026 Stanley Cup Playoffs Series Preview: Hurricanes vs. Senators"
+      ]
+    },
+    {
+      "id": "ottawa-senators-nick-cousins",
+      "team_id": "ottawa-senators",
+      "shirt_number": 21,
+      "name": "Nick Cousins",
+      "position": "C",
+      "age": 32,
+      "stats": {
+        "season": {
+          "pim": "2",
+          "gamesPlayed": "1"
+        },
+        "form_last_5": {},
+        "vs_opponent": {}
+      },
+      "storyline": "Senators roster at a glance for Stanley Cup Playoffs",
+      "matchup_note": "Nick Cousins faces Toronto Maple Leafs — a key individual battle to monitor throughout.",
+      "top_stats": [
+        "2 pim",
+        "1 gamesPlayed"
+      ],
+      "status": "fit",
+      "news_headlines": [
+        "Senators roster at a glance for Stanley Cup Playoffs",
+        "Short-handed Senators overpower Maple Leafs 3-1 in regular-season finale",
+        "Nick Cousins Media Availability"
+      ]
+    },
+    {
+      "id": "ottawa-senators-dylan-cozens",
+      "team_id": "ottawa-senators",
+      "shirt_number": 24,
+      "name": "Dylan Cozens",
+      "position": "C",
+      "age": 25,
+      "stats": {
+        "season": {
+          "shots": "2",
+          "gamesPlayed": "1"
+        },
+        "form_last_5": {},
+        "vs_opponent": {}
+      },
+      "storyline": "Hurricanes 2",
+      "matchup_note": "Dylan Cozens faces Toronto Maple Leafs — a key individual battle to monitor throughout.",
+      "top_stats": [
+        "2 shots",
+        "1 gamesPlayed"
+      ],
+      "status": "fit",
+      "news_headlines": [
+        "Hurricanes 2-0 Senators (Apr 18, 2026) Final Score",
+        "Senators roster at a glance for Stanley Cup Playoffs",
+        "Senators vs Hurricanes Prediction, Picks & Odds for Today's NHL Playoffs Game 1"
+      ]
+    },
+    {
+      "id": "ottawa-senators-lars-eller",
+      "team_id": "ottawa-senators",
+      "shirt_number": 89,
+      "name": "Lars Eller",
+      "position": "C",
+      "age": 36,
+      "stats": {
+        "season": {
+          "gamesPlayed": "1"
+        },
+        "form_last_5": {},
+        "vs_opponent": {}
+      },
+      "storyline": "Hurricanes 2",
+      "matchup_note": "Lars Eller faces Toronto Maple Leafs — a key individual battle to monitor throughout.",
+      "top_stats": [
+        "1 gamesPlayed"
+      ],
+      "status": "fit",
+      "news_headlines": [
+        "Hurricanes 2-0 Senators (Apr 18, 2026) Final Score",
+        "Senators defeat Sabres, move back into wild-card spot in East",
+        "Short-handed Senators do enough to beat falling Maple Leafs 3-1"
+      ]
+    },
+    {
+      "id": "ottawa-senators-warren-foegele",
+      "team_id": "ottawa-senators",
+      "shirt_number": 37,
+      "name": "Warren Foegele",
+      "position": "L",
+      "age": 30,
+      "stats": {
+        "season": {
+          "plusMinus": "-1",
+          "shots": "2",
+          "gamesPlayed": "1"
+        },
+        "form_last_5": {},
+        "vs_opponent": {}
+      },
+      "storyline": "Warren Foegele Postgame Media vs TOR",
+      "matchup_note": "Warren Foegele faces Toronto Maple Leafs — a key individual battle to monitor throughout.",
+      "top_stats": [
+        "-1 plusMinus",
+        "2 shots",
+        "1 gamesPlayed"
+      ],
+      "status": "fit",
+      "news_headlines": [
+        "Warren Foegele Postgame Media vs TOR",
+        "Senators 3-1 Maple Leafs (Apr 15, 2026) Final Score",
+        "Senators roster at a glance for Stanley Cup Playoffs"
+      ]
+    },
+    {
+      "id": "ottawa-senators-claude-giroux",
+      "team_id": "ottawa-senators",
+      "shirt_number": 28,
+      "name": "Claude Giroux",
+      "position": "R",
+      "age": 38,
+      "stats": {
+        "season": {
+          "plusMinus": "-1",
+          "shots": "2",
+          "gamesPlayed": "1"
+        },
+        "form_last_5": {},
+        "vs_opponent": {}
+      },
+      "storyline": "Claude Giroux brings -1 plusMinus into this matchup — one of the key figures to watch.",
+      "matchup_note": "Claude Giroux faces Toronto Maple Leafs — a key individual battle to monitor throughout.",
+      "top_stats": [
+        "-1 plusMinus",
+        "2 shots",
+        "1 gamesPlayed"
+      ],
+      "status": "fit",
+      "news_headlines": []
+    },
+    {
+      "id": "ottawa-senators-ridly-greig",
+      "team_id": "ottawa-senators",
+      "shirt_number": 71,
+      "name": "Ridly Greig",
+      "position": "C",
+      "age": 23,
+      "stats": {
+        "season": {
+          "shots": "1",
+          "gamesPlayed": "1"
+        },
+        "form_last_5": {},
+        "vs_opponent": {}
+      },
+      "storyline": "Ridly Greig brings 1 shots into this matchup — one of the key figures to watch.",
+      "matchup_note": "Ridly Greig faces Toronto Maple Leafs — a key individual battle to monitor throughout.",
+      "top_stats": [
+        "1 shots",
+        "1 gamesPlayed"
+      ],
+      "status": "fit",
+      "news_headlines": []
+    },
+    {
+      "id": "ottawa-senators-stephen-halliday",
+      "team_id": "ottawa-senators",
+      "shirt_number": 83,
+      "name": "Stephen Halliday",
+      "position": "C",
+      "age": 23,
+      "stats": {
+        "season": {
+          "goals": "2",
+          "assists": "27",
+          "points": "29",
+          "plusMinus": "-14",
+          "pim": "16",
+          "gamesPlayed": "29"
+        },
+        "form_last_5": {},
+        "vs_opponent": {}
+      },
+      "storyline": "Stephen Halliday brings 2 goals into this matchup — one of the key figures to watch.",
+      "matchup_note": "Stephen Halliday faces Toronto Maple Leafs — a key individual battle to monitor throughout.",
+      "top_stats": [
+        "2 goals",
+        "27 assists",
+        "29 points"
+      ],
+      "status": "fit",
+      "news_headlines": []
+    },
+    {
+      "id": "ottawa-senators-kurtis-macdermid",
+      "team_id": "ottawa-senators",
+      "shirt_number": 23,
+      "name": "Kurtis MacDermid",
+      "position": "L",
+      "age": 32,
+      "stats": {
+        "season": {
+          "assists": "1",
+          "points": "1",
+          "plusMinus": "-5",
+          "pim": "33",
+          "shots": "4",
+          "gamesPlayed": "19"
+        },
+        "form_last_5": {},
+        "vs_opponent": {}
+      },
+      "storyline": "Kurtis MacDermid brings 1 assists into this matchup — one of the key figures to watch.",
+      "matchup_note": "Kurtis MacDermid faces Toronto Maple Leafs — a key individual battle to monitor throughout.",
+      "top_stats": [
+        "1 assists",
+        "1 points",
+        "-5 plusMinus"
+      ],
+      "status": "fit",
+      "news_headlines": []
+    },
+    {
+      "id": "ottawa-senators-shane-pinto",
+      "team_id": "ottawa-senators",
+      "shirt_number": 12,
+      "name": "Shane Pinto",
+      "position": "C",
+      "age": 25,
+      "stats": {
+        "season": {},
+        "form_last_5": {},
+        "vs_opponent": {}
+      },
+      "storyline": "Shane Pinto is a key C piece in this lineup — watch how they influence the game.",
+      "matchup_note": "Shane Pinto faces Toronto Maple Leafs — a key individual battle to monitor throughout.",
+      "top_stats": [],
+      "status": "fit",
+      "news_headlines": []
+    },
+    {
+      "id": "ottawa-senators-tim-st-tzle",
+      "team_id": "ottawa-senators",
+      "shirt_number": 18,
+      "name": "Tim Stützle",
+      "position": "C",
+      "age": 24,
+      "stats": {
+        "season": {},
+        "form_last_5": {},
+        "vs_opponent": {}
+      },
+      "storyline": "Tim Stützle is a key C piece in this lineup — watch how they influence the game.",
+      "matchup_note": "Tim Stützle faces Toronto Maple Leafs — a key individual battle to monitor throughout.",
+      "top_stats": [],
+      "status": "fit",
+      "news_headlines": []
+    },
+    {
+      "id": "ottawa-senators-brady-tkachuk",
+      "team_id": "ottawa-senators",
+      "shirt_number": 7,
+      "name": "Brady Tkachuk",
+      "position": "L",
+      "age": 26,
+      "stats": {
+        "season": {},
+        "form_last_5": {},
+        "vs_opponent": {}
+      },
+      "storyline": "Brady Tkachuk is a key L piece in this lineup — watch how they influence the game.",
+      "matchup_note": "Brady Tkachuk faces Toronto Maple Leafs — a key individual battle to monitor throughout.",
+      "top_stats": [],
+      "status": "fit",
+      "news_headlines": []
+    },
+    {
+      "id": "ottawa-senators-fabian-zetterlund",
+      "team_id": "ottawa-senators",
+      "shirt_number": 20,
+      "name": "Fabian Zetterlund",
+      "position": "L",
+      "age": 26,
+      "stats": {
+        "season": {},
+        "form_last_5": {},
+        "vs_opponent": {}
+      },
+      "storyline": "Fabian Zetterlund is a key L piece in this lineup — watch how they influence the game.",
+      "matchup_note": "Fabian Zetterlund faces Toronto Maple Leafs — a key individual battle to monitor throughout.",
+      "top_stats": [],
+      "status": "fit",
+      "news_headlines": []
+    },
+    {
+      "id": "ottawa-senators-thomas-chabot",
+      "team_id": "ottawa-senators",
+      "shirt_number": 72,
+      "name": "Thomas Chabot",
+      "position": "D",
+      "age": 29,
+      "stats": {
+        "season": {},
+        "form_last_5": {},
+        "vs_opponent": {}
+      },
+      "storyline": "Thomas Chabot is a key D piece in this lineup — watch how they influence the game.",
+      "matchup_note": "Thomas Chabot faces Toronto Maple Leafs — a key individual battle to monitor throughout.",
+      "top_stats": [],
+      "status": "fit",
+      "news_headlines": []
+    },
+    {
+      "id": "ottawa-senators-cameron-crotty",
+      "team_id": "ottawa-senators",
+      "shirt_number": 5,
+      "name": "Cameron Crotty",
+      "position": "D",
+      "age": 26,
+      "stats": {
+        "season": {},
+        "form_last_5": {},
+        "vs_opponent": {}
+      },
+      "storyline": "Cameron Crotty is a key D piece in this lineup — watch how they influence the game.",
+      "matchup_note": "Cameron Crotty faces Toronto Maple Leafs — a key individual battle to monitor throughout.",
+      "top_stats": [],
+      "status": "fit",
+      "news_headlines": []
+    },
+    {
+      "id": "ottawa-senators-dennis-gilbert",
+      "team_id": "ottawa-senators",
+      "shirt_number": 6,
+      "name": "Dennis Gilbert",
+      "position": "D",
+      "age": 29,
+      "stats": {
+        "season": {},
+        "form_last_5": {},
+        "vs_opponent": {}
+      },
+      "storyline": "Dennis Gilbert is a key D piece in this lineup — watch how they influence the game.",
+      "matchup_note": "Dennis Gilbert faces Toronto Maple Leafs — a key individual battle to monitor throughout.",
+      "top_stats": [],
+      "status": "fit",
+      "news_headlines": []
+    },
+    {
+      "id": "ottawa-senators-nick-jensen",
+      "team_id": "ottawa-senators",
+      "shirt_number": 3,
+      "name": "Nick Jensen",
+      "position": "D",
+      "age": 35,
+      "stats": {
+        "season": {},
+        "form_last_5": {},
+        "vs_opponent": {}
+      },
+      "storyline": "Nick Jensen is a key D piece in this lineup — watch how they influence the game.",
+      "matchup_note": "Nick Jensen faces Toronto Maple Leafs — a key individual battle to monitor throughout.",
+      "top_stats": [],
+      "status": "fit",
+      "news_headlines": []
+    },
+    {
+      "id": "ottawa-senators-tyler-kleven",
+      "team_id": "ottawa-senators",
+      "shirt_number": 43,
+      "name": "Tyler Kleven",
+      "position": "D",
+      "age": 24,
+      "stats": {
+        "season": {},
+        "form_last_5": {},
+        "vs_opponent": {}
+      },
+      "storyline": "Tyler Kleven is a key D piece in this lineup — watch how they influence the game.",
+      "matchup_note": "Tyler Kleven faces Toronto Maple Leafs — a key individual battle to monitor throughout.",
+      "top_stats": [],
+      "status": "fit",
+      "news_headlines": []
+    },
+    {
+      "id": "ottawa-senators-nikolas-matinpalo",
+      "team_id": "ottawa-senators",
+      "shirt_number": 33,
+      "name": "Nikolas Matinpalo",
+      "position": "D",
+      "age": 27,
+      "stats": {
+        "season": {},
+        "form_last_5": {},
+        "vs_opponent": {}
+      },
+      "storyline": "Nikolas Matinpalo is a key D piece in this lineup — watch how they influence the game.",
+      "matchup_note": "Nikolas Matinpalo faces Toronto Maple Leafs — a key individual battle to monitor throughout.",
+      "top_stats": [],
+      "status": "fit",
+      "news_headlines": []
+    }
+  ],
+  "storylines": [
+    "Toronto Maple Leafs NHL Draft Outlook: What To Know In 2026",
+    "Bruins need draft lottery luck to get Leafs' 2026 first-round pick",
+    "2026 NHL Draft Lottery set for May 5",
+    "Ottawa Senators - Carolina Hurricanes - Apr 18, 2026",
+    "Stanley Cup playoffs 2026: Brady Tkachuk, Jordan Staal fight 3 seconds into Hurricanes' Game 1 win over Senators"
+  ],
+  "source": "espn_unofficial + mlb_official + nhl_official + google_news_rss",
+  "generated_at": "2026-04-19T04:24:40.292811+00:00"
+}

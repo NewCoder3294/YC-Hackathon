@@ -10,3 +10,5 @@ ios/Pods/
 android/.gradle/
 dist/
 build/
+__pycache__/
+assets/game_cache.json
