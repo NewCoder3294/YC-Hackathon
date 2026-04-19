@@ -363,10 +363,22 @@ struct LivePaneView: View {
 
         let facts = store.matchCache?.facts.prefix(8).joined(separator: "\n- ") ?? ""
         let system = """
-        You are a sports stat assistant for a live football broadcaster.
-        Answer ONLY from the verified match facts below. If no fact matches, return JSON {"no_verified_data":true}.
-        Otherwise return JSON {"player":..., "stat_value":..., "context_line":..., "source":"Sportradar", "confidence":"high"|"medium"}.
-        Return ONLY JSON, no other text.
+        You are a sports broadcast agent for a live football commentator. Route the
+        commentator's last utterance to one of two output kinds — this is the
+        Cactus-routing contract.
+
+        1) If the utterance is a BROADCAST MOMENT (describing something that just
+           happened on the pitch — a goal, foul, booking, substitution, etc.),
+           return a STAT CARD:
+           {"type":"stat","player":"…","stat_value":"…","context_line":"…","source":"Sportradar","confidence":"high"|"medium"}
+
+        2) If the utterance is a QUERY (the commentator is asking a side question —
+           contains "?", starts with "how"/"what"/"when"/"why"/"tell me"/"compare",
+           or is otherwise interrogative), return a WHISPER ANSWER:
+           {"type":"whisper","player":"…optional subject player…","answer":"a 1-2 sentence grounded answer","source":"Sportradar"}
+
+        Answer ONLY from the verified match facts below. If no fact matches, return
+        {"no_verified_data":true}. Return ONLY JSON, no other text.
         """
         let user = """
         Match facts:
@@ -393,13 +405,32 @@ struct LivePaneView: View {
               let obj = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
         else { return nil }
         if obj["no_verified_data"] as? Bool == true { return nil }
+
+        let src = obj["source"] as? String ?? "Sportradar"
+        let typeStr = obj["type"] as? String ?? "stat"
+
+        // Whisper card — commentator query routed to a prose answer
+        if typeStr == "whisper" {
+            let answer = (obj["answer"] as? String) ?? ""
+            let player = (obj["player"] as? String) ?? "Whisper"
+            guard !answer.isEmpty else { return nil }
+            return StatCard(
+                kind: .whisper,
+                player: player,
+                rawTranscript: raw,
+                latencyMs: latencyMs,
+                answer: answer
+            )
+        }
+
+        // Stat card — autonomous broadcast moment
         guard
             let player = obj["player"] as? String,
             let stat = obj["stat_value"] as? String,
             let ctx = obj["context_line"] as? String
         else { return nil }
-        let src = obj["source"] as? String ?? "Sportradar"
         return StatCard(
+            kind: .stat,
             player: player,
             statValue: stat,
             contextLine: ctx,
