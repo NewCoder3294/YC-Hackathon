@@ -28,6 +28,7 @@
 		5762330EE915C89A5F296047 /* ZIPFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = F449643EC9EA6D40E8E3C210 /* ZIPFoundation */; };
 		5874FC398254108334E944D0 /* PlaysSearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 721C2BA2DE9BCD5F29F526F0 /* PlaysSearchView.swift */; };
 		5982407B776A2A4BF04125BA /* StatCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE64AD9C32691F3111C8595F /* StatCardView.swift */; };
+		668E3D8ECBB14F66D24A8041 /* ProseFallbackTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7F6464FB0E115048B55C10D /* ProseFallbackTests.swift */; };
 		67EED72EDEC3D8621574A4BC /* ResearchCenterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2268C5BB146969E1B046A49E /* ResearchCenterView.swift */; };
 		70BA18D24CCC880D502CADD7 /* SquadsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F4CA2B25FE5241CA80B742B /* SquadsView.swift */; };
 		70BC25E15A41151CA931A4B9 /* cactus-macos.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4132AE323E5FEB98D3E225B8 /* cactus-macos.xcframework */; };
@@ -141,6 +142,7 @@
 		DC36DF2FCFDC28B51429E9F3 /* WhisperEngineBehaviorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhisperEngineBehaviorTests.swift; sourceTree = "<group>"; };
 		E5059B3472C8B2022AC33356 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		E714CFC5D1F7C7748D159C9D /* NewMatchSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewMatchSheet.swift; sourceTree = "<group>"; };
+		E7F6464FB0E115048B55C10D /* ProseFallbackTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProseFallbackTests.swift; sourceTree = "<group>"; };
 		EE877181D0D2EB6F44FCF490 /* ListeningDot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListeningDot.swift; sourceTree = "<group>"; };
 		EF6CAC9075A33368706F52FE /* ThemeStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeStore.swift; sourceTree = "<group>"; };
 		F1762BD9961ECE5CAC332508 /* PlaysDBView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaysDBView.swift; sourceTree = "<group>"; };
@@ -197,6 +199,7 @@
 				AE192E5776E2B9A67F110CB8 /* CactusServiceTests.swift */,
 				449F32AE708B8F0B7E1572BA /* Fixture.swift */,
 				B2491DE25F4F75DA94526903 /* ModelCodableTests.swift */,
+				E7F6464FB0E115048B55C10D /* ProseFallbackTests.swift */,
 				D874A533E0F018A9307A1ED9 /* SentenceExtractorTests.swift */,
 				CD1186F00AC31EE683675AE6 /* SessionStoreTests.swift */,
 				DC36DF2FCFDC28B51429E9F3 /* WhisperEngineBehaviorTests.swift */,
@@ -418,6 +421,7 @@
 				9336FDBA329EA3138DAC0282 /* CactusServiceTests.swift in Sources */,
 				D44BEC0D3D9840E6A3A7B4E8 /* Fixture.swift in Sources */,
 				0F02EBD664051BF052EF7012 /* ModelCodableTests.swift in Sources */,
+				668E3D8ECBB14F66D24A8041 /* ProseFallbackTests.swift in Sources */,
 				0FA70BF69FB32BAA9788E22E /* SentenceExtractorTests.swift in Sources */,
 				034498E25A8850984493C9E2 /* SessionStoreTests.swift in Sources */,
 				0E428B0EC28CFB5A54FCA9CC /* WhisperEngineBehaviorTests.swift in Sources */,

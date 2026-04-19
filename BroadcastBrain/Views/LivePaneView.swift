@@ -1006,9 +1006,13 @@ struct LivePaneView: View {
 
     /// Best-effort conversion of a prose Gemma reply into a single-sentence
     /// whisper answer. Strips markdown fences, drops any leading meta-chatter
-    /// ("Okay, let's break down…"), and caps at ~220 chars so TTS doesn't
-    /// narrate a page of text.
-    private static func proseFallbackAnswer(from raw: String) -> String? {
+    /// ("Okay, let's break down…"), caps at ~220 chars for TTS sanity, and
+    /// returns `nil` when the final sentence is a first-person refusal
+    /// ("I don't have verified data on that.") — those answers leak Gemma's
+    /// inability into the broadcast instead of silently skipping the tick.
+    ///
+    /// Internal (not private) so `ProseFallbackTests` can drive it directly.
+    static func proseFallbackAnswer(from raw: String) -> String? {
         let trimmed = raw.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return nil }
         // Split on blank lines; prefer the first paragraph that isn't a
@@ -1017,18 +1021,7 @@ struct LivePaneView: View {
             .components(separatedBy: "\n\n")
             .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
             .filter { !$0.isEmpty }
-        let meaningless: [String] = [
-            "please provide",
-            "i need more information",
-            "as an ai",
-            "i am a large language model",
-            "i'm sorry",
-            "okay, let's"
-        ]
-        let candidate = paragraphs.first(where: { p in
-            let lower = p.lowercased()
-            return !meaningless.contains(where: { lower.hasPrefix($0) })
-        }) ?? paragraphs.first
+        let candidate = paragraphs.first(where: { !isMetaChatter($0) }) ?? paragraphs.first
         guard var answer = candidate else { return nil }
         // Strip common markdown artefacts.
         answer = answer
@@ -1047,7 +1040,62 @@ struct LivePaneView: View {
         if answer.count > 220 {
             answer = String(answer.prefix(220)) + "…"
         }
-        return answer.isEmpty ? nil : answer
+        let finalAnswer = answer.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !finalAnswer.isEmpty else { return nil }
+        // Final gate: never ship Gemma's refusals as a whisper answer. The
+        // commentator already knows we don't know — TTS'ing "I don't have
+        // verified data on that." is worse than staying silent.
+        if isRefusal(finalAnswer) { return nil }
+        return finalAnswer
+    }
+
+    /// Paragraph-level meta-chatter filter. Matches leading framing text Gemma
+    /// emits before getting to the actual answer.
+    static func isMetaChatter(_ paragraph: String) -> Bool {
+        let lower = paragraph.lowercased()
+        let metaPrefixes: [String] = [
+            "please provide",
+            "i need more information",
+            "as an ai",
+            "i am a large language model",
+            "i'm sorry",
+            "okay, let's"
+        ]
+        return metaPrefixes.contains(where: { lower.hasPrefix($0) })
+    }
+
+    /// First-person refusal detector. Refusals start with "I", "I'm", or
+    /// "My" AND contain a don't-have / don't-know / can't-answer phrase.
+    /// Requiring first-person lets sentences like "Messi doesn't have a
+    /// hat-trick yet." pass through (subject isn't the model).
+    static func isRefusal(_ sentence: String) -> Bool {
+        let lower = sentence.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+        let firstPerson = lower.hasPrefix("i ")
+            || lower.hasPrefix("i'")
+            || lower.hasPrefix("my ")
+            || lower == "i don't know."
+            || lower == "i don't know"
+        guard firstPerson else { return false }
+        let refusalPhrases: [String] = [
+            "verified data",
+            "don't have",
+            "dont have",
+            "do not have",
+            "don't know",
+            "dont know",
+            "do not know",
+            "can't answer",
+            "cannot answer",
+            "can't help",
+            "cannot help",
+            "unable to",
+            "have no information",
+            "have no data",
+            "am not sure",
+            "apologize",
+            "rather not"
+        ]
+        return refusalPhrases.contains(where: { lower.contains($0) })
     }
 
     private func parseStatCard(_ json: String, raw: String, latencyMs: Int) -> StatCard? {
