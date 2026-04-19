@@ -168,9 +168,9 @@ function StartUI({ onStart }: { onStart: () => void }) {
     transform: [{ scale: interpolate(pulse.value, [0, 1], [1, 1.35]) }],
   }));
 
-  // Keyboard shortcut: SPACE starts the agent
+  // Keyboard shortcut: SPACE starts the agent — web only.
   React.useEffect(() => {
-    if (typeof window === 'undefined') return;
+    if (typeof window === 'undefined' || typeof window.addEventListener !== 'function') return;
     const onKey = (e: KeyboardEvent) => {
       if (e.code === 'Space' && (e.target as HTMLElement)?.tagName !== 'INPUT') {
         e.preventDefault();

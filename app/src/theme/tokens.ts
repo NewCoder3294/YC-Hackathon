@@ -2,7 +2,10 @@
 // Each token emits `var(--bb-X, <dark-fallback>)` — changing the CSS variables
 // on the document root re-themes the entire app with zero React re-renders.
 
+import { Platform } from 'react-native';
 import { create } from 'zustand';
+
+const IS_WEB = Platform.OS === 'web';
 
 export type ThemeMode = 'dark' | 'light';
 
@@ -73,7 +76,10 @@ type TokenKey = keyof typeof VAR;
 function buildTokens(): Record<TokenKey, string> {
   const out = {} as Record<TokenKey, string>;
   (Object.keys(VAR) as TokenKey[]).forEach((key) => {
-    out[key] = `var(${VAR[key]}, ${DARK[key]})`;
+    // Web: emit CSS var() so runtime theme switching via document.documentElement works.
+    // Native iOS/Android: var() is invalid and renders as transparent/black, causing the
+    // "shadow over the entire app" bug — emit the raw dark hex value instead.
+    out[key] = IS_WEB ? `var(${VAR[key]}, ${DARK[key]})` : DARK[key];
   });
   return out;
 }
