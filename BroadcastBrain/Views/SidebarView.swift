@@ -8,15 +8,9 @@ struct SidebarView: View {
             List {
                 Section {
                     surfaceRow(title: "Live",     systemImage: "dot.radiowaves.left.and.right", surface: .live)
+                    surfaceRow(title: "Squads",   systemImage: "person.2",                      surface: .squads)
                     surfaceRow(title: "Research", systemImage: "book",                          surface: .research)
-                }
-
-                Section("ARCHIVES") {
-                    ForEach(store.sessionStore.sessions) { session in
-                        ArchiveRow(session: session, isSelected: store.selectedArchiveId == session.id)
-                            .contentShape(Rectangle())
-                            .onTapGesture { store.selectedArchiveId = session.id }
-                    }
+                    surfaceRow(title: "Archive",  systemImage: "archivebox",                    surface: .archive)
                 }
             }
             .listStyle(.sidebar)
@@ -43,7 +37,15 @@ struct SidebarView: View {
     }
 
     private func surfaceRow(title: String, systemImage: String, surface: Surface) -> some View {
-        let selected = store.selectedArchiveId == nil && store.selectedSurface == surface
+        // Archive surface is "selected" whenever the user has navigated there,
+        // regardless of whether they're looking at the list or a specific session.
+        let selected: Bool = {
+            if surface == .archive {
+                return store.selectedSurface == .archive
+            }
+            return store.selectedArchiveId == nil && store.selectedSurface == surface
+        }()
+
         return HStack {
             Image(systemName: systemImage)
                 .foregroundStyle(selected ? Color.live : Color.textMuted)
@@ -52,7 +54,7 @@ struct SidebarView: View {
                 .font(Typography.body)
                 .foregroundStyle(Color.textPrimary)
             Spacer()
-            if selected && surface == .live { LivePill() }
+            if selected && surface == .live && store.liveState == .listening { LivePill() }
         }
         .padding(.vertical, 4)
         .contentShape(Rectangle())
@@ -60,32 +62,5 @@ struct SidebarView: View {
             store.selectedArchiveId = nil
             store.selectedSurface = surface
         }
-    }
-}
-
-struct ArchiveRow: View {
-    let session: Session
-    let isSelected: Bool
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 2) {
-            Text(session.title)
-                .font(Typography.statLabel)
-                .foregroundStyle(Color.textPrimary)
-                .lineLimit(1)
-            HStack(spacing: 6) {
-                Text(session.createdAt.formatted(date: .abbreviated, time: .shortened))
-                    .font(Typography.chip)
-                    .foregroundStyle(Color.textSubtle)
-                if !session.statCards.isEmpty {
-                    Text("·").foregroundStyle(Color.textSubtle)
-                    Text("\(session.statCards.count) cards")
-                        .font(Typography.chip)
-                        .foregroundStyle(Color.verified)
-                }
-            }
-        }
-        .padding(.vertical, 4)
-        .background(isSelected ? Color.bgHover : Color.clear)
     }
 }

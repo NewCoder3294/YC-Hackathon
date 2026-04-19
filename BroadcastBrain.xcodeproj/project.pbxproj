@@ -17,18 +17,22 @@
 		3689ED92510A4D081B6CBB1E /* MatchCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3A6A719D484016893C42760 /* MatchCache.swift */; };
 		4159423CA0FA24C223DB38E0 /* Waveform.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1227A240F189BB798494FD0F /* Waveform.swift */; };
 		41B921C4FB590088E94910D6 /* PressToTalkButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 757AB2F3C722DB4440337D1A /* PressToTalkButton.swift */; };
+		43DB7EFEFC8C19A84E734EF6 /* DottedGrid.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82A885FF039D9F376DE27C84 /* DottedGrid.swift */; };
 		4888A82003BDA03F00D954CD /* LivePill.swift in Sources */ = {isa = PBXBuildFile; fileRef = B79E4BA0F9248D3466873BBE /* LivePill.swift */; };
 		5982407B776A2A4BF04125BA /* StatCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE64AD9C32691F3111C8595F /* StatCardView.swift */; };
 		67EED72EDEC3D8621574A4BC /* ResearchCenterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2268C5BB146969E1B046A49E /* ResearchCenterView.swift */; };
+		70BA18D24CCC880D502CADD7 /* SquadsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F4CA2B25FE5241CA80B742B /* SquadsView.swift */; };
 		70BC25E15A41151CA931A4B9 /* cactus-macos.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4132AE323E5FEB98D3E225B8 /* cactus-macos.xcframework */; };
 		73474C0EE14E2A4A9B79742C /* LivePaneView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01550DE4B92113B1173C6B2F /* LivePaneView.swift */; };
 		75823BF5B5A04A60E2C364D1 /* Tokens.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51919B20535309C89D4E15B9 /* Tokens.swift */; };
 		76BD684BF4DDC88E49946E2E /* BroadcastBrainApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90487A3CA3F809A1CFB8ED20 /* BroadcastBrainApp.swift */; };
 		77475FBA9D6370A088D71876 /* StatusBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2069035A22848052FAF13B0 /* StatusBarView.swift */; };
 		8597296F58177F87BE1CEE5E /* TranscriptOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AAA500ADFDDF5CAD7707BAD /* TranscriptOverlay.swift */; };
+		875A1F9F21CE58F78EBD1DAE /* ArchivesListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CC045EB8451818A6CD5A1ED /* ArchivesListView.swift */; };
 		9336FDBA329EA3138DAC0282 /* CactusServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE192E5776E2B9A67F110CB8 /* CactusServiceTests.swift */; };
 		A3F44B0C25FFA20F2D5926FC /* AudioCaptureService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B83E5A0C129A26A3CC625311 /* AudioCaptureService.swift */; };
 		A89965156588F66B60F4788A /* cactus-macos.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 4132AE323E5FEB98D3E225B8 /* cactus-macos.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		AE9607AB8A5E0C197FFB861E /* PlayerCellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 029080D103ECBCC33E9E38F8 /* PlayerCellView.swift */; };
 		B0DA6E09C0BD2DD22E1CCC99 /* match_cache.json in Resources */ = {isa = PBXBuildFile; fileRef = AF50D005DA852CAE53DC0E99 /* match_cache.json */; };
 		B28DD1DE6BE6197370BB602C /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAB90A6DC8002673826C8BD0 /* ContentView.swift */; };
 		B5ABF69FE9AFDAD11C56621B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 154FDBDC815FD074D17C258E /* Assets.xcassets */; };
@@ -69,6 +73,7 @@
 
 /* Begin PBXFileReference section */
 		01550DE4B92113B1173C6B2F /* LivePaneView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LivePaneView.swift; sourceTree = "<group>"; };
+		029080D103ECBCC33E9E38F8 /* PlayerCellView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerCellView.swift; sourceTree = "<group>"; };
 		05EF9474EB26DF74B8D7FDAA /* ArchiveDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArchiveDetailView.swift; sourceTree = "<group>"; };
 		10B521A0B659765D883F5E4C /* StackCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StackCard.swift; sourceTree = "<group>"; };
 		1227A240F189BB798494FD0F /* Waveform.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Waveform.swift; sourceTree = "<group>"; };
@@ -82,8 +87,11 @@
 		757AB2F3C722DB4440337D1A /* PressToTalkButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PressToTalkButton.swift; sourceTree = "<group>"; };
 		7CE728CE31ACC8F9DB7324B9 /* MockResponder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockResponder.swift; sourceTree = "<group>"; };
 		7DD86CEF67DA77208349168F /* BroadcastBrainTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BroadcastBrainTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		82A885FF039D9F376DE27C84 /* DottedGrid.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DottedGrid.swift; sourceTree = "<group>"; };
 		82B9451069B6343C41C337AC /* Cactus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cactus.swift; sourceTree = "<group>"; };
 		8AE6D73A8667738DD33BAF2B /* LatencyTag.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LatencyTag.swift; sourceTree = "<group>"; };
+		8CC045EB8451818A6CD5A1ED /* ArchivesListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArchivesListView.swift; sourceTree = "<group>"; };
+		8F4CA2B25FE5241CA80B742B /* SquadsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SquadsView.swift; sourceTree = "<group>"; };
 		90487A3CA3F809A1CFB8ED20 /* BroadcastBrainApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BroadcastBrainApp.swift; sourceTree = "<group>"; };
 		90AFD39809B3E0BE8DF8644B /* CactusService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CactusService.swift; sourceTree = "<group>"; };
 		9AAA500ADFDDF5CAD7707BAD /* TranscriptOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptOverlay.swift; sourceTree = "<group>"; };
@@ -123,9 +131,11 @@
 			isa = PBXGroup;
 			children = (
 				05EF9474EB26DF74B8D7FDAA /* ArchiveDetailView.swift */,
+				8CC045EB8451818A6CD5A1ED /* ArchivesListView.swift */,
 				01550DE4B92113B1173C6B2F /* LivePaneView.swift */,
 				2268C5BB146969E1B046A49E /* ResearchCenterView.swift */,
 				FD1F4DAD40C5C4BFB52EA58D /* SidebarView.swift */,
+				8F4CA2B25FE5241CA80B742B /* SquadsView.swift */,
 				576EFBB721C77F668145738B /* Components */,
 			);
 			path = Views;
@@ -163,9 +173,11 @@
 			isa = PBXGroup;
 			children = (
 				B4F1237976FCC7179733FC75 /* ChatMessageRow.swift */,
+				82A885FF039D9F376DE27C84 /* DottedGrid.swift */,
 				8AE6D73A8667738DD33BAF2B /* LatencyTag.swift */,
 				EE877181D0D2EB6F44FCF490 /* ListeningDot.swift */,
 				B79E4BA0F9248D3466873BBE /* LivePill.swift */,
+				029080D103ECBCC33E9E38F8 /* PlayerCellView.swift */,
 				757AB2F3C722DB4440337D1A /* PressToTalkButton.swift */,
 				46EAD55D55FDE50021FA38E3 /* SportradarBadge.swift */,
 				10B521A0B659765D883F5E4C /* StackCard.swift */,
@@ -352,24 +364,28 @@
 			files = (
 				162B595396D5974D448E5A8C /* AppStore.swift in Sources */,
 				BA8DD13242C5D90231FBF21E /* ArchiveDetailView.swift in Sources */,
+				875A1F9F21CE58F78EBD1DAE /* ArchivesListView.swift in Sources */,
 				A3F44B0C25FFA20F2D5926FC /* AudioCaptureService.swift in Sources */,
 				76BD684BF4DDC88E49946E2E /* BroadcastBrainApp.swift in Sources */,
 				B6F4346E4C192BF816F68EAA /* Cactus.swift in Sources */,
 				D2F4BB6524F4500D144AF80C /* CactusService.swift in Sources */,
 				30702CFDAB6E91475D9965F5 /* ChatMessageRow.swift in Sources */,
 				B28DD1DE6BE6197370BB602C /* ContentView.swift in Sources */,
+				43DB7EFEFC8C19A84E734EF6 /* DottedGrid.swift in Sources */,
 				E05C57FFDF0F3B9977139753 /* LatencyTag.swift in Sources */,
 				DF2E26836A96D0D12400BA94 /* ListeningDot.swift in Sources */,
 				73474C0EE14E2A4A9B79742C /* LivePaneView.swift in Sources */,
 				4888A82003BDA03F00D954CD /* LivePill.swift in Sources */,
 				3689ED92510A4D081B6CBB1E /* MatchCache.swift in Sources */,
 				E31D20151B71FBD3257BF1D8 /* MockResponder.swift in Sources */,
+				AE9607AB8A5E0C197FFB861E /* PlayerCellView.swift in Sources */,
 				41B921C4FB590088E94910D6 /* PressToTalkButton.swift in Sources */,
 				67EED72EDEC3D8621574A4BC /* ResearchCenterView.swift in Sources */,
 				C2EC1CB5DC0D4914B540E12A /* Session.swift in Sources */,
 				ED24D8E788873134C2FEEBCA /* SessionStore.swift in Sources */,
 				053617CC8A80BFBB884CF402 /* SidebarView.swift in Sources */,
 				C51482DD2F2F981AD8D640F5 /* SportradarBadge.swift in Sources */,
+				70BA18D24CCC880D502CADD7 /* SquadsView.swift in Sources */,
 				164F7E394D28280CBD14A11D /* StackCard.swift in Sources */,
 				5982407B776A2A4BF04125BA /* StatCardView.swift in Sources */,
 				77475FBA9D6370A088D71876 /* StatusBarView.swift in Sources */,

@@ -3,56 +3,178 @@
   "title": "Argentina vs France · 2022 WC Final · Lusail Stadium",
   "players": [
     {
-      "name": "Lionel Messi",
-      "team": "Argentina",
-      "jersey": "10",
-      "position": "FW",
+      "name": "Lionel Messi", "team": "Argentina", "jersey": "10", "position": "FW",
       "keyStats": {
-        "wc_goals_2022": "7",
-        "penalty_23": "opening goal 23'",
-        "et_goal_108": "extra-time goal at 108'",
-        "career_wc_goals": "13"
+        "storyHero": "5th & final World Cup — closes the circle.",
+        "stat1": "5.2 xG · Top-3 this WC",
+        "stat2": "3.1 xA",
+        "stat3": "47 progressive carries",
+        "stat4": "23' PK · 108' ET goal",
+        "tactical": "False 9, drops between lines"
       }
     },
     {
-      "name": "Kylian Mbappé",
-      "team": "France",
-      "jersey": "10",
-      "position": "FW",
+      "name": "Emiliano Martínez", "team": "Argentina", "jersey": "23", "position": "GK",
       "keyStats": {
-        "wc_goals_2022": "8",
-        "brace_80_81": "2 goals in 2 minutes",
-        "et_goal": "extra-time equaliser",
-        "final_hat_trick": "first in a WC Final since Geoff Hurst in 1966"
+        "storyHero": "Golden Glove — the wall in Lusail.",
+        "stat1": "2 PK saves in shootout",
+        "stat2": "0.89 post-shot xG saved",
+        "stat3": "9 saves in this match",
+        "tactical": "Sweeper keeper, plays high line"
       }
     },
     {
-      "name": "Ángel Di María",
-      "team": "Argentina",
-      "jersey": "11",
-      "position": "FW",
+      "name": "Nahuel Molina", "team": "Argentina", "jersey": "26", "position": "DF",
       "keyStats": {
-        "goal_36": "finishes clinical Argentina move at 36'",
-        "first_wc_final_goal": "2022"
+        "stat1": "1 WC assist · Mac Allister →",
+        "stat2": "88% pass completion",
+        "tactical": "Right-back, overlaps on Messi's side"
       }
     },
     {
-      "name": "Emiliano Martínez",
-      "team": "Argentina",
-      "jersey": "23",
-      "position": "GK",
+      "name": "Cristian Romero", "team": "Argentina", "jersey": "13", "position": "DF",
       "keyStats": {
-        "pen_saves": "2 in shootout",
-        "golden_glove": "2022 WC"
+        "stat1": "6.2 recoveries / 90",
+        "stat2": "72% aerial duel win rate",
+        "tactical": "Right CB, line leader"
       }
     },
     {
-      "name": "Gonzalo Montiel",
-      "team": "Argentina",
-      "jersey": "4",
-      "position": "DF",
+      "name": "Nicolás Otamendi", "team": "Argentina", "jersey": "19", "position": "DF",
       "keyStats": {
-        "winning_penalty": "scored Argentina's 4th — tournament-winner"
+        "stat1": "5 clearances in this match",
+        "stat2": "35yo veteran — last WC",
+        "tactical": "Left CB, first-ball"
+      }
+    },
+    {
+      "name": "Nicolás Tagliafico", "team": "Argentina", "jersey": "3", "position": "DF",
+      "keyStats": {
+        "stat1": "86% tackle win rate",
+        "tactical": "Left-back, inverted when Messi roams"
+      }
+    },
+    {
+      "name": "Leandro Paredes", "team": "Argentina", "jersey": "5", "position": "MF",
+      "keyStats": {
+        "stat1": "91% pass completion",
+        "tactical": "Deep-lying playmaker"
+      }
+    },
+    {
+      "name": "Rodrigo De Paul", "team": "Argentina", "jersey": "7", "position": "MF",
+      "keyStats": {
+        "stat1": "11.2 km covered",
+        "stat2": "Most recoveries, both teams",
+        "tactical": "Shuttles — protects Messi"
+      }
+    },
+    {
+      "name": "Enzo Fernández", "team": "Argentina", "jersey": "24", "position": "MF",
+      "keyStats": {
+        "storyHero": "Young Player of the Tournament — 21.",
+        "stat1": "Most passes into final third",
+        "tactical": "Box-to-box dynamo"
+      }
+    },
+    {
+      "name": "Alexis Mac Allister", "team": "Argentina", "jersey": "20", "position": "MF",
+      "keyStats": {
+        "stat1": "1 WC goal, 1 assist",
+        "tactical": "Links left channel to Messi"
+      }
+    },
+    {
+      "name": "Ángel Di María", "team": "Argentina", "jersey": "11", "position": "FW",
+      "keyStats": {
+        "storyHero": "First WC Final goal after 2014 heartbreak.",
+        "stat1": "36' finish",
+        "stat2": "Assist on Messi opener",
+        "tactical": "Left winger, inverted runs"
+      }
+    },
+
+    {
+      "name": "Kylian Mbappé", "team": "France", "jersey": "10", "position": "FW",
+      "keyStats": {
+        "storyHero": "Hat-trick — first WC Final HT since Geoff Hurst 1966.",
+        "stat1": "8 goals · Golden Boot",
+        "stat2": "80' + 81' — fastest 2-goal brace",
+        "stat3": "ET equaliser",
+        "tactical": "Central 9, breaks on turnover"
+      }
+    },
+    {
+      "name": "Hugo Lloris", "team": "France", "jersey": "1", "position": "GK",
+      "keyStats": {
+        "stat1": "Captain — 145 France caps",
+        "stat2": "7 saves in this match",
+        "tactical": "Line keeper, slow off line"
+      }
+    },
+    {
+      "name": "Jules Koundé", "team": "France", "jersey": "5", "position": "DF",
+      "keyStats": {
+        "stat1": "91% tackle success",
+        "tactical": "Right-back, converted CB"
+      }
+    },
+    {
+      "name": "Raphaël Varane", "team": "France", "jersey": "4", "position": "DF",
+      "keyStats": {
+        "stat1": "6 aerial duels won",
+        "tactical": "Right CB, organizer"
+      }
+    },
+    {
+      "name": "Dayot Upamecano", "team": "France", "jersey": "17", "position": "DF",
+      "keyStats": {
+        "stat1": "Pace CB — covers the line",
+        "tactical": "Left CB, high line"
+      }
+    },
+    {
+      "name": "Theo Hernandez", "team": "France", "jersey": "22", "position": "DF",
+      "keyStats": {
+        "stat1": "1 WC goal (vs MAR)",
+        "tactical": "Attacking LB, huge engine"
+      }
+    },
+    {
+      "name": "Aurélien Tchouaméni", "team": "France", "jersey": "8", "position": "MF",
+      "keyStats": {
+        "stat1": "Most recoveries vs MAR",
+        "stat2": "Missed a pen in shootout",
+        "tactical": "Screens the CBs"
+      }
+    },
+    {
+      "name": "Adrien Rabiot", "team": "France", "jersey": "14", "position": "MF",
+      "keyStats": {
+        "stat1": "92% pass completion",
+        "tactical": "Left-sided 8"
+      }
+    },
+    {
+      "name": "Antoine Griezmann", "team": "France", "jersey": "7", "position": "MF",
+      "keyStats": {
+        "storyHero": "Engine room — 3 assists this WC.",
+        "stat1": "Most chances created, France",
+        "tactical": "Dropping 10 — connects lines"
+      }
+    },
+    {
+      "name": "Ousmane Dembélé", "team": "France", "jersey": "11", "position": "FW",
+      "keyStats": {
+        "stat1": "Hooked 41' — conceded the PK",
+        "tactical": "Right winger, 1v1s"
+      }
+    },
+    {
+      "name": "Olivier Giroud", "team": "France", "jersey": "9", "position": "FW",
+      "keyStats": {
+        "stat1": "Top France WC scorer (all-time)",
+        "tactical": "Target 9, holds the line"
       }
     }
   ],

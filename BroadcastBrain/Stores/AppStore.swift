@@ -2,8 +2,21 @@ import Foundation
 import Observation
 
 enum Surface: String, CaseIterable, Identifiable {
-    case live, research
+    case live, squads, research, archive
     var id: String { rawValue }
+}
+
+enum SpottingMode: String, CaseIterable, Identifiable {
+    case stats, story, tactical
+    var id: String { rawValue }
+
+    var label: String {
+        switch self {
+        case .stats: return "STATS"
+        case .story: return "STORY"
+        case .tactical: return "TACTICAL"
+        }
+    }
 }
 
 enum LiveState: Equatable {
