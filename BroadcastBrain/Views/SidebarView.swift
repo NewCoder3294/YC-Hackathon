@@ -338,11 +338,13 @@ private struct SidebarRow: View {
 
     @ViewBuilder
     private var rowBackground: some View {
-        RoundedRectangle(cornerRadius: 5)
-            .fill(
-                selected ? Color.bgSubtle :
-                hovering ? Color.bgHover : Color.clear
-            )
+        if selected {
+            LiquidGlassBackground(intensity: 1.0)
+        } else if hovering {
+            LiquidGlassBackground(intensity: 0.45)
+        } else {
+            Color.clear
+        }
     }
 
     @ViewBuilder
@@ -363,6 +365,53 @@ private struct SidebarRow: View {
         case .none:
             EmptyView()
         }
+    }
+}
+
+// MARK: - Liquid glass selection background
+
+/// Frosted, translucent "liquid glass" treatment for the sidebar selection /
+/// hover highlight. Uses `.regularMaterial` for the frost, a top-bright sheen
+/// gradient for the wet-glass feel, and a gradient rim stroke for the edge
+/// highlight. `intensity` scales the sheen + stroke + shadow so the same
+/// primitive renders both the strong selected state and a lighter hover state.
+private struct LiquidGlassBackground: View {
+    let intensity: Double
+
+    private let corner: CGFloat = 8
+
+    var body: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: corner, style: .continuous)
+                .fill(.regularMaterial)
+
+            RoundedRectangle(cornerRadius: corner, style: .continuous)
+                .fill(
+                    LinearGradient(
+                        colors: [
+                            Color.primary.opacity(0.10 * intensity),
+                            Color.primary.opacity(0.02 * intensity),
+                            Color.clear
+                        ],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                )
+
+            RoundedRectangle(cornerRadius: corner, style: .continuous)
+                .strokeBorder(
+                    LinearGradient(
+                        colors: [
+                            Color.primary.opacity(0.22 * intensity),
+                            Color.primary.opacity(0.05 * intensity)
+                        ],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    ),
+                    lineWidth: 0.6
+                )
+        }
+        .shadow(color: Color.black.opacity(0.14 * intensity), radius: 5, y: 2)
     }
 }
 
