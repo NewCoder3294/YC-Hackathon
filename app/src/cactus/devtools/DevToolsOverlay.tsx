@@ -4,6 +4,7 @@ import { Orchestrator } from '../pipeline/orchestrator';
 import { ContinuousCapture } from '../audio/continuous';
 import { PressToTalkRecorder } from '../audio/pressToTalk';
 import { useEventBus } from '../state/eventBus';
+import { useModelLoader } from '../state/modelLoader';
 import { FONT_MONO, tokens } from '../../theme/tokens';
 
 export function DevToolsOverlay({ onClose }: { onClose: () => void }) {
@@ -11,15 +12,55 @@ export function DevToolsOverlay({ onClose }: { onClose: () => void }) {
   const captureRef = useRef<ContinuousCapture | null>(null);
   const pttRef     = useRef(new PressToTalkRecorder());
   const [running, setRunning] = useState(false);
+  const [testResult, setTestResult] = useState<string>('');
+  const [testLatency, setTestLatency] = useState<number | null>(null);
   const events = useEventBus((s) => s.events.slice(-20));
+
+  const modelStatus  = useModelLoader((s) => s.status);
+  const downloadPct  = Math.round(useModelLoader((s) => s.progress) * 100);
+  const ensureModel  = useModelLoader((s) => s.ensureLoaded);
+  const sharedClient = useModelLoader((s) => s.client);
 
   useEffect(() => () => { captureRef.current?.stop(); }, []);
 
+  const runTextProbe = async () => {
+    setTestResult('');
+    setTestLatency(null);
+    const ok = await ensureModel();
+    if (!ok) {
+      setTestResult('model not ready — check status pill');
+      return;
+    }
+    const t0 = Date.now();
+    try {
+      const out = await sharedClient.complete({
+        messages: [
+          { role: 'system', content: 'Reply in five words or fewer.' },
+          { role: 'user',   content: 'Say hi.' },
+        ],
+        maxTokens: 32,
+        temperature: 0.2,
+      });
+      setTestLatency(Date.now() - t0);
+      setTestResult(out.response.slice(0, 200));
+    } catch (err) {
+      setTestLatency(Date.now() - t0);
+      setTestResult(`error: ${err instanceof Error ? err.message : String(err)}`);
+    }
+  };
+
   const startContinuous = async () => {
     if (running) return;
+    const ok = await ensureModel();
+    if (!ok) return;
     setRunning(true);
     captureRef.current = new ContinuousCapture();
-    await captureRef.current.start((chunk) => orchRef.current.processAutonomousChunk(chunk));
+    try {
+      await captureRef.current.start((chunk) => orchRef.current.processAutonomousChunk(chunk));
+    } catch (err) {
+      setTestResult(`mic error: ${err instanceof Error ? err.message : String(err)}`);
+      setRunning(false);
+    }
   };
 
   const stopContinuous = async () => {
@@ -28,11 +69,30 @@ export function DevToolsOverlay({ onClose }: { onClose: () => void }) {
     setRunning(false);
   };
 
-  const onPTTStart = () => pttRef.current.start(() => { void onPTTStop(); });
-  const onPTTStop  = async () => {
+  const onPTTStart = async () => {
+    const ok = await ensureModel();
+    if (!ok) return;
+    try {
+      await pttRef.current.start(() => { void onPTTStop(); });
+    } catch (err) {
+      setTestResult(`mic error: ${err instanceof Error ? err.message : String(err)}`);
+    }
+  };
+  const onPTTStop = async () => {
     const audio = await pttRef.current.stop();
     if (audio) orchRef.current.processPressToTalk(audio);
   };
+
+  const statusLine =
+    modelStatus === 'unloaded'    ? 'MODEL: not loaded — tap TEST TEXT to download (~6.3 GB on first run)' :
+    modelStatus === 'downloading' ? `MODEL: downloading ${downloadPct}%` :
+    modelStatus === 'loading'     ? 'MODEL: loading' :
+    modelStatus === 'ready'       ? 'MODEL: ready' :
+                                    `MODEL: error`;
+  const statusColor =
+    modelStatus === 'ready' ? tokens.verified :
+    modelStatus === 'error' ? tokens.live :
+                              tokens.textMuted;
 
   return (
     <View style={{ position: 'absolute', top: 0, right: 0, bottom: 0, width: 360, backgroundColor: tokens.bgRaised, borderLeftWidth: 1, borderLeftColor: tokens.border, padding: 12 }}>
@@ -40,6 +100,21 @@ export function DevToolsOverlay({ onClose }: { onClose: () => void }) {
         <Text style={{ fontFamily: FONT_MONO, fontSize: 10, color: tokens.textSubtle, letterSpacing: 2 }}>VOICE DEVTOOLS</Text>
         <Pressable onPress={onClose} hitSlop={8}><Text style={{ fontFamily: FONT_MONO, color: tokens.textMuted }}>✕</Text></Pressable>
       </View>
+
+      <View style={{ paddingVertical: 6, paddingHorizontal: 8, backgroundColor: tokens.bgSubtle, borderRadius: 4, marginBottom: 10 }}>
+        <Text style={{ fontFamily: FONT_MONO, fontSize: 10, color: statusColor }}>{statusLine}</Text>
+      </View>
+
+      <Pressable onPress={runTextProbe} style={[btnStyle, { marginBottom: 8 }]}>
+        <Text style={btnLabel}>TEST TEXT (no mic)</Text>
+      </Pressable>
+
+      {!!testResult && (
+        <View style={{ marginBottom: 12, paddingHorizontal: 8, paddingVertical: 6, backgroundColor: tokens.bgSubtle, borderRadius: 4 }}>
+          <Text style={{ fontFamily: FONT_MONO, fontSize: 9, color: tokens.textSubtle, letterSpacing: 1.5, marginBottom: 4 }}>RESPONSE{testLatency !== null ? ` · ${testLatency}ms` : ''}</Text>
+          <Text style={{ fontFamily: FONT_MONO, fontSize: 11, color: tokens.text }}>{testResult}</Text>
+        </View>
+      )}
 
       <View style={{ flexDirection: 'row', gap: 8, marginBottom: 12 }}>
         {!running ? (

@@ -25,6 +25,8 @@ import { PatternProvider } from './src/ui/BackgroundPattern';
 import { AgentProvider, useAgent } from './src/agent/AgentContext';
 import { AgentPiP } from './src/agent/AgentPiP';
 import { DevToolsOverlay } from './src/cactus/devtools/DevToolsOverlay';
+import { ModelPill } from './src/cactus/devtools/ModelPill';
+import { useModelLoader } from './src/cactus/state/modelLoader';
 
 export default function App() {
   const [fontsLoaded] = useFonts({
@@ -59,6 +61,13 @@ function AppShell() {
     return window.location?.search?.includes('devtools') ?? false;
   });
   const { active, pipVisible, showPiP } = useAgent();
+  const ensureModel = useModelLoader((s) => s.ensureLoaded);
+
+  // Kick off the Gemma 4 download as soon as the app mounts so PTT is ready
+  // when the user gets to it. Idempotent — second call returns the in-flight promise.
+  React.useEffect(() => {
+    void ensureModel();
+  }, [ensureModel]);
 
   // Re-show the PiP every time the user visits Agent — so after a close,
   // returning to Agent + switching away pops it back.
@@ -84,6 +93,8 @@ function AppShell() {
       {active && screen !== 'AGENT' && pipVisible && (
         <AgentPiP onExpand={() => setScreen('AGENT')} />
       )}
+
+      <ModelPill />
 
       {/* Hidden dev-tools activator — long-press 1.5s in the bottom-right pixel zone. */}
       <Pressable

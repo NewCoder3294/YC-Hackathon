@@ -5,7 +5,10 @@ import {
   type CactusLMCompleteResult,
 } from 'cactus-react-native';
 
-export const DEFAULT_MODEL = 'google/gemma-4-E2B-it';
+// SDK registry keys are derived from HuggingFace weight filenames, not the
+// org-prefixed model id. For Cactus-Compute/gemma-4-E2B-it, the registry key
+// is 'gemma-4-e2b-it'. Pass that here, not 'google/gemma-4-E2B-it'.
+export const DEFAULT_MODEL = 'gemma-4-e2b-it';
 
 export type FunctionCall = NonNullable<CactusLMCompleteResult['functionCalls']>[number];
 
