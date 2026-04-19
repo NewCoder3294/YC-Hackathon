@@ -1,0 +1,28 @@
+# Xcode
+xcuserdata/
+*.xcuserstate
+*.mode1v3
+*.mode2v3
+*.perspectivev3
+*.pbxuser
+DerivedData/
+build/
+
+# Swift Package Manager
+.build/
+.swiftpm/
+Package.resolved
+
+# macOS
+.DS_Store
+Thumbs.db
+
+# Secrets / env
+.env
+.env.local
+
+# Gemma weights — per-machine runtime download, too big for git
+BroadcastBrain/Resources/Models/
+
+# Planning scratch
+.claude/

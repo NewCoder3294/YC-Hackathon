@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 140" fill="none">
+  <rect width="360" height="140" rx="8" fill="#0A0A0A"/>
+  <rect x="0.5" y="0.5" width="359" height="139" rx="7.5" stroke="#262626"/>
+  <!-- Top row: live indicator + timestamp -->
+  <circle cx="20" cy="20" r="4" fill="#EF4444"/>
+  <text x="30" y="24" font-family="'IBM Plex Mono', ui-monospace, monospace" font-size="10" font-weight="700" fill="#A3A3A3" letter-spacing="0.15em">LIVE • Q3 8:42</text>
+  <text x="340" y="24" font-family="'IBM Plex Mono', ui-monospace, monospace" font-size="10" fill="#737373" letter-spacing="0.1em" text-anchor="end">142ms</text>
+  <!-- Stat -->
+  <text x="20" y="62" font-family="'IBM Plex Mono', ui-monospace, monospace" font-size="13" fill="#737373" letter-spacing="0.08em">PATRICK MAHOMES</text>
+  <text x="20" y="92" font-family="'IBM Plex Mono', ui-monospace, monospace" font-size="22" font-weight="700" fill="#FAFAFA" letter-spacing="-0.01em">12 TDs, 0 INTs in December</text>
+  <!-- Source badge -->
+  <g transform="translate(20 108)">
+    <circle cx="6" cy="6" r="5.5" fill="#10B981" fill-opacity="0.1" stroke="#10B981" stroke-width="0.75"/>
+    <path d="M3.5 6.25l1.75 1.75 3.25-3.5" stroke="#10B981" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    <text x="18" y="10" font-family="'IBM Plex Mono', ui-monospace, monospace" font-size="10" fill="#10B981" letter-spacing="0.05em">Sportradar</text>
+  </g>
+</svg>

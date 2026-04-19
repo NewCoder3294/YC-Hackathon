@@ -1,0 +1,92 @@
+name: BroadcastBrain
+options:
+  bundleIdPrefix: com.broadcastbrain
+  deploymentTarget:
+    macOS: "14.0"
+  createIntermediateGroups: true
+  generateEmptyDirectories: true
+
+settings:
+  base:
+    SWIFT_VERSION: "5.9"
+    DEVELOPMENT_TEAM: ""
+    CODE_SIGN_STYLE: Automatic
+    CODE_SIGN_IDENTITY: "-"
+    ENABLE_HARDENED_RUNTIME: YES
+    SWIFT_STRICT_CONCURRENCY: minimal
+
+targets:
+  BroadcastBrain:
+    type: application
+    platform: macOS
+    deploymentTarget: "14.0"
+    sources:
+      - path: BroadcastBrain
+        excludes:
+          - "Frameworks/**"
+          - "Resources/Models/**"
+    resources:
+      - path: BroadcastBrain/Resources/match_cache.json
+        optional: true
+      - path: BroadcastBrain/Assets.xcassets
+    info:
+      path: BroadcastBrain/Info.plist
+      properties:
+        NSMicrophoneUsageDescription: "BroadcastBrain listens to match commentary to surface stats."
+        NSSpeechRecognitionUsageDescription: "BroadcastBrain transcribes your voice on-device to know which stat to surface."
+        NSHumanReadableCopyright: "© 2026 BroadcastBrain"
+        CFBundleShortVersionString: "0.1.0"
+        CFBundleVersion: "1"
+        LSMinimumSystemVersion: "14.0"
+    entitlements:
+      path: BroadcastBrain/BroadcastBrain.entitlements
+      properties:
+        com.apple.security.app-sandbox: true
+        com.apple.security.device.audio-input: true
+        com.apple.security.files.user-selected.read-write: true
+        com.apple.security.network.client: false
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.broadcastbrain.mac
+        MARKETING_VERSION: "0.1.0"
+        CURRENT_PROJECT_VERSION: "1"
+        FRAMEWORK_SEARCH_PATHS:
+          - "$(PROJECT_DIR)/BroadcastBrain/Frameworks"
+    dependencies:
+      - framework: BroadcastBrain/Frameworks/cactus-macos.xcframework
+        embed: true
+        codeSign: true
+        optional: true
+
+  BroadcastBrainTests:
+    type: bundle.unit-test
+    platform: macOS
+    deploymentTarget: "14.0"
+    sources:
+      - BroadcastBrainTests
+    dependencies:
+      - target: BroadcastBrain
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.broadcastbrain.mac.tests
+        GENERATE_INFOPLIST_FILE: "YES"
+
+schemes:
+  BroadcastBrain:
+    build:
+      targets:
+        BroadcastBrain: all
+    run:
+      config: Debug
+      environmentVariables:
+        MOCK_MODE: "1"
+    test:
+      config: Debug
+      targets:
+        - BroadcastBrainTests
+    profile:
+      config: Release
+    analyze:
+      config: Debug
+    archive:
+      config: Release

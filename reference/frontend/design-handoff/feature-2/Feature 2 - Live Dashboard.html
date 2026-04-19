@@ -1,0 +1,496 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>BroadcastBrain · Feature 2 · Live Dashboard · iPad</title>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  html, body { margin: 0; padding: 0; background: #f0eee9; font-family: 'IBM Plex Mono', ui-monospace, monospace; }
+  * { box-sizing: border-box; }
+  @keyframes bb-pulse { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(0.9); } }
+  @keyframes bb-enter { 0% { opacity: 0; transform: translateX(18px); } 100% { opacity: 1; transform: translateX(0); } }
+</style>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel" src="design-canvas.jsx"></script>
+<script type="text/babel" src="frame.jsx"></script>
+<script type="text/babel" src="right-pane.jsx"></script>
+
+<script type="text/babel">
+
+// ───── Scale iPad (1366×1024) so two fit across a row comfortably ─────
+const FRAME_SCALE = 0.58;
+const SCALED_W = IPAD.W * FRAME_SCALE;
+const SCALED_H = IPAD.H * FRAME_SCALE;
+
+// Inline FrameCard (not in design-canvas) — labeled iPad frame with notes + quote
+function FrameCard({ label, subtitle, notes = [], quote, who, children, width }) {
+  return (
+    <div style={{ position: 'relative', flexShrink: 0, width: width || 'auto' }}>
+      <div style={{
+        position: 'absolute', bottom: 'calc(100% + 8px)', left: 0,
+        display: 'flex', alignItems: 'baseline', gap: 10, whiteSpace: 'nowrap',
+      }}>
+        <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.22em', color: 'rgba(60,50,40,0.9)' }}>{label}</span>
+        <span style={{ fontSize: 11, color: 'rgba(60,50,40,0.55)', letterSpacing: '0.08em' }}>{subtitle}</span>
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+        <div>{children}</div>
+        <div style={{
+          maxWidth: 560,
+          background: '#fff',
+          border: '1px solid rgba(60,50,40,0.12)',
+          borderRadius: 8,
+          padding: '14px 16px',
+          fontFamily: "'IBM Plex Mono', ui-monospace, monospace",
+          fontSize: 11, lineHeight: 1.5, color: '#1a1614',
+        }}>
+          {notes.map((n, i) => (
+            <div key={i} style={{ display: 'grid', gridTemplateColumns: '90px 1fr', gap: 10, padding: '4px 0', borderTop: i === 0 ? 'none' : '1px solid rgba(60,50,40,0.08)' }}>
+              <span style={{ fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'rgba(60,50,40,0.6)' }}>{n.k}</span>
+              <span style={{ color: 'rgba(30,25,20,0.85)' }}>{n.v}</span>
+            </div>
+          ))}
+          {quote && (
+            <div style={{ marginTop: 10, padding: '10px 12px', background: 'rgba(250,245,235,0.6)', borderLeft: '3px solid #EF4444' }}>
+              <div style={{ fontStyle: 'italic', color: 'rgba(30,25,20,0.9)', lineHeight: 1.45 }}>"{quote}"</div>
+              <div style={{ marginTop: 6, fontSize: 10, letterSpacing: '0.14em', color: 'rgba(60,50,40,0.55)' }}>— {who}</div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ScaledFrame({ children, hero = false }) {
+  return (
+    <div style={{
+      width: hero ? IPAD.W * 0.78 : SCALED_W,
+      height: hero ? IPAD.H * 0.78 : SCALED_H,
+      overflow: 'hidden',
+      boxShadow: '0 2px 8px rgba(0,0,0,0.12), 0 16px 40px rgba(0,0,0,0.22)',
+      borderRadius: 14,
+      background: '#000',
+    }}>
+      <div style={{ transform: `scale(${hero ? 0.78 : FRAME_SCALE})`, transformOrigin: 'top left' }}>
+        {children}
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// FRAME 1 — IDLE · pre-kickoff
+// ─────────────────────────────────────────────────────────────
+function Frame1_Idle() {
+  return (
+    <IPadFrame>
+      <SplitLayout
+        left={<SpottingBoardPlaceholder/>}
+        right={
+          <LivePaneShell
+            clock="—"
+            score={{ arg: 0, fra: 0 }}
+            phase="PRE-KICKOFF · 12:00"
+            rightSlot={null}
+            listeningDot={true}
+            latency="—"
+          >
+            <div style={{
+              flex: 1,
+              display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+              gap: 14, padding: 20, textAlign: 'center',
+            }}>
+              <svg width="56" height="56" viewBox="0 0 56 56">
+                {[0,1,2,3,4,5,6].map(i => (
+                  <rect key={i} x={4+i*7} y="20" width="4" height="16" rx="2" fill={TOKENS.textMuted} opacity="0.5">
+                    <animate attributeName="y" values={`${20-i};${14-i*0.5};${20-i}`} dur={`${1.6+i*0.08}s`} repeatCount="indefinite"/>
+                    <animate attributeName="height" values={`${16+i*2};${28-i};${16+i*2}`} dur={`${1.6+i*0.08}s`} repeatCount="indefinite"/>
+                  </rect>
+                ))}
+              </svg>
+              <div style={{ fontSize: 11, letterSpacing: '0.22em', fontWeight: 700, color: TOKENS.text }}>STAND-BY</div>
+              <div style={{ fontSize: 11, color: TOKENS.textMuted, lineHeight: 1.5, maxWidth: 260 }}>
+                Gemma 4 running on-device. Airplane mode active. Match cache ready — 46 players, 2,301 stats.
+              </div>
+              <SportradarBadge small/>
+            </div>
+
+            {/* pre-kickoff widgets: running score + story queue */}
+            <RunningScorePanel events={[]}/>
+            <StoryQueue title="STORYLINES · QUEUED (Rich's prep)" items={[
+              { text: 'Messi chasing his first WC trophy — 5th and final tournament', state: 'open' },
+              { text: 'Mbappé Golden Boot race vs. Messi (5 · 5)', state: 'open' },
+              { text: 'Di María returns from injury', state: 'open' },
+              { text: 'Emi Martínez — 4 clean sheets this tournament', state: 'open' },
+              { text: 'France — defending champions, first since Brazil ’62', state: 'open' },
+            ]}/>
+          </LivePaneShell>
+        }
+      />
+    </IPadFrame>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// FRAME 2 — GOAL · 3-card stack (Messi 23' penalty)
+// ─────────────────────────────────────────────────────────────
+function Frame2_Goal({ hero = false }) {
+  return (
+    <IPadFrame>
+      <SplitLayout
+        left={<SpottingBoardPlaceholder highlight="MESSI"/>}
+        right={
+          <LivePaneShell
+            clock="23'"
+            score={{ arg: 1, fra: 0 }}
+            phase="GOAL · MESSI · PEN"
+            phaseColor={TOKENS.live}
+            rightSlot={<LivePill phase="LIVE" minute="23'"/>}
+            latency="842ms"
+          >
+            <CardStack>
+              <ScorerStatCard
+                minute="23'"
+                type="PENALTY"
+                scoreChange="1–0 ARG"
+                player="LIONEL MESSI"
+                playerSub="#10 · ARGENTINA · FORWARD"
+                heroNumeral="6"
+                heroCaption="goals at Qatar 2022 — every knockout round (G·R16·QF·SF·F)"
+                context={[
+                  '2nd World Cup Final goal — first since 2014 vs. Germany',
+                  'Argentina from penalties this tournament: 100% (4/4)',
+                  'Career WC goals: 13 — passes Batistuta for Argentina record',
+                ]}
+                latency="842ms"
+              />
+              <PrecedentCard
+                headline="Last player to score in every WC knockout round: Kempes, 1978 — Argentina won."
+                support="WC 1978 · 44 years ago · same route, same outcome"
+              />
+              <CounterNarrativeCard
+                forSide="FRA"
+                headline="France: 2nd-half goal scorers in 4 of last 5 finals. 67 minutes to play."
+                support="Set-piece conversion at Qatar 2022: ARG 18% · FRA 27%"
+              />
+            </CardStack>
+          </LivePaneShell>
+        }
+      />
+    </IPadFrame>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// FRAME 3 — VOICE WIDGET · horizontal timeline
+// ─────────────────────────────────────────────────────────────
+function Frame3_VoiceWidget() {
+  return (
+    <IPadFrame>
+      <SplitLayout
+        left={<SpottingBoardPlaceholder/>}
+        right={
+          <LivePaneShell
+            clock="41'"
+            score={{ arg: 2, fra: 0 }}
+            phase="1ST HALF"
+            rightSlot={<LivePill phase="LIVE" minute="41'"/>}
+            latency="1.2s"
+          >
+            <TranscriptOverlay text="Pull up France's last five finals."/>
+            <VoiceWidget
+              title="France · last 5 major tournament finals"
+              pinned
+              rows={[
+                { year: '2018', opponent: 'vs CRO', result: 'W 4–2', note: 'WC Final · Moscow · Mbappé ⚽ (age 19)', flag: false },
+                { year: '2016', opponent: 'vs POR',  result: 'L 0–1', note: 'Euro · at home · ET · Griezmann golden-boot', flag: true },
+                { year: '2006', opponent: 'vs ITA', result: 'L 1–1', note: 'WC · PK loss · Zidane sent off',          flag: true },
+                { year: '2000', opponent: 'vs ITA', result: 'W 2–1', note: 'Euro · golden goal · Trezeguet',           flag: false },
+                { year: '1998', opponent: 'vs BRA', result: 'W 3–0', note: 'WC · home · Zidane ×2',                   flag: false },
+              ]}
+            />
+            <div style={{ fontSize: 9, letterSpacing: '0.18em', color: TOKENS.textSubtle, textAlign: 'center', marginTop: 4 }}>
+              PINNED · PERSISTS UNTIL YOU SAY "DISMISS" OR TAP ✕
+            </div>
+          </LivePaneShell>
+        }
+      />
+    </IPadFrame>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// FRAME 4 — MOMENTUM SHIFT · Mbappé 80' + running score + AI nudge
+// ─────────────────────────────────────────────────────────────
+function Frame4_Momentum() {
+  return (
+    <IPadFrame>
+      <SplitLayout
+        left={<SpottingBoardPlaceholder highlight="MBAPPE"/>}
+        right={
+          <LivePaneShell
+            clock="80'"
+            score={{ arg: 2, fra: 1 }}
+            phase="GOAL · MBAPPÉ"
+            phaseColor={TOKENS.live}
+            rightSlot={<LivePill phase="LIVE" minute="80'"/>}
+            latency="910ms"
+          >
+            <CardStack>
+              <ScorerStatCard
+                minute="80'"
+                type="PEN"
+                scoreChange="2–1 ARG"
+                player="KYLIAN MBAPPÉ"
+                playerSub="#10 · FRANCE · FORWARD"
+                heroNumeral="6"
+                heroCaption="goals at Qatar 2022 · ties Messi for Golden Boot"
+                context={[
+                  '2nd WC Final goal of career · first was 2018 vs. Croatia (age 19)',
+                  'France had 1 shot on target in 80 minutes — the penalty',
+                  'Mbappé vs. Emi Martínez: 1st meeting · PK away',
+                ]}
+                latency="910ms"
+              />
+            </CardStack>
+
+            <RunningScorePanel
+              momentum={{ label: '↑ FRA PRESSURE', color: TOKENS.live }}
+              events={[
+                { minute: "23'", color: TOKENS.text,     label: 'ARG · Messi (pen)',       score: '1–0' },
+                { minute: "36'", color: TOKENS.text,     label: 'ARG · Di María',          score: '2–0' },
+                { minute: "80'", color: TOKENS.live,     label: 'FRA · Mbappé (pen)',      score: '2–1' },
+              ]}
+            />
+            <StoryQueue title="STORY QUEUE" items={[
+              { text: 'Messi chasing first WC — "last dance"',              state: 'done' },
+              { text: 'Golden Boot race: Messi 5 · Mbappé 6 ↑',             state: 'done' },
+              { text: 'Di María back from injury scored',                   state: 'done' },
+              { text: 'France — no shots on target before 80th',            state: 'open', nudge: true },
+              { text: 'Giroud sub watch — 2 goals vs POL in R16',           state: 'open' },
+            ]}/>
+          </LivePaneShell>
+        }
+      />
+    </IPadFrame>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// FRAME 5 — HERO (deck cover) — Messi 108' ET goal
+// ─────────────────────────────────────────────────────────────
+function Frame5_Hero() {
+  return (
+    <IPadFrame>
+      <SplitLayout
+        left={<SpottingBoardPlaceholder highlight="MESSI"/>}
+        right={
+          <LivePaneShell
+            clock="108'"
+            score={{ arg: 3, fra: 2 }}
+            phase="GOAL · MESSI · ET"
+            phaseColor={TOKENS.live}
+            rightSlot={<LivePill phase="EXTRA TIME" minute="108'"/>}
+            latency="760ms"
+          >
+            <CardStack>
+              <ScorerStatCard
+                minute="108'"
+                type="OPEN PLAY"
+                scoreChange="3–2 ARG"
+                player="LIONEL MESSI"
+                playerSub="#10 · ARGENTINA · FORWARD"
+                heroNumeral="2"
+                heroCaption="goals in this final · first WC Final brace of career"
+                context={[
+                  'Tournament total: 7G · 3A · 789 mins',
+                  'First player in WC Final history to score in regulation AND extra time',
+                  'Argentina last won WC: 1986 · 36-year wait',
+                ]}
+                latency="760ms"
+              />
+              <PrecedentCard
+                headline="Last WC Final decided in extra time: Germany 1–0 Argentina, 2014. Messi lost."
+                support="Today: same player, reverse outcome in reach"
+              />
+              <CounterNarrativeCard
+                forSide="FRA"
+                headline="Mbappé still has 12 minutes. He scored 2 in 2 minutes earlier."
+                support="Fastest brace in a WC Final, ever (80' + 81')"
+              />
+            </CardStack>
+          </LivePaneShell>
+        }
+      />
+    </IPadFrame>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// Canvas layout
+// ─────────────────────────────────────────────────────────────
+function App() {
+  return (
+    <>
+      <DesignCanvas>
+        {/* Title */}
+        <div style={{ padding:'0 60px 24px', maxWidth: 1200 }}>
+          <div style={{ fontSize: 11, letterSpacing: '0.25em', color: 'rgba(60,50,40,0.55)', fontWeight: 600 }}>
+            BROADCASTBRAIN · YC CACTUS × GEMMA 4 · iPAD LANDSCAPE
+          </div>
+          <div style={{ fontSize: 30, fontWeight: 700, color: '#1a1614', marginTop: 8, letterSpacing: -0.5 }}>
+            Feature 2 · Live Stat Whisper
+          </div>
+          <div style={{ fontSize: 14, color: 'rgba(60,50,40,0.7)', marginTop: 6, maxWidth: 760, lineHeight: 1.5 }}>
+            5 states of the on-device whisper pipeline during Argentina vs France · 2022 World Cup Final.
+            Every frame renders the full split layout (Spotting Board ~60% · Live Dashboard ~40%) with the
+            iPadOS airplane-mode indicator in the status bar — the demo's thesis made visible.
+          </div>
+        </div>
+
+        {/* Color legend — updated, no confidence tiers */}
+        <div style={{ padding: '0 60px 28px', maxWidth: 1200 }}>
+          <div style={{
+            padding: '14px 18px', background: '#fff', border: '1px solid rgba(60,50,40,0.12)',
+            borderRadius: 10, display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 18,
+            fontSize: 11, color: '#1a1614',
+          }}>
+            <LegendSwatch color="#EF4444" title="RED · HOT" desc="trending · streak live · record in reach"/>
+            <LegendSwatch color="#FAFAFA" title="WHITE · NEUTRAL" desc="standard stat" border="rgba(60,50,40,0.3)"/>
+            <LegendSwatch color="#10B981" title="GREEN · ACHIEVEMENT" desc="career high · record watermark · source ✓"/>
+            <LegendSwatch color="#F59E0B" title="AMBER · AI NUDGE" desc='"you haven’t mentioned X in a while"'/>
+          </div>
+        </div>
+
+        <DCPostIt top={28} right={60} rotate={3} width={230}>
+          <strong>LOCKED:</strong><br/>
+          only #EF4444 / #10B981 / #F59E0B accents · IBM Plex Mono only · Sportradar ✓ on every stat or "—"
+        </DCPostIt>
+
+        {/* Row 1 — Idle + Goal */}
+        <DCSection
+          title="① Pre-kickoff idle → first goal triggers the 3-card stack"
+          subtitle="Idle = always-listening, silent. When a goal happens, Gemma 4 emits three cards: the STAT (what just happened), the PRECEDENT (what it rhymes with), and a COUNTER-NARRATIVE (drama for the losing side). Vertical rhythm; color-coded left edges."
+        >
+          <FrameCard
+            label="FRAME 1"
+            subtitle="IDLE · pre-kickoff"
+            notes={[
+              { k:'animation', v:'Waveform bars stagger-breathe 1.6s loop. LISTENING dot (verified green) pulses at 2s in the top bar — signals always-on without screaming for attention.' },
+              { k:'haptic', v:'None. Proactive whispers never vibrate — an unsolicited buzz would be exactly the sensory overload Pat described.' },
+              { k:'source', v:'Match cache loaded locally. Airplane mode confirmed in status bar. Story queue pre-seeded from Rich Ackerman-style hand-written prep.' },
+            ]}
+            quote="…wary of voice agents during live games, fearing it would cause sensory overload."
+            who="Pat McCarthy · NY Mets radio play-by-play"
+          >
+            <ScaledFrame><Frame1_Idle/></ScaledFrame>
+          </FrameCard>
+
+          <FrameCard
+            label="FRAME 2"
+            subtitle="GOAL · 3-card stack (Messi 23' pen)"
+            notes={[
+              { k:'animation', v:'Stack enters top-down: STAT first (360ms ease-out-expo), PRECEDENT at +120ms, COUNTER at +240ms. Hero numeral "6" never animates — the number is the thing the eye lands on.' },
+              { k:'haptic', v:'Single soft tap (UIImpactFeedbackGenerator .light) ONLY on the STAT card arrival, mirroring the 7-sec no-whistle rule — peripheral cue, not an interrupt.' },
+              { k:'source', v:'STAT = Sportradar ✓. PRECEDENT = Sportradar ✓ archive. COUNTER = Sportradar ✓ tournament splits.' },
+            ]}
+            quote="…help announcers think faster and access 'dynamic' storylines in real-time."
+            who="Trey Redfield · Syracuse-trained PxP"
+          >
+            <ScaledFrame><Frame2_Goal/></ScaledFrame>
+          </FrameCard>
+        </DCSection>
+
+        {/* Row 2 — Voice widget + Momentum */}
+        <DCSection
+          title="② Voice-commanded widget → live momentum shift"
+          subtitle="The broadcaster can talk to it ('pull up France's last five finals') and a persistent widget materialises. Meanwhile the passive whisper keeps feeding the running-score tracker — when momentum flips, an AMBER AI nudge appears in the story queue."
+        >
+          <FrameCard
+            label="FRAME 3"
+            subtitle="VOICE WIDGET · horizontal timeline (pinned)"
+            notes={[
+              { k:'animation', v:'Press-and-hold voice button lights red; waveform animates. On release, "Thinking…" shimmer (~1.5s) then widget enters from right with 360ms translate+fade. Rows stagger 40ms each.' },
+              { k:'haptic', v:'Haptic on press-down (medium) and release (light). Widget arrival: none (visual-only, to not interrupt mid-call).' },
+              { k:'source', v:'Sportradar ✓ on every row. Pinned widget persists — the statistician escape hatch, not a disposable card.' },
+            ]}
+            quote="…the tool may be even more immediately effective for the statistician at the table than for the on-air talent directly."
+            who="Pat McCarthy"
+          >
+            <ScaledFrame><Frame3_VoiceWidget/></ScaledFrame>
+          </FrameCard>
+
+          <FrameCard
+            label="FRAME 4"
+            subtitle="MOMENTUM SHIFT · Mbappé 80' + AI nudge"
+            notes={[
+              { k:'animation', v:'New STAT card supersedes the Messi one (the old card fades+translates right 200ms, new enters left). Running-score row slides in with a red momentum chip. AI NUDGE badge fades in on the story-queue row at +600ms.' },
+              { k:'haptic', v:'Single light tap on the new STAT card. Nudge is silent — amber badge is the attention carrier.' },
+              { k:'source', v:'"↑ FRA PRESSURE" = computed from Sportradar play-by-play (xG delta, possession swing, shots-on-target). Every row Sportradar ✓.' },
+            ]}
+            quote="He keeps his own handwritten 'running score' to track momentum and scoring runs in real-time."
+            who="Bob Heussler · Brooklyn Nets radio play-by-play"
+          >
+            <ScaledFrame><Frame4_Momentum/></ScaledFrame>
+          </FrameCard>
+        </DCSection>
+
+        {/* Row 3 — Hero */}
+        <DCSection
+          title="③ Hero — Messi's 108' extra-time goal (the deck cover)"
+          subtitle="The single frame we lead the submission deck with. Shows the full split layout, a card stack landing around an iconic moment, and a hero numeral big enough to read from the back of the room."
+        >
+          <FrameCard
+            label="FRAME 5 · HERO"
+            subtitle="MESSI 108' · 3–2 ARG · extra time"
+            notes={[
+              { k:'animation', v:'Stack enters in the usual 3-beat. Latency counter 760ms (the measured real number we will hit on stage — honest, not marketed).' },
+              { k:'haptic', v:'One light tap on STAT arrival. That’s the entire haptic language of Feature 2 — rare, quiet, peripheral.' },
+              { k:'source', v:'Every line Sportradar ✓. COUNTER-NARRATIVE reminds the broadcaster the game is NOT over — Mbappé just scored two in two minutes.' },
+            ]}
+            quote="Every stat shows its source. Missing data = '—', never guessed."
+            who="Non-negotiable design rule #1"
+          >
+            <ScaledFrame hero><Frame5_Hero/></ScaledFrame>
+          </FrameCard>
+        </DCSection>
+
+        <DCPostIt top={200} right={40} rotate={-2} width={240}>
+          <strong>3-card stack = the signature.</strong><br/>
+          STAT (white edge) → PRECEDENT (green) → COUNTER (amber). Always in that order. The stack is the voice of Feature 2.
+        </DCPostIt>
+      </DesignCanvas>
+    </>
+  );
+}
+
+function LegendSwatch({ color, title, desc, border }) {
+  return (
+    <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+      <div style={{
+        width: 18, height: 18, background: color, borderRadius: 3, flexShrink: 0, marginTop: 2,
+        border: border ? `1px solid ${border}` : 'none',
+      }}/>
+      <div>
+        <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.14em' }}>{title}</div>
+        <div style={{ fontSize: 10, color: 'rgba(60,50,40,0.7)', marginTop: 3, lineHeight: 1.4 }}>{desc}</div>
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>

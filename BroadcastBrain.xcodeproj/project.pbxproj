@@ -1,0 +1,637 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		034498E25A8850984493C9E2 /* SessionStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD1186F00AC31EE683675AE6 /* SessionStoreTests.swift */; };
+		053617CC8A80BFBB884CF402 /* SidebarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD1F4DAD40C5C4BFB52EA58D /* SidebarView.swift */; };
+		0F02EBD664051BF052EF7012 /* ModelCodableTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2491DE25F4F75DA94526903 /* ModelCodableTests.swift */; };
+		162B595396D5974D448E5A8C /* AppStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5C2E3CFAB5CA8C1AD68FB5B /* AppStore.swift */; };
+		164F7E394D28280CBD14A11D /* StackCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10B521A0B659765D883F5E4C /* StackCard.swift */; };
+		1D668774F84B594E8B249C09 /* MockResponderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57DC475ADA91F2B5E0A8A94C /* MockResponderTests.swift */; };
+		30702CFDAB6E91475D9965F5 /* ChatMessageRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4F1237976FCC7179733FC75 /* ChatMessageRow.swift */; };
+		3689ED92510A4D081B6CBB1E /* MatchCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3A6A719D484016893C42760 /* MatchCache.swift */; };
+		4159423CA0FA24C223DB38E0 /* Waveform.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1227A240F189BB798494FD0F /* Waveform.swift */; };
+		41B921C4FB590088E94910D6 /* PressToTalkButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 757AB2F3C722DB4440337D1A /* PressToTalkButton.swift */; };
+		4888A82003BDA03F00D954CD /* LivePill.swift in Sources */ = {isa = PBXBuildFile; fileRef = B79E4BA0F9248D3466873BBE /* LivePill.swift */; };
+		5982407B776A2A4BF04125BA /* StatCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE64AD9C32691F3111C8595F /* StatCardView.swift */; };
+		67EED72EDEC3D8621574A4BC /* ResearchCenterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2268C5BB146969E1B046A49E /* ResearchCenterView.swift */; };
+		70BC25E15A41151CA931A4B9 /* cactus-macos.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4132AE323E5FEB98D3E225B8 /* cactus-macos.xcframework */; };
+		73474C0EE14E2A4A9B79742C /* LivePaneView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01550DE4B92113B1173C6B2F /* LivePaneView.swift */; };
+		75823BF5B5A04A60E2C364D1 /* Tokens.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51919B20535309C89D4E15B9 /* Tokens.swift */; };
+		76BD684BF4DDC88E49946E2E /* BroadcastBrainApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90487A3CA3F809A1CFB8ED20 /* BroadcastBrainApp.swift */; };
+		77475FBA9D6370A088D71876 /* StatusBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2069035A22848052FAF13B0 /* StatusBarView.swift */; };
+		8597296F58177F87BE1CEE5E /* TranscriptOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AAA500ADFDDF5CAD7707BAD /* TranscriptOverlay.swift */; };
+		9336FDBA329EA3138DAC0282 /* CactusServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE192E5776E2B9A67F110CB8 /* CactusServiceTests.swift */; };
+		A3F44B0C25FFA20F2D5926FC /* AudioCaptureService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B83E5A0C129A26A3CC625311 /* AudioCaptureService.swift */; };
+		A89965156588F66B60F4788A /* cactus-macos.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 4132AE323E5FEB98D3E225B8 /* cactus-macos.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		B0DA6E09C0BD2DD22E1CCC99 /* match_cache.json in Resources */ = {isa = PBXBuildFile; fileRef = AF50D005DA852CAE53DC0E99 /* match_cache.json */; };
+		B28DD1DE6BE6197370BB602C /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAB90A6DC8002673826C8BD0 /* ContentView.swift */; };
+		B5ABF69FE9AFDAD11C56621B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 154FDBDC815FD074D17C258E /* Assets.xcassets */; };
+		B6F4346E4C192BF816F68EAA /* Cactus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82B9451069B6343C41C337AC /* Cactus.swift */; };
+		BA8DD13242C5D90231FBF21E /* ArchiveDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05EF9474EB26DF74B8D7FDAA /* ArchiveDetailView.swift */; };
+		C2EC1CB5DC0D4914B540E12A /* Session.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF9FC0FE9D60DC37A1594C96 /* Session.swift */; };
+		C51482DD2F2F981AD8D640F5 /* SportradarBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46EAD55D55FDE50021FA38E3 /* SportradarBadge.swift */; };
+		D2F4BB6524F4500D144AF80C /* CactusService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90AFD39809B3E0BE8DF8644B /* CactusService.swift */; };
+		DF2E26836A96D0D12400BA94 /* ListeningDot.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE877181D0D2EB6F44FCF490 /* ListeningDot.swift */; };
+		E05C57FFDF0F3B9977139753 /* LatencyTag.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AE6D73A8667738DD33BAF2B /* LatencyTag.swift */; };
+		E31D20151B71FBD3257BF1D8 /* MockResponder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7CE728CE31ACC8F9DB7324B9 /* MockResponder.swift */; };
+		ED24D8E788873134C2FEEBCA /* SessionStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9F5FE8926459F794E4A039D /* SessionStore.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		6CC394C24330DF9E9F9DDC61 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = B8AC317D5AF7C3382A569AB7 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = CD473E44C0CBD5E3E24D0673;
+			remoteInfo = BroadcastBrain;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		FAB94D9DFA2EE3E92CD0CDB6 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				A89965156588F66B60F4788A /* cactus-macos.xcframework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		01550DE4B92113B1173C6B2F /* LivePaneView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LivePaneView.swift; sourceTree = "<group>"; };
+		05EF9474EB26DF74B8D7FDAA /* ArchiveDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArchiveDetailView.swift; sourceTree = "<group>"; };
+		10B521A0B659765D883F5E4C /* StackCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StackCard.swift; sourceTree = "<group>"; };
+		1227A240F189BB798494FD0F /* Waveform.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Waveform.swift; sourceTree = "<group>"; };
+		154FDBDC815FD074D17C258E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		1BDB3FB2A46D89FB8F6E528D /* BroadcastBrain.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BroadcastBrain.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		2268C5BB146969E1B046A49E /* ResearchCenterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResearchCenterView.swift; sourceTree = "<group>"; };
+		4132AE323E5FEB98D3E225B8 /* cactus-macos.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = "cactus-macos.xcframework"; path = "BroadcastBrain/Frameworks/cactus-macos.xcframework"; sourceTree = "<group>"; };
+		46EAD55D55FDE50021FA38E3 /* SportradarBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SportradarBadge.swift; sourceTree = "<group>"; };
+		51919B20535309C89D4E15B9 /* Tokens.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tokens.swift; sourceTree = "<group>"; };
+		57DC475ADA91F2B5E0A8A94C /* MockResponderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockResponderTests.swift; sourceTree = "<group>"; };
+		757AB2F3C722DB4440337D1A /* PressToTalkButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PressToTalkButton.swift; sourceTree = "<group>"; };
+		7CE728CE31ACC8F9DB7324B9 /* MockResponder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockResponder.swift; sourceTree = "<group>"; };
+		7DD86CEF67DA77208349168F /* BroadcastBrainTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BroadcastBrainTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		82B9451069B6343C41C337AC /* Cactus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cactus.swift; sourceTree = "<group>"; };
+		8AE6D73A8667738DD33BAF2B /* LatencyTag.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LatencyTag.swift; sourceTree = "<group>"; };
+		90487A3CA3F809A1CFB8ED20 /* BroadcastBrainApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BroadcastBrainApp.swift; sourceTree = "<group>"; };
+		90AFD39809B3E0BE8DF8644B /* CactusService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CactusService.swift; sourceTree = "<group>"; };
+		9AAA500ADFDDF5CAD7707BAD /* TranscriptOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptOverlay.swift; sourceTree = "<group>"; };
+		A2069035A22848052FAF13B0 /* StatusBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBarView.swift; sourceTree = "<group>"; };
+		A5C2E3CFAB5CA8C1AD68FB5B /* AppStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStore.swift; sourceTree = "<group>"; };
+		AE192E5776E2B9A67F110CB8 /* CactusServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CactusServiceTests.swift; sourceTree = "<group>"; };
+		AE64AD9C32691F3111C8595F /* StatCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatCardView.swift; sourceTree = "<group>"; };
+		AF50D005DA852CAE53DC0E99 /* match_cache.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = match_cache.json; sourceTree = "<group>"; };
+		B2491DE25F4F75DA94526903 /* ModelCodableTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelCodableTests.swift; sourceTree = "<group>"; };
+		B4F1237976FCC7179733FC75 /* ChatMessageRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatMessageRow.swift; sourceTree = "<group>"; };
+		B79E4BA0F9248D3466873BBE /* LivePill.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LivePill.swift; sourceTree = "<group>"; };
+		B83E5A0C129A26A3CC625311 /* AudioCaptureService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioCaptureService.swift; sourceTree = "<group>"; };
+		BAB90A6DC8002673826C8BD0 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		C3A6A719D484016893C42760 /* MatchCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MatchCache.swift; sourceTree = "<group>"; };
+		C706D6F845EC11E12CA3B0F5 /* BroadcastBrain.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = BroadcastBrain.entitlements; sourceTree = "<group>"; };
+		C9F5FE8926459F794E4A039D /* SessionStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionStore.swift; sourceTree = "<group>"; };
+		CD1186F00AC31EE683675AE6 /* SessionStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionStoreTests.swift; sourceTree = "<group>"; };
+		E5059B3472C8B2022AC33356 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		EE877181D0D2EB6F44FCF490 /* ListeningDot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListeningDot.swift; sourceTree = "<group>"; };
+		FD1F4DAD40C5C4BFB52EA58D /* SidebarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarView.swift; sourceTree = "<group>"; };
+		FF9FC0FE9D60DC37A1594C96 /* Session.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Session.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		B2979515228E56E464A6C7CE /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				70BC25E15A41151CA931A4B9 /* cactus-macos.xcframework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		05A03F6B188624CC88766636 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				05EF9474EB26DF74B8D7FDAA /* ArchiveDetailView.swift */,
+				01550DE4B92113B1173C6B2F /* LivePaneView.swift */,
+				2268C5BB146969E1B046A49E /* ResearchCenterView.swift */,
+				FD1F4DAD40C5C4BFB52EA58D /* SidebarView.swift */,
+				576EFBB721C77F668145738B /* Components */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		2E6868D3614094B6FE23FFDE /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				AF50D005DA852CAE53DC0E99 /* match_cache.json */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		2FB4C7AF75A217215F604EB7 /* BroadcastBrainTests */ = {
+			isa = PBXGroup;
+			children = (
+				AE192E5776E2B9A67F110CB8 /* CactusServiceTests.swift */,
+				57DC475ADA91F2B5E0A8A94C /* MockResponderTests.swift */,
+				B2491DE25F4F75DA94526903 /* ModelCodableTests.swift */,
+				CD1186F00AC31EE683675AE6 /* SessionStoreTests.swift */,
+			);
+			path = BroadcastBrainTests;
+			sourceTree = "<group>";
+		};
+		4122C30F1A833B4337544DF5 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				C3A6A719D484016893C42760 /* MatchCache.swift */,
+				FF9FC0FE9D60DC37A1594C96 /* Session.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		576EFBB721C77F668145738B /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				B4F1237976FCC7179733FC75 /* ChatMessageRow.swift */,
+				8AE6D73A8667738DD33BAF2B /* LatencyTag.swift */,
+				EE877181D0D2EB6F44FCF490 /* ListeningDot.swift */,
+				B79E4BA0F9248D3466873BBE /* LivePill.swift */,
+				757AB2F3C722DB4440337D1A /* PressToTalkButton.swift */,
+				46EAD55D55FDE50021FA38E3 /* SportradarBadge.swift */,
+				10B521A0B659765D883F5E4C /* StackCard.swift */,
+				AE64AD9C32691F3111C8595F /* StatCardView.swift */,
+				A2069035A22848052FAF13B0 /* StatusBarView.swift */,
+				51919B20535309C89D4E15B9 /* Tokens.swift */,
+				9AAA500ADFDDF5CAD7707BAD /* TranscriptOverlay.swift */,
+				1227A240F189BB798494FD0F /* Waveform.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		5E133AC1178766FED41CC012 /* BroadcastBrain */ = {
+			isa = PBXGroup;
+			children = (
+				154FDBDC815FD074D17C258E /* Assets.xcassets */,
+				C706D6F845EC11E12CA3B0F5 /* BroadcastBrain.entitlements */,
+				90487A3CA3F809A1CFB8ED20 /* BroadcastBrainApp.swift */,
+				BAB90A6DC8002673826C8BD0 /* ContentView.swift */,
+				E5059B3472C8B2022AC33356 /* Info.plist */,
+				4122C30F1A833B4337544DF5 /* Models */,
+				2E6868D3614094B6FE23FFDE /* Resources */,
+				6A64637488BF756CBF5D429A /* Services */,
+				C19D3F51D02F43A243772C21 /* Stores */,
+				05A03F6B188624CC88766636 /* Views */,
+			);
+			path = BroadcastBrain;
+			sourceTree = "<group>";
+		};
+		65A284292BEEBC0943964CCE /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				1BDB3FB2A46D89FB8F6E528D /* BroadcastBrain.app */,
+				7DD86CEF67DA77208349168F /* BroadcastBrainTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		6A64637488BF756CBF5D429A /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				B83E5A0C129A26A3CC625311 /* AudioCaptureService.swift */,
+				82B9451069B6343C41C337AC /* Cactus.swift */,
+				90AFD39809B3E0BE8DF8644B /* CactusService.swift */,
+				7CE728CE31ACC8F9DB7324B9 /* MockResponder.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		AFF55C48CD22E09820BEB37C = {
+			isa = PBXGroup;
+			children = (
+				5E133AC1178766FED41CC012 /* BroadcastBrain */,
+				2FB4C7AF75A217215F604EB7 /* BroadcastBrainTests */,
+				D1C7F98E649425E4E53622C6 /* Frameworks */,
+				65A284292BEEBC0943964CCE /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		C19D3F51D02F43A243772C21 /* Stores */ = {
+			isa = PBXGroup;
+			children = (
+				A5C2E3CFAB5CA8C1AD68FB5B /* AppStore.swift */,
+				C9F5FE8926459F794E4A039D /* SessionStore.swift */,
+			);
+			path = Stores;
+			sourceTree = "<group>";
+		};
+		D1C7F98E649425E4E53622C6 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				4132AE323E5FEB98D3E225B8 /* cactus-macos.xcframework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		1B79553E18DE3E4EE0790BDB /* BroadcastBrainTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 6CD901A5D705796B3AC36E4A /* Build configuration list for PBXNativeTarget "BroadcastBrainTests" */;
+			buildPhases = (
+				C1D6A37FED38853D38813F7D /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				F3E05648E869734CCC87CEFC /* PBXTargetDependency */,
+			);
+			name = BroadcastBrainTests;
+			packageProductDependencies = (
+			);
+			productName = BroadcastBrainTests;
+			productReference = 7DD86CEF67DA77208349168F /* BroadcastBrainTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		CD473E44C0CBD5E3E24D0673 /* BroadcastBrain */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 732E10946F77C54E7549538F /* Build configuration list for PBXNativeTarget "BroadcastBrain" */;
+			buildPhases = (
+				F4A96C96CADB908F3725C2E7 /* Sources */,
+				982AEAA31210AF903CFCE4B4 /* Resources */,
+				B2979515228E56E464A6C7CE /* Frameworks */,
+				FAB94D9DFA2EE3E92CD0CDB6 /* Embed Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = BroadcastBrain;
+			packageProductDependencies = (
+			);
+			productName = BroadcastBrain;
+			productReference = 1BDB3FB2A46D89FB8F6E528D /* BroadcastBrain.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		B8AC317D5AF7C3382A569AB7 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					1B79553E18DE3E4EE0790BDB = {
+						DevelopmentTeam = "";
+						ProvisioningStyle = Automatic;
+					};
+					CD473E44C0CBD5E3E24D0673 = {
+						DevelopmentTeam = "";
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = D91C260419C657C9D93090DB /* Build configuration list for PBXProject "BroadcastBrain" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = AFF55C48CD22E09820BEB37C;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				CD473E44C0CBD5E3E24D0673 /* BroadcastBrain */,
+				1B79553E18DE3E4EE0790BDB /* BroadcastBrainTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		982AEAA31210AF903CFCE4B4 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B5ABF69FE9AFDAD11C56621B /* Assets.xcassets in Resources */,
+				B0DA6E09C0BD2DD22E1CCC99 /* match_cache.json in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		C1D6A37FED38853D38813F7D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9336FDBA329EA3138DAC0282 /* CactusServiceTests.swift in Sources */,
+				1D668774F84B594E8B249C09 /* MockResponderTests.swift in Sources */,
+				0F02EBD664051BF052EF7012 /* ModelCodableTests.swift in Sources */,
+				034498E25A8850984493C9E2 /* SessionStoreTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F4A96C96CADB908F3725C2E7 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				162B595396D5974D448E5A8C /* AppStore.swift in Sources */,
+				BA8DD13242C5D90231FBF21E /* ArchiveDetailView.swift in Sources */,
+				A3F44B0C25FFA20F2D5926FC /* AudioCaptureService.swift in Sources */,
+				76BD684BF4DDC88E49946E2E /* BroadcastBrainApp.swift in Sources */,
+				B6F4346E4C192BF816F68EAA /* Cactus.swift in Sources */,
+				D2F4BB6524F4500D144AF80C /* CactusService.swift in Sources */,
+				30702CFDAB6E91475D9965F5 /* ChatMessageRow.swift in Sources */,
+				B28DD1DE6BE6197370BB602C /* ContentView.swift in Sources */,
+				E05C57FFDF0F3B9977139753 /* LatencyTag.swift in Sources */,
+				DF2E26836A96D0D12400BA94 /* ListeningDot.swift in Sources */,
+				73474C0EE14E2A4A9B79742C /* LivePaneView.swift in Sources */,
+				4888A82003BDA03F00D954CD /* LivePill.swift in Sources */,
+				3689ED92510A4D081B6CBB1E /* MatchCache.swift in Sources */,
+				E31D20151B71FBD3257BF1D8 /* MockResponder.swift in Sources */,
+				41B921C4FB590088E94910D6 /* PressToTalkButton.swift in Sources */,
+				67EED72EDEC3D8621574A4BC /* ResearchCenterView.swift in Sources */,
+				C2EC1CB5DC0D4914B540E12A /* Session.swift in Sources */,
+				ED24D8E788873134C2FEEBCA /* SessionStore.swift in Sources */,
+				053617CC8A80BFBB884CF402 /* SidebarView.swift in Sources */,
+				C51482DD2F2F981AD8D640F5 /* SportradarBadge.swift in Sources */,
+				164F7E394D28280CBD14A11D /* StackCard.swift in Sources */,
+				5982407B776A2A4BF04125BA /* StatCardView.swift in Sources */,
+				77475FBA9D6370A088D71876 /* StatusBarView.swift in Sources */,
+				75823BF5B5A04A60E2C364D1 /* Tokens.swift in Sources */,
+				8597296F58177F87BE1CEE5E /* TranscriptOverlay.swift in Sources */,
+				4159423CA0FA24C223DB38E0 /* Waveform.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		F3E05648E869734CCC87CEFC /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = CD473E44C0CBD5E3E24D0673 /* BroadcastBrain */;
+			targetProxy = 6CC394C24330DF9E9F9DDC61 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		0F4AD8DAEA61E883ECE9136C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = BroadcastBrain/BroadcastBrain.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(PROJECT_DIR)/BroadcastBrain/Frameworks",
+					"\"BroadcastBrain/Frameworks\"",
+				);
+				INFOPLIST_FILE = BroadcastBrain/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.broadcastbrain.mac;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		61BE252B8C775079D1CB0B02 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.broadcastbrain.mac.tests;
+				SDKROOT = macosx;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/BroadcastBrain.app/Contents/MacOS/BroadcastBrain";
+			};
+			name = Release;
+		};
+		B79EFAA4462E4204904A4675 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_STRICT_CONCURRENCY = minimal;
+				SWIFT_VERSION = 5.9;
+			};
+			name = Debug;
+		};
+		CB0D779881DF20A9C34EECA0 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = "";
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_STRICT_CONCURRENCY = minimal;
+				SWIFT_VERSION = 5.9;
+			};
+			name = Release;
+		};
+		CB242CA583C097050F40DC95 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = BroadcastBrain/BroadcastBrain.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(PROJECT_DIR)/BroadcastBrain/Frameworks",
+					"\"BroadcastBrain/Frameworks\"",
+				);
+				INFOPLIST_FILE = BroadcastBrain/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.broadcastbrain.mac;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		D86382AF127A682907D5D47F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.broadcastbrain.mac.tests;
+				SDKROOT = macosx;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/BroadcastBrain.app/Contents/MacOS/BroadcastBrain";
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		6CD901A5D705796B3AC36E4A /* Build configuration list for PBXNativeTarget "BroadcastBrainTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D86382AF127A682907D5D47F /* Debug */,
+				61BE252B8C775079D1CB0B02 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		732E10946F77C54E7549538F /* Build configuration list for PBXNativeTarget "BroadcastBrain" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CB242CA583C097050F40DC95 /* Debug */,
+				0F4AD8DAEA61E883ECE9136C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		D91C260419C657C9D93090DB /* Build configuration list for PBXProject "BroadcastBrain" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B79EFAA4462E4204904A4675 /* Debug */,
+				CB0D779881DF20A9C34EECA0 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = B8AC317D5AF7C3382A569AB7 /* Project object */;
+}

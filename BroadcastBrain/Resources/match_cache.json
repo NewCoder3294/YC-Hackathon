@@ -1,0 +1,80 @@
+{
+  "matchId": "arg-fra-2022-wc-final",
+  "title": "Argentina vs France · 2022 WC Final · Lusail Stadium",
+  "players": [
+    {
+      "name": "Lionel Messi",
+      "team": "Argentina",
+      "jersey": "10",
+      "position": "FW",
+      "keyStats": {
+        "wc_goals_2022": "7",
+        "penalty_23": "opening goal 23'",
+        "et_goal_108": "extra-time goal at 108'",
+        "career_wc_goals": "13"
+      }
+    },
+    {
+      "name": "Kylian Mbappé",
+      "team": "France",
+      "jersey": "10",
+      "position": "FW",
+      "keyStats": {
+        "wc_goals_2022": "8",
+        "brace_80_81": "2 goals in 2 minutes",
+        "et_goal": "extra-time equaliser",
+        "final_hat_trick": "first in a WC Final since Geoff Hurst in 1966"
+      }
+    },
+    {
+      "name": "Ángel Di María",
+      "team": "Argentina",
+      "jersey": "11",
+      "position": "FW",
+      "keyStats": {
+        "goal_36": "finishes clinical Argentina move at 36'",
+        "first_wc_final_goal": "2022"
+      }
+    },
+    {
+      "name": "Emiliano Martínez",
+      "team": "Argentina",
+      "jersey": "23",
+      "position": "GK",
+      "keyStats": {
+        "pen_saves": "2 in shootout",
+        "golden_glove": "2022 WC"
+      }
+    },
+    {
+      "name": "Gonzalo Montiel",
+      "team": "Argentina",
+      "jersey": "4",
+      "position": "DF",
+      "keyStats": {
+        "winning_penalty": "scored Argentina's 4th — tournament-winner"
+      }
+    }
+  ],
+  "facts": [
+    "Argentina defeated France on penalties after a 3-3 extra-time draw",
+    "Messi scored two goals: a 23rd-minute penalty and a 108th-minute extra-time goal",
+    "Mbappé scored a hat-trick including goals at 80' and 81' — the fastest two-minute two-goal brace in a WC Final",
+    "Di María scored the second Argentina goal at 36' after assisting Messi's opener",
+    "Most-watched football match in history — approximately 1.5 billion viewers",
+    "Mbappé's hat-trick was the first in a WC Final since Geoff Hurst in 1966 for England",
+    "Messi's 23rd-minute penalty was his first goal in a World Cup Final",
+    "Argentina won 4-2 on penalties; Gonzalo Montiel scored the winning kick",
+    "Messi won the Golden Ball (tournament MVP) for the second time",
+    "Mbappé won the Golden Boot with 8 goals",
+    "Emiliano Martínez saved 2 penalties in the shootout and won the Golden Glove",
+    "Peter Drury's 'Lionel Messi ascends to football heaven' is the most-viewed broadcast moment of the match",
+    "Played at Lusail Stadium, Qatar on 18 December 2022"
+  ],
+  "storylines": [
+    "Messi's 5th and final World Cup — closes the circle after 2014 loss to Germany",
+    "Mbappé chasing Golden Boot (won it with 8)",
+    "France chasing back-to-back titles, last achieved by Brazil in 1958-62",
+    "Scaloni's Argentina rebuilt around Messi after 2018 failure"
+  ]
+}
