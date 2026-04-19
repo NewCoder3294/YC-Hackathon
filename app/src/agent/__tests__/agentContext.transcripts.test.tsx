@@ -57,16 +57,22 @@ describe('AgentContext — live transcripts', () => {
     subscribers.length = 0;
   });
 
+  afterEach(() => {
+    subscribers.length = 0;
+    events = [];
+  });
+
   it('appends transcript events to the transcripts slice when agent is active', () => {
-    const { result } = renderHook(() => useAgent(), { wrapper });
+    const { result, unmount } = renderHook(() => useAgent(), { wrapper });
     act(() => result.current.start());
     act(() => emit({ type: 'transcript', text: 'messi dribbling down the left', confidence: 0.9 }));
     expect(result.current.transcripts).toHaveLength(1);
     expect(result.current.transcripts[0].text).toBe('messi dribbling down the left');
+    unmount();
   });
 
   it('keeps at most 5 transcripts (newest first)', () => {
-    const { result } = renderHook(() => useAgent(), { wrapper });
+    const { result, unmount } = renderHook(() => useAgent(), { wrapper });
     act(() => result.current.start());
     for (let i = 0; i < 7; i++) {
       act(() => emit({ type: 'transcript', text: `line ${i}`, confidence: 0.9 }));
@@ -74,21 +80,24 @@ describe('AgentContext — live transcripts', () => {
     expect(result.current.transcripts).toHaveLength(5);
     expect(result.current.transcripts[0].text).toBe('line 6');
     expect(result.current.transcripts[4].text).toBe('line 2');
+    unmount();
   });
 
   it('ignores non-transcript events', () => {
-    const { result } = renderHook(() => useAgent(), { wrapper });
+    const { result, unmount } = renderHook(() => useAgent(), { wrapper });
     act(() => result.current.start());
     act(() => emit({ type: 'stat_card' }));
     expect(result.current.transcripts).toHaveLength(0);
+    unmount();
   });
 
   it('clears transcripts on stop', () => {
-    const { result } = renderHook(() => useAgent(), { wrapper });
+    const { result, unmount } = renderHook(() => useAgent(), { wrapper });
     act(() => result.current.start());
     act(() => emit({ type: 'transcript', text: 'hello', confidence: 0.9 }));
     expect(result.current.transcripts).toHaveLength(1);
     act(() => result.current.stop());
     expect(result.current.transcripts).toHaveLength(0);
+    unmount();
   });
 });

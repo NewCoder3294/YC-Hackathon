@@ -97,12 +97,12 @@ export function AgentProvider({ children }: { children: React.ReactNode }) {
       prevEvents = nextEvents;
       for (const e of added) {
         if (e.type === 'transcript') {
-          const te = e as TranscriptEvent;
-          const text = te.text?.trim();
+          const text = e.text?.trim();
+          const confidence = e.confidence ?? 0;
           if (!text) continue;
           counter += 1;
           const id = `t-${counter}`;
-          setTranscripts((prev) => [{ id, text, confidence: te.confidence, at: Date.now() }, ...prev].slice(0, 5));
+          setTranscripts((prev) => [{ id, text, confidence, at: Date.now() }, ...prev].slice(0, 5));
           continue;
         }
         const mapped = mapBusEventToPoint(e);
