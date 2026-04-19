@@ -73,17 +73,13 @@ final class AppStore {
         self.speech = speech
         self.whisperEngine = whisperEngine
 
-        if let url = Bundle.main.url(forResource: "match_cache", withExtension: "json"),
-           let data = try? Data(contentsOf: url),
-           let cache = try? JSONDecoder().decode(MatchCache.self, from: data) {
-            self.matchCache = cache
-        } else {
-            self.matchCache = nil
-        }
+        // Load only the user-saved cache (from a prior TeamSetupView fetch).
+        // No bundled fallback: first launch has no cache, which forces
+        // TeamSetupView so every user starts with their own match.
+        let initialCache = Self.loadSavedCache()
+        self.matchCache = initialCache
 
-        // Seed the default hackathon match so first launch has something live.
-        let seededMatch = Match.sampleArgFra2022
-        let title = seededMatch.title
+        let title = initialCache?.title ?? "New Match"
 
         // Reuse an empty session for today's match if one already exists.
         let cal = Calendar.current
@@ -97,13 +93,19 @@ final class AppStore {
         }) {
             self.currentSession = reusable
         } else {
-            let fresh = Session(title: title, match: seededMatch)
+            let fresh = Session(title: title)
             self.currentSession = fresh
             sessionStore.save(fresh)
         }
 
         // Sweep any stray empty duplicate sessions (from pre-fix launches)
         sessionStore.purgeEmptyDuplicates(except: self.currentSession.id)
+
+        // No cache means the user has never run setup — force TeamSetupView
+        // on this launch so the app is tailored from the first moment.
+        if self.matchCache == nil {
+            self.showingSetup = true
+        }
 
         // Back-link whisper engine to self so it can read transcript + plays.
         whisperEngine.attach(store: self)
@@ -366,10 +368,12 @@ final class AppStore {
     }
 
     /// Called by TeamSetupView after the fetch completes — swaps the in-memory
-    /// match cache and starts a fresh session for the new matchup.
+    /// match cache, persists it to disk so future launches skip setup, and
+    /// starts a fresh session for the new matchup.
     func loadMatchCache(_ cache: MatchCache) {
         matchCache = cache
         showingSetup = false
+        Self.persistCache(cache)
 
         let fresh = Session(title: cache.title)
         sessionStore.save(fresh)
@@ -381,5 +385,24 @@ final class AppStore {
     /// Called by the sidebar "refresh" button to reopen the setup flow.
     func presentSetup() {
         showingSetup = true
+    }
+
+    // MARK: - Cache persistence
+
+    private static let savedCacheURL: URL = FileManager.default
+        .urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+        .appendingPathComponent("BroadcastBrain/match_cache.json")
+
+    private static func loadSavedCache() -> MatchCache? {
+        guard FileManager.default.fileExists(atPath: savedCacheURL.path),
+              let data = try? Data(contentsOf: savedCacheURL) else { return nil }
+        return try? JSONDecoder().decode(MatchCache.self, from: data)
+    }
+
+    private static func persistCache(_ cache: MatchCache) {
+        let dir = savedCacheURL.deletingLastPathComponent()
+        try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        let enc = JSONEncoder(); enc.outputFormatting = [.prettyPrinted, .sortedKeys]
+        try? enc.encode(cache).write(to: savedCacheURL, options: .atomic)
     }
 }

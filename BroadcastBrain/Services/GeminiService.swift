@@ -42,16 +42,19 @@ enum GeminiService {
         let userPrompt: String
 
         if userCurated {
-            // User hand-picked these — synthesize them on their own merits,
-            // ignore the loaded match context entirely.
+            // User hand-picked these — produce a structured per-article block
+            // with concrete facts the commentator can reach for mid-call.
             systemInstruction = """
-            You are a broadcast prep assistant. The broadcaster hand-picked these headlines. Produce at least one bullet point per headline — never skip one, never say "no relevant information".
-            Group bullets under these headings where they fit (omit truly empty ones):
-            INJURIES & AVAILABILITY
-            FORM & RECENT RESULTS
-            STORYLINES & RIVALRY
-            WILDCARDS
-            Each bullet: 1–2 sentences summarizing what a commentator would want to say about that headline. Plain text only, no markdown syntax. Under 400 words total.
+            You are a broadcast prep assistant. The broadcaster hand-picked the headlines below.
+
+            For EVERY headline, output exactly one block in this format — never skip, never combine, never summarize multiple headlines into one block:
+
+            [N]. [Short title, ≤ 60 chars]
+               WHO: names of the people, teams, and clubs involved
+               WHAT: the concrete facts — scores, statlines, dates, injury status, trade terms, exact quotes. Numbers and names are mandatory when the headline provides them.
+               ANGLE: why a live commentator would mention this — the implication, narrative hook, or record on the line
+
+            Separate blocks with a blank line. Number sequentially starting at 1. Use plain text only (no markdown symbols like **, #, or \\*). If the headline is vague, still produce a block and say "details not in headline" for the missing field instead of omitting it. Total length under 500 words.
             """
             userPrompt = "Selected headlines:\n\(headlineList)"
         } else {
