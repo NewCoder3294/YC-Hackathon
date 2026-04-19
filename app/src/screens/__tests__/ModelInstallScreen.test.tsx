@@ -14,8 +14,15 @@ jest.mock('../../cactus/state/modelLoader', () => {
   return { useModelLoader, __state: state };
 });
 
+type MockState = {
+  status: string;
+  progress: number;
+  error: string | null;
+  ensureLoaded: jest.Mock;
+  reset: jest.Mock;
+};
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const mod = require('../../cactus/state/modelLoader') as { __state: any };
+const mod = require('../../cactus/state/modelLoader') as { __state: MockState };
 
 describe('ModelInstallScreen', () => {
   beforeEach(() => {

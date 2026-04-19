@@ -53,6 +53,8 @@ export function ModelInstallScreen() {
           <Pressable
             onPress={() => { reset(); void retry(); }}
             style={{ paddingVertical: 12, paddingHorizontal: 28, borderWidth: 1, borderColor: tokens.text, borderRadius: 6 }}
+            accessibilityRole="button"
+            accessibilityLabel="Retry download"
           >
             <Text style={{ fontFamily: FONT_MONO, fontSize: 12, fontWeight: '700', color: tokens.text, letterSpacing: 1.6 }}>
               RETRY
