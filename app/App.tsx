@@ -23,6 +23,7 @@ import { ArchiveScreen } from './src/screens/ArchiveScreen';
 import { PatternProvider } from './src/ui/BackgroundPattern';
 import { AgentProvider, useAgent } from './src/agent/AgentContext';
 import { AgentPiP } from './src/agent/AgentPiP';
+import { DevToolsOverlay } from './src/cactus/devtools/DevToolsOverlay';
 
 export default function App() {
   const [fontsLoaded] = useFonts({
@@ -52,6 +53,10 @@ export default function App() {
 
 function AppShell() {
   const [screen, setScreen] = useState<ScreenId>('F1');
+  const [showDevtools, setShowDevtools] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    return window.location?.search?.includes('devtools') ?? false;
+  });
   const { active, pipVisible, showPiP } = useAgent();
 
   // Re-show the PiP every time the user visits Agent — so after a close,
@@ -77,6 +82,8 @@ function AppShell() {
       {active && screen !== 'AGENT' && pipVisible && (
         <AgentPiP onExpand={() => setScreen('AGENT')} />
       )}
+
+      {showDevtools && <DevToolsOverlay onClose={() => setShowDevtools(false)} />}
     </View>
   );
 }
