@@ -15,10 +15,13 @@ type Props = {
   onVoiceRelease?: () => void;
   rightSlot?: React.ReactNode;
   children: React.ReactNode;
+  hideBottomBezel?: boolean;
 };
 
-// The full right-pane shell: top bar (score · clock · phase · listening dot),
-// body (where cards and panels stack), bottom bezel (press-to-talk + latency).
+// Match-level shell: top bar (score · clock · phase · listening dot), body,
+// and optionally a full-width bottom voice bezel. Pass `hideBottomBezel` when
+// the caller places its own <VoiceBezel> inside a column (e.g. Feature 2
+// anchors the mic to the whisper-agent pane instead).
 export function LivePaneShell({
   clock,
   score,
@@ -30,6 +33,7 @@ export function LivePaneShell({
   onVoiceRelease,
   rightSlot,
   children,
+  hideBottomBezel = false,
 }: Props) {
   return (
     <View style={{ flex: 1, backgroundColor: tokens.bgBase }}>
@@ -111,60 +115,85 @@ export function LivePaneShell({
       {/* Body */}
       <View style={{ flex: 1, paddingVertical: 14, paddingHorizontal: 20, gap: 14 }}>{children}</View>
 
-      {/* Bottom bezel */}
-      <View
+      {/* Bottom bezel (optional) */}
+      {!hideBottomBezel && (
+        <VoiceBezel
+          listening={listening}
+          latency={latency}
+          onPress={onVoicePress}
+          onRelease={onVoiceRelease}
+        />
+      )}
+    </View>
+  );
+}
+
+// Standalone bezel — same visual as the shell's bottom bar, exported so a
+// screen can anchor the press-to-talk control inside a specific column.
+export function VoiceBezel({
+  listening,
+  latency = '842ms',
+  onPress,
+  onRelease,
+}: {
+  listening: boolean;
+  latency?: string;
+  onPress?: () => void;
+  onRelease?: () => void;
+}) {
+  return (
+    <View
+      style={{
+        borderTopWidth: 1,
+        borderTopColor: tokens.borderSoft,
+        backgroundColor: tokens.bgRaised,
+        paddingVertical: 14,
+        paddingHorizontal: 20,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: 12,
+      }}
+    >
+      <Pressable
+        onPressIn={onPress}
+        onPressOut={onRelease}
         style={{
-          borderTopWidth: 1,
-          borderTopColor: tokens.borderSoft,
-          backgroundColor: tokens.bgRaised,
-          paddingVertical: 14,
-          paddingHorizontal: 20,
+          flex: 1,
           flexDirection: 'row',
           alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: 12,
+          gap: 10,
+          paddingVertical: 12,
+          paddingHorizontal: 16,
+          backgroundColor: listening ? 'rgba(239,68,68,0.08)' : tokens.bgSubtle,
+          borderWidth: 1,
+          borderColor: listening ? tokens.live : tokens.border,
+          borderRadius: 10,
         }}
       >
-        <Pressable
-          onPressIn={onVoicePress}
-          onPressOut={onVoiceRelease}
+        <Svg viewBox="0 0 24 24" width={18} height={18} fill="none">
+          <Rect x={9} y={2} width={6} height={12} rx={3} stroke={listening ? tokens.live : tokens.text} strokeWidth={1.75} />
+          <Path
+            d="M5 10v1a7 7 0 0 0 14 0v-1M12 18v4M8 22h8"
+            stroke={listening ? tokens.live : tokens.text}
+            strokeWidth={1.75}
+            strokeLinecap="round"
+          />
+        </Svg>
+        <Text
           style={{
-            flex: 1,
-            flexDirection: 'row',
-            alignItems: 'center',
-            gap: 10,
-            paddingVertical: 12,
-            paddingHorizontal: 16,
-            backgroundColor: listening ? 'rgba(239,68,68,0.08)' : tokens.bgSubtle,
-            borderWidth: 1,
-            borderColor: listening ? tokens.live : tokens.border,
-            borderRadius: 10,
+            fontFamily: FONT_MONO,
+            fontSize: 11,
+            fontWeight: '700',
+            letterSpacing: 1.8,
+            color: listening ? tokens.live : tokens.text,
           }}
         >
-          <Svg viewBox="0 0 24 24" width={18} height={18} fill="none">
-            <Rect x={9} y={2} width={6} height={12} rx={3} stroke={listening ? tokens.live : tokens.text} strokeWidth={1.75} />
-            <Path
-              d="M5 10v1a7 7 0 0 0 14 0v-1M12 18v4M8 22h8"
-              stroke={listening ? tokens.live : tokens.text}
-              strokeWidth={1.75}
-              strokeLinecap="round"
-            />
-          </Svg>
-          <Text
-            style={{
-              fontFamily: FONT_MONO,
-              fontSize: 11,
-              fontWeight: '700',
-              letterSpacing: 1.8,
-              color: listening ? tokens.live : tokens.text,
-            }}
-          >
-            {listening ? 'LISTENING…' : 'HOLD TO ASK'}
-          </Text>
-          {listening && <Waveform color={tokens.live} />}
-        </Pressable>
-        <LatencyTag ms={latency} />
-      </View>
+          {listening ? 'LISTENING…' : 'HOLD TO ASK'}
+        </Text>
+        {listening && <Waveform color={tokens.live} />}
+      </Pressable>
+      <LatencyTag ms={latency} />
     </View>
   );
 }

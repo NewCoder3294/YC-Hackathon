@@ -26,6 +26,7 @@ export type MatchBeat = {
   color?: string;
   storyTickId?: string;   // auto-tick this storyline when the beat fires
   momentum?: MomentumTag;
+  scorerId?: string;      // player whose row gets the event badge in the lineup pane
   card?: {
     stat: {
       player: string;
@@ -55,6 +56,7 @@ export const MATCH_BEATS: MatchBeat[] = [
     color: tokens.text,
     storyTickId: 's8',
     momentum: { label: 'ARG DOMINANT', color: tokens.text },
+    scorerId: 'arg-10',
     card: {
       stat: {
         player: 'LIONEL MESSI',
@@ -91,6 +93,7 @@ export const MATCH_BEATS: MatchBeat[] = [
     color: tokens.text,
     storyTickId: 's1',
     momentum: { label: 'FRA RATTLED', color: tokens.esoteric },
+    scorerId: 'arg-11',
     card: {
       stat: {
         player: 'ÁNGEL DI MARÍA',
@@ -127,6 +130,7 @@ export const MATCH_BEATS: MatchBeat[] = [
     color: tokens.live,
     storyTickId: 's2',
     momentum: { label: 'FRA SURGING', color: tokens.live },
+    scorerId: 'fra-10',
     card: {
       stat: {
         player: 'KYLIAN MBAPPÉ',
@@ -162,6 +166,7 @@ export const MATCH_BEATS: MatchBeat[] = [
     score: { arg: 2, fra: 2 },
     color: tokens.live,
     momentum: { label: 'FRA RUN: 2 IN 97s', color: tokens.live },
+    scorerId: 'fra-10',
     card: {
       stat: {
         player: 'KYLIAN MBAPPÉ',

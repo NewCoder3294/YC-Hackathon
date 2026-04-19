@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { IPadFrame } from '../frame/IPadFrame';
 import { FONT_MONO, tokens } from '../theme/tokens';
-import { LivePaneShell } from '../feature2/LivePaneShell';
+import { LivePaneShell, VoiceBezel } from '../feature2/LivePaneShell';
 import {
   CounterNarrativeCard,
   PrecedentCard,
@@ -10,6 +10,7 @@ import {
 } from '../feature2/CardStack';
 import { MatchEvent, MomentumTag, RunningScorePanel, StoryItem, StoryQueue, TranscriptOverlay } from '../feature2/LivePanels';
 import { VoiceWidget, WidgetRow } from '../feature2/VoiceWidget';
+import { ActivePlayersPane } from '../feature2/ActivePlayersPane';
 import { INITIAL_STORIES, MATCH_BEATS, MatchBeat } from '../fixtures/match';
 
 type Phase = 'PRE-MATCH' | 'LIVE' | 'HALF-TIME' | 'FULL-TIME';
@@ -132,6 +133,8 @@ export function Feature2Screen() {
     : tokens.textMuted;
 
   const latestCard = activeCard;
+  const firedBeats = MATCH_BEATS.slice(0, beatIdx);
+  const focusedPlayerId = latestCard?.scorerId;
 
   return (
     <IPadFrame>
@@ -142,48 +145,89 @@ export function Feature2Screen() {
         phaseColor={phaseColor}
         listening={listening}
         latency="842ms"
-        onVoicePress={voicePress}
-        onVoiceRelease={voiceRelease}
+        hideBottomBezel
         rightSlot={<SimControls simRunning={simRunning} onStart={startSim} onReset={resetSim} />}
       >
-        <ScrollView
-          style={{ flex: 1 }}
-          contentContainerStyle={{ gap: 14, paddingBottom: 8 }}
-          showsVerticalScrollIndicator={false}
-        >
-          {/* Voice-triggered overlay + widget */}
-          {transcript && <TranscriptOverlay text={transcript} agoMs={800} />}
-          {widget && (
-            <VoiceWidget
-              title="Mbappé — record in WC Finals (2018 · 2022)"
-              rows={widget}
-              pinned={widgetPinned}
-              onTogglePin={() => setPinned((p) => !p)}
-              onDismiss={dismissWidget}
+        <View style={{ flex: 1, flexDirection: 'row', marginHorizontal: -20, marginVertical: -14 }}>
+          {/* LEFT — active players */}
+          <View style={{ flex: 0.55, borderRightWidth: 1, borderRightColor: tokens.border }}>
+            <ActivePlayersPane
+              firedBeats={firedBeats}
+              clock={clock}
+              listeningPlayerId={focusedPlayerId}
             />
-          )}
+          </View>
 
-          {/* Autonomous 3-card stack for the most recent beat */}
-          {latestCard?.card ? (
-            <>
-              <ScorerStatCard {...latestCard.card.stat} />
-              <PrecedentCard {...latestCard.card.precedent} />
-              <CounterNarrativeCard {...latestCard.card.counter} />
-            </>
-          ) : (
-            <EmptyStackPlaceholder phase={phase} />
-          )}
+          {/* RIGHT — whisper agent */}
+          <View style={{ flex: 0.45, backgroundColor: tokens.bgBase }}>
+            <View
+              style={{
+                paddingVertical: 14,
+                paddingHorizontal: 18,
+                borderBottomWidth: 1,
+                borderBottomColor: tokens.borderSoft,
+                backgroundColor: tokens.bgRaised,
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: 10,
+              }}
+            >
+              <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: tokens.verified }} />
+              <Text style={{ fontFamily: FONT_MONO, fontSize: 10, fontWeight: '700', letterSpacing: 2.2, color: tokens.text }}>
+                WHISPER AGENT
+              </Text>
+              <Text style={{ fontFamily: FONT_MONO, fontSize: 9, color: tokens.textSubtle, letterSpacing: 0.4, marginLeft: 6 }}>
+                Gemma 4 · on-device · &lt;1s
+              </Text>
+            </View>
+            <ScrollView
+              style={{ flex: 1 }}
+              contentContainerStyle={{ padding: 14, gap: 12, paddingBottom: 8 }}
+              showsVerticalScrollIndicator={false}
+            >
+              {/* Voice-triggered overlay + widget */}
+              {transcript && <TranscriptOverlay text={transcript} agoMs={800} />}
+              {widget && (
+                <VoiceWidget
+                  title="Mbappé — record in WC Finals (2018 · 2022)"
+                  rows={widget}
+                  pinned={widgetPinned}
+                  onTogglePin={() => setPinned((p) => !p)}
+                  onDismiss={dismissWidget}
+                />
+              )}
 
-          {/* Running score */}
-          <RunningScorePanel
-            events={events}
-            momentum={momentum}
-            preKickoffLabel={phase === 'PRE-MATCH' ? 'KICK-OFF · TAP "▶ SIMULATE MATCH"' : undefined}
-          />
+              {/* Autonomous 3-card stack for the most recent beat */}
+              {latestCard?.card ? (
+                <>
+                  <ScorerStatCard {...latestCard.card.stat} />
+                  <PrecedentCard {...latestCard.card.precedent} />
+                  <CounterNarrativeCard {...latestCard.card.counter} />
+                </>
+              ) : (
+                <EmptyStackPlaceholder phase={phase} />
+              )}
 
-          {/* Story queue */}
-          <StoryQueue items={stories} />
-        </ScrollView>
+              {/* Running score */}
+              <RunningScorePanel
+                events={events}
+                momentum={momentum}
+                preKickoffLabel={phase === 'PRE-MATCH' ? 'KICK-OFF · TAP "▶ SIMULATE MATCH"' : undefined}
+              />
+
+              {/* Story queue */}
+              <StoryQueue items={stories} />
+            </ScrollView>
+
+            {/* Press-to-talk — anchored to the whisper column only */}
+            <VoiceBezel
+              listening={listening}
+              latency="842ms"
+              onPress={voicePress}
+              onRelease={voiceRelease}
+            />
+          </View>
+        </View>
       </LivePaneShell>
     </IPadFrame>
   );
