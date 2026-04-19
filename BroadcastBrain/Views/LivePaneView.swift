@@ -538,6 +538,25 @@ struct LivePaneView: View {
         return String(format: "%02d:%02d", m, s)
     }
 
+    /// Count overlapping leading words between two already-lowercased strings.
+    /// Used to de-duplicate cumulative SFSpeechRecognizer segments where the new
+    /// segment repeats the previous one with drift (punctuation / casing added).
+    private static func overlapWords(prev: String, curr: String) -> Int {
+        let p = prev.split(whereSeparator: { $0.isWhitespace })
+        let c = curr.split(whereSeparator: { $0.isWhitespace })
+        var count = 0
+        for i in 0..<min(p.count, c.count) {
+            let a = p[i].trimmingCharacters(in: .punctuationCharacters)
+            let b = c[i].trimmingCharacters(in: .punctuationCharacters)
+            if a == b {
+                count += 1
+            } else {
+                break
+            }
+        }
+        return count
+    }
+
     /// Small floating whisper trigger — the `/btw` equivalent. Only active while
     /// recording. One tap arms the next segment to be routed as a whisper.
     private var whisperButton: some View {
@@ -727,8 +746,42 @@ struct LivePaneView: View {
 
     @MainActor
     private func handleSegment(_ segment: String) async {
-        let transcript = segment.trimmingCharacters(in: .whitespacesAndNewlines)
+        let rawFull = segment.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !rawFull.isEmpty else { return }
+
+        // SFSpeechRecognizer emits CUMULATIVE text within a recognition task
+        // ("hello" → "hello world" → "hello world goodbye"). If the new text starts
+        // with what we already processed, strip the prefix so each transcript line
+        // is a fresh sentence.
+        let transcript: String = {
+            if !lastHandledSegment.isEmpty,
+               rawFull.hasPrefix(lastHandledSegment) {
+                let suffix = String(rawFull.dropFirst(lastHandledSegment.count))
+                    .trimmingCharacters(in: .whitespacesAndNewlines)
+                return suffix.isEmpty ? rawFull : suffix
+            }
+            // Fuzzier case — new text shares a long prefix but not exact (casing,
+            // punctuation drift). Walk word-by-word to find the common prefix length.
+            if !lastHandledSegment.isEmpty {
+                let overlap = Self.overlapWords(
+                    prev: lastHandledSegment.lowercased(),
+                    curr: rawFull.lowercased()
+                )
+                if overlap > 2 { // at least 3 overlapping words to trust it
+                    let words = rawFull.split(whereSeparator: { $0.isWhitespace })
+                    if overlap < words.count {
+                        return words.suffix(words.count - overlap).joined(separator: " ")
+                    }
+                }
+            }
+            return rawFull
+        }()
+
         guard !transcript.isEmpty else { return }
+
+        // Track the full cumulative transcript so the next debounce pass can
+        // subtract this one.
+        lastHandledSegment = rawFull
 
         // Consume whisper-armed flag: next segment is forced as a whisper answer.
         let forceWhisper = whisperArmed
