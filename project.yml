@@ -6,10 +6,6 @@ options:
   createIntermediateGroups: true
   generateEmptyDirectories: true
 
-packages:
-  PlayByPlayKit:
-    path: PlayByPlayKit
-
 settings:
   base:
     SWIFT_VERSION: "5.9"
@@ -61,8 +57,6 @@ targets:
         embed: true
         codeSign: true
         optional: true
-      - package: PlayByPlayKit
-        product: PlayByPlayKit
 
   BroadcastBrainTests:
     type: bundle.unit-test
