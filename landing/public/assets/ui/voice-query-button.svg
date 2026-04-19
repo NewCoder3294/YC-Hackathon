@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" fill="none">
+  <style>
+    .ring { animation: ring 2s ease-out infinite; transform-origin: 40px 40px; }
+    @keyframes ring {
+      0%   { transform: scale(0.9); opacity: 0.6; }
+      100% { transform: scale(1.3); opacity: 0; }
+    }
+  </style>
+  <circle class="ring" cx="40" cy="40" r="34" stroke="#EF4444" stroke-width="1" fill="none"/>
+  <circle cx="40" cy="40" r="30" fill="#0A0A0A" stroke="#262626"/>
+  <circle cx="40" cy="40" r="26" fill="#141414"/>
+  <g transform="translate(40 40)" stroke="#FAFAFA" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none">
+    <rect x="-4" y="-10" width="8" height="14" rx="4"/>
+    <path d="M-8 -1v1a8 8 0 0 0 16 0v-1"/>
+    <path d="M0 8v4"/>
+    <path d="M-4 12h8"/>
+  </g>
+</svg>

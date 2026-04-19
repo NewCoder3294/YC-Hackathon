@@ -3,20 +3,27 @@ import SwiftUI
 @main
 struct BroadcastBrainApp: App {
     @State private var store: AppStore = Self.makeStore()
+    @State private var theme: ThemeStore = ThemeStore()
 
     var body: some Scene {
         WindowGroup {
             ContentView()
                 .environment(store)
+                .environment(theme)
                 .frame(minWidth: 900, minHeight: 600)
-                .preferredColorScheme(.dark)
+                .preferredColorScheme(theme.mode.colorScheme)
         }
+        .windowStyle(.hiddenTitleBar)
     }
 
     private static func makeStore() -> AppStore {
         let sessionStore = SessionStore()
         let cactus: CactusService = makeCactusService()
-        return AppStore(sessionStore: sessionStore, cactus: cactus)
+        let cacheDir = FileManager.default
+            .urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+            .appendingPathComponent("BroadcastBrain/playbyplay", isDirectory: true)
+        let pbp = PlayByPlayStore(cacheDirectory: cacheDir)
+        return AppStore(sessionStore: sessionStore, cactus: cactus, playByPlayStore: pbp)
     }
 
     private static func makeCactusService() -> CactusService {

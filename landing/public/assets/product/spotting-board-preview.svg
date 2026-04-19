@@ -1,0 +1,140 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 560" fill="none">
+  <style>
+    .row { opacity: 0; animation: rowIn 0.6s ease-out forwards; }
+    .r1 { animation-delay: 0.2s; }
+    .r2 { animation-delay: 0.4s; }
+    .r3 { animation-delay: 0.6s; }
+    .r4 { animation-delay: 0.8s; }
+    .r5 { animation-delay: 1.0s; }
+    @keyframes rowIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+
+  <!-- Frame -->
+  <rect width="900" height="560" rx="10" fill="#0A0A0A" stroke="#262626"/>
+
+  <!-- Window chrome -->
+  <g transform="translate(20 20)">
+    <circle cx="4"  cy="4" r="4" fill="#262626"/>
+    <circle cx="18" cy="4" r="4" fill="#262626"/>
+    <circle cx="32" cy="4" r="4" fill="#262626"/>
+    <text x="430" y="8" font-family="'IBM Plex Mono', ui-monospace, monospace" font-size="10" fill="#525252" letter-spacing="0.1em" text-anchor="middle">broadcastbrain.app  /  spotting-board  /  METS vs BRAVES</text>
+  </g>
+
+  <!-- Header -->
+  <g transform="translate(40 60)">
+    <text font-family="'IBM Plex Mono', ui-monospace, monospace" font-size="10" fill="#737373" letter-spacing="0.15em">AUTO-BUILT • 04.17.26 • 23:41 EST</text>
+    <text y="28" font-family="'IBM Plex Mono', ui-monospace, monospace" font-size="22" font-weight="700" fill="#FAFAFA" letter-spacing="-0.02em">Mets @ Braves — Spotting Board</text>
+    <g transform="translate(0 44)">
+      <rect x="0" y="0" width="92" height="20" rx="3" fill="#10B981" fill-opacity="0.1" stroke="#10B981" stroke-opacity="0.4"/>
+      <text x="46" y="14" font-family="'IBM Plex Mono', ui-monospace, monospace" font-size="9" font-weight="700" fill="#10B981" letter-spacing="0.15em" text-anchor="middle">READY</text>
+      <text x="102" y="14" font-family="'IBM Plex Mono', ui-monospace, monospace" font-size="10" fill="#737373" letter-spacing="0.05em">26 players  •  8 storylines  •  Sportradar verified</text>
+    </g>
+  </g>
+
+  <!-- Column headers -->
+  <g transform="translate(40 158)" font-family="'IBM Plex Mono', ui-monospace, monospace" font-size="9" fill="#525252" letter-spacing="0.15em">
+    <text x="0">#</text>
+    <text x="40">PLAYER</text>
+    <text x="200">POS</text>
+    <text x="256">TOP STAT</text>
+    <text x="520">STORYLINE</text>
+    <text x="780">SRC</text>
+  </g>
+  <line x1="40" y1="168" x2="860" y2="168" stroke="#1F1F1F"/>
+
+  <!-- Rows -->
+  <g font-family="'IBM Plex Mono', ui-monospace, monospace" font-size="11">
+    <!-- Row 1 -->
+    <g class="row r1" transform="translate(40 184)">
+      <text x="0" fill="#525252">20</text>
+      <text x="40" fill="#FAFAFA" font-weight="600">Pete Alonso</text>
+      <text x="200" fill="#737373">1B</text>
+      <text x="256" fill="#FAFAFA">.278 AVG • 34 HR YTD</text>
+      <text x="520" fill="#A3A3A3">3 HR from career 200th</text>
+      <g transform="translate(780 -8)">
+        <circle cx="6" cy="6" r="5" fill="#10B981" fill-opacity="0.12" stroke="#10B981" stroke-width="0.75"/>
+        <path d="M3.5 6.25l1.75 1.75 3.25-3.5" stroke="#10B981" stroke-width="1" fill="none" stroke-linecap="round"/>
+      </g>
+      <line x1="0" y1="20" x2="820" y2="20" stroke="#171717"/>
+    </g>
+
+    <!-- Row 2 -->
+    <g class="row r2" transform="translate(40 216)">
+      <text x="0" fill="#525252">48</text>
+      <text x="40" fill="#FAFAFA" font-weight="600">Jacob deGrom</text>
+      <text x="200" fill="#737373">SP</text>
+      <text x="256" fill="#FAFAFA">2.14 ERA • 11.8 K/9</text>
+      <text x="520" fill="#A3A3A3">First start vs. ATL since '22</text>
+      <g transform="translate(780 -8)">
+        <circle cx="6" cy="6" r="5" fill="#10B981" fill-opacity="0.12" stroke="#10B981" stroke-width="0.75"/>
+        <path d="M3.5 6.25l1.75 1.75 3.25-3.5" stroke="#10B981" stroke-width="1" fill="none" stroke-linecap="round"/>
+      </g>
+      <line x1="0" y1="20" x2="820" y2="20" stroke="#171717"/>
+    </g>
+
+    <!-- Row 3 — ESOTERIC -->
+    <g class="row r3" transform="translate(40 248)">
+      <text x="0" fill="#525252">22</text>
+      <text x="40" fill="#FAFAFA" font-weight="600">Juan Soto</text>
+      <text x="200" fill="#737373">RF</text>
+      <g transform="translate(256 -12)">
+        <path d="M8 0L0 10h4l-1 6 8-10h-4l1-6z" fill="#F59E0B" stroke="#F59E0B" stroke-linejoin="round"/>
+      </g>
+      <text x="272" fill="#FAFAFA">Exit velo 108.2 mph (top 3%)</text>
+      <text x="520" fill="#A3A3A3">12-game on-base streak</text>
+      <g transform="translate(780 -8)">
+        <circle cx="6" cy="6" r="5" fill="#10B981" fill-opacity="0.12" stroke="#10B981" stroke-width="0.75"/>
+        <path d="M3.5 6.25l1.75 1.75 3.25-3.5" stroke="#10B981" stroke-width="1" fill="none" stroke-linecap="round"/>
+      </g>
+      <line x1="0" y1="20" x2="820" y2="20" stroke="#171717"/>
+    </g>
+
+    <!-- Row 4 -->
+    <g class="row r4" transform="translate(40 280)">
+      <text x="0" fill="#525252">12</text>
+      <text x="40" fill="#FAFAFA" font-weight="600">Francisco Lindor</text>
+      <text x="200" fill="#737373">SS</text>
+      <text x="256" fill="#FAFAFA">.291 AVG • 18 SB</text>
+      <text x="520" fill="#A3A3A3">Hits .340 vs LHP this year</text>
+      <g transform="translate(780 -8)">
+        <circle cx="6" cy="6" r="5" fill="#10B981" fill-opacity="0.12" stroke="#10B981" stroke-width="0.75"/>
+        <path d="M3.5 6.25l1.75 1.75 3.25-3.5" stroke="#10B981" stroke-width="1" fill="none" stroke-linecap="round"/>
+      </g>
+      <line x1="0" y1="20" x2="820" y2="20" stroke="#171717"/>
+    </g>
+
+    <!-- Row 5 -->
+    <g class="row r5" transform="translate(40 312)">
+      <text x="0" fill="#525252">27</text>
+      <text x="40" fill="#FAFAFA" font-weight="600">Mark Vientos</text>
+      <text x="200" fill="#737373">3B</text>
+      <text x="256" fill="#FAFAFA">.265 AVG • 16 HR in 58 games</text>
+      <text x="520" fill="#A3A3A3">Father flew in from DR for game</text>
+      <g transform="translate(780 -8)">
+        <circle cx="6" cy="6" r="5" fill="#10B981" fill-opacity="0.12" stroke="#10B981" stroke-width="0.75"/>
+        <path d="M3.5 6.25l1.75 1.75 3.25-3.5" stroke="#10B981" stroke-width="1" fill="none" stroke-linecap="round"/>
+      </g>
+    </g>
+  </g>
+
+  <!-- Bottom meta -->
+  <line x1="40" y1="480" x2="860" y2="480" stroke="#1A1A1A"/>
+  <g transform="translate(40 500)" font-family="'IBM Plex Mono', ui-monospace, monospace" font-size="10">
+    <text fill="#525252" letter-spacing="0.1em">GENERATED BY</text>
+    <text y="18" fill="#A3A3A3">Gemma 4 • Sportradar API v7</text>
+
+    <text x="300" fill="#525252" letter-spacing="0.1em">HOURS SAVED</text>
+    <text x="300" y="18" fill="#FAFAFA" font-weight="600">~6.5 hrs</text>
+
+    <text x="480" fill="#525252" letter-spacing="0.1em">FIRST PITCH</text>
+    <text x="480" y="18" fill="#FAFAFA" font-weight="600">04.18 • 13:10 EST</text>
+
+    <g transform="translate(700 0)">
+      <rect width="120" height="32" rx="4" fill="#FAFAFA"/>
+      <text x="60" y="20" fill="#0A0A0A" font-weight="700" letter-spacing="0.05em" text-anchor="middle">EXPORT  →</text>
+    </g>
+  </g>
+</svg>

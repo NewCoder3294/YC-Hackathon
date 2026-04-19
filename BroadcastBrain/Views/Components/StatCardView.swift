@@ -4,6 +4,14 @@ struct StatCardView: View {
     let card: StatCard
 
     var body: some View {
+        if card.kind == .whisper {
+            whisperBody
+        } else {
+            statBody
+        }
+    }
+
+    private var statBody: some View {
         StackCard(kind: .stat) {
             VStack(alignment: .leading, spacing: 12) {
                 HStack {
@@ -26,6 +34,37 @@ struct StatCardView: View {
                         .font(Typography.chip)
                         .foregroundStyle(Color.textSubtle)
                         .lineLimit(1)
+                    Spacer()
+                    LatencyTag(ms: card.latencyMs)
+                }
+            }
+        }
+    }
+
+    private var whisperBody: some View {
+        StackCard(kind: .precedent) {
+            VStack(alignment: .leading, spacing: 10) {
+                HStack(spacing: 6) {
+                    Image(systemName: "bubble.left.and.text.bubble.right")
+                        .font(.system(size: 11))
+                        .foregroundStyle(Color.esoteric)
+                    Text("WHISPER · \(card.player.uppercased())")
+                        .font(Typography.sectionHead)
+                        .foregroundStyle(Color.esoteric)
+                    Spacer()
+                    SportradarBadge()
+                }
+                Text("You asked: \"\(card.rawTranscript)\"")
+                    .font(Typography.chip)
+                    .foregroundStyle(Color.textSubtle)
+                    .italic()
+                    .lineLimit(2)
+                    .fixedSize(horizontal: false, vertical: true)
+                Text(card.answer ?? "—")
+                    .font(Typography.body)
+                    .foregroundStyle(Color.textPrimary)
+                    .fixedSize(horizontal: false, vertical: true)
+                HStack {
                     Spacer()
                     LatencyTag(ms: card.latencyMs)
                 }

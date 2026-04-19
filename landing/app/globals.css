@@ -1,0 +1,93 @@
+@import "tailwindcss";
+
+:root {
+  /* Surfaces */
+  --bg-base:     #050505;
+  --bg-raised:   #0A0A0A;
+  --bg-subtle:   #141414;
+  --bg-hover:    #171717;
+
+  /* Borders */
+  --border:      #262626;
+  --border-soft: #1A1A1A;
+
+  /* Text */
+  --text:        #FAFAFA;
+  --text-muted:  #A3A3A3;
+  --text-subtle: #737373;
+
+  /* Status */
+  --live:        #EF4444;
+  --verified:    #10B981;
+  --esoteric:    #F59E0B;
+  --routing:     #8B5CF6;
+}
+
+@theme inline {
+  --color-bg: var(--bg-base);
+  --color-bg-raised: var(--bg-raised);
+  --color-bg-subtle: var(--bg-subtle);
+  --color-bg-hover: var(--bg-hover);
+  --color-border: var(--border);
+  --color-border-soft: var(--border-soft);
+  --color-text: var(--text);
+  --color-text-muted: var(--text-muted);
+  --color-text-subtle: var(--text-subtle);
+  --color-live: var(--live);
+  --color-verified: var(--verified);
+  --color-esoteric: var(--esoteric);
+  --color-routing: var(--routing);
+  --font-mono: var(--font-mono-plex), ui-monospace, SFMono-Regular, monospace;
+  --font-display: var(--font-serif-instrument), 'Instrument Serif', serif;
+}
+
+html, body {
+  background: var(--bg-base);
+  color: var(--text);
+  font-family: var(--font-mono);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Tracking helpers */
+.tracked { letter-spacing: 0.08em; }
+.tracked-wide { letter-spacing: 0.14em; }
+.tracked-tight { letter-spacing: -0.02em; }
+
+/* Scanline overlay — subtle broadcast booth texture */
+.scanlines {
+  background-image: repeating-linear-gradient(
+    0deg,
+    rgba(255, 255, 255, 0.015) 0px,
+    rgba(255, 255, 255, 0.015) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+}
+
+/* Radial spotlight — for hero bg */
+.spotlight {
+  background: radial-gradient(
+    ellipse at 50% 30%,
+    rgba(239, 68, 68, 0.08) 0%,
+    transparent 55%
+  );
+}
+
+/* Fine dot pattern — data-grid texture */
+.dot-grid {
+  background-image: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.04) 1px,
+    transparent 1px
+  );
+  background-size: 20px 20px;
+}
+
+/* Packet glow — for architecture diagram */
+@keyframes packet-pulse {
+  0%, 100% { filter: drop-shadow(0 0 6px currentColor); }
+  50%      { filter: drop-shadow(0 0 16px currentColor); }
+}
+
+.packet-pulse { animation: packet-pulse 1.6s ease-in-out infinite; }

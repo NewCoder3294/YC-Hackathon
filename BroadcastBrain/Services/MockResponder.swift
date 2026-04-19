@@ -58,10 +58,52 @@ final class MockResponder: CactusService {
             return "I don't have verified data on that."
         }
 
-        // Otherwise treat as live-stat JSON request.
+        // [BTW] prefix = commentator explicitly armed whisper via the side button.
+        // Force a whisper regardless of phrasing.
+        let forced = lower.contains("[btw]")
+
+        // Route live-stream inputs by intent — this is the lightweight equivalent
+        // of Cactus routing. Queries become whisper answers; non-queries are
+        // broadcast moments that get a stat card.
+        if forced || Self.isQuery(lower) {
+            for (key, answer) in researchAnswers where lower.contains(key) {
+                return Self.whisperJson(player: Self.extractPlayer(from: lower) ?? "Whisper", answer: answer)
+            }
+            return Self.whisperJson(
+                player: Self.extractPlayer(from: lower) ?? "Whisper",
+                answer: "I don't have verified data on that."
+            )
+        }
+
+        // Broadcast moment: return a stat card.
         for (key, json) in scripted where lower.contains(key) {
             return json
         }
         return noDataJson
+    }
+
+    /// Heuristic router — mirrors the `query_complexity` field Gemma would emit.
+    /// If the transcript looks like a question, route to whisper. Otherwise stat.
+    private static func isQuery(_ lower: String) -> Bool {
+        if lower.contains("?") { return true }
+        let openers = ["how ", "what ", "what's", "whats", "when ", "why ", "where ",
+                       "who ", "tell me", "compare ", "explain ", "which "]
+        for o in openers {
+            if lower.hasPrefix(o) || lower.contains(" \(o)") { return true }
+        }
+        return false
+    }
+
+    private static func extractPlayer(from lower: String) -> String? {
+        if lower.contains("mbappé") || lower.contains("mbappe") { return "Kylian Mbappé" }
+        if lower.contains("messi") { return "Lionel Messi" }
+        if lower.contains("di maría") || lower.contains("di maria") { return "Ángel Di María" }
+        if lower.contains("martínez") || lower.contains("martinez") { return "Emiliano Martínez" }
+        return nil
+    }
+
+    private static func whisperJson(player: String, answer: String) -> String {
+        let escaped = answer.replacingOccurrences(of: "\"", with: "\\\"")
+        return #"{"type":"whisper","player":"\#(player)","answer":"\#(escaped)","source":"Sportradar"}"#
     }
 }

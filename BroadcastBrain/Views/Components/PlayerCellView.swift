@@ -9,10 +9,12 @@ struct PlayerCellView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             header
-            Divider().background(Color.bbBorder)
             body(for: mode)
+            Spacer(minLength: 0)
         }
-        .padding(14)
+        .padding(.horizontal, 14)
+        .padding(.vertical, 14)
+        .frame(maxWidth: .infinity, minHeight: 170, alignment: .topLeading)
         .background(Color.bgRaised)
         .overlay(
             RoundedRectangle(cornerRadius: 6)
@@ -22,22 +24,25 @@ struct PlayerCellView: View {
     }
 
     private var header: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            HStack(alignment: .firstTextBaseline, spacing: 8) {
-                Text("#\(player.jersey)")
-                    .font(Typography.chip)
-                    .foregroundStyle(Color.textSubtle)
-                Text(player.position)
-                    .font(Typography.chip)
-                    .foregroundStyle(Color.textSubtle)
-                Spacer()
-                SportradarBadge()
-            }
+        HStack(alignment: .firstTextBaseline, spacing: 8) {
+            Text("#\(player.jersey)")
+                .font(.system(size: 10, weight: .semibold, design: .monospaced))
+                .foregroundStyle(Color.textSubtle)
+                .frame(minWidth: 26, alignment: .leading)
+            Text(player.position)
+                .font(.system(size: 9, weight: .semibold, design: .monospaced))
+                .tracking(0.8)
+                .foregroundStyle(Color.textSubtle)
+                .padding(.horizontal, 4)
+                .padding(.vertical, 1)
+                .background(Color.bgSubtle, in: RoundedRectangle(cornerRadius: 2))
             Text(player.name.uppercased())
-                .font(Typography.playerName)
+                .font(.system(size: 15, weight: .semibold, design: .monospaced))
+                .tracking(0.3)
                 .foregroundStyle(Color.textPrimary)
                 .lineLimit(1)
-                .minimumScaleFactor(0.7)
+                .minimumScaleFactor(0.75)
+            Spacer(minLength: 0)
         }
     }
 
