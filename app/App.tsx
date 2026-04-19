@@ -27,6 +27,7 @@ import { AgentPiP } from './src/agent/AgentPiP';
 import { DevToolsOverlay } from './src/cactus/devtools/DevToolsOverlay';
 import { ModelPill } from './src/cactus/devtools/ModelPill';
 import { useModelLoader } from './src/cactus/state/modelLoader';
+import { ModelInstallScreen } from './src/screens/ModelInstallScreen';
 
 export default function App() {
   const [fontsLoaded] = useFonts({
@@ -62,6 +63,7 @@ function AppShell() {
   });
   const { active, pipVisible, showPiP } = useAgent();
   const ensureModel = useModelLoader((s) => s.ensureLoaded);
+  const modelStatus = useModelLoader((s) => s.status);
 
   // Kick off the Gemma 4 download as soon as the app mounts so PTT is ready
   // when the user gets to it. Idempotent — second call returns the in-flight promise.
@@ -74,6 +76,15 @@ function AppShell() {
   React.useEffect(() => {
     if (screen === 'AGENT') showPiP();
   }, [screen, showPiP]);
+
+  if (modelStatus !== 'ready') {
+    return (
+      <View style={{ flex: 1, backgroundColor: tokens.bgBase }}>
+        <StatusBar style="light" />
+        <ModelInstallScreen />
+      </View>
+    );
+  }
 
   return (
     <View style={{ flex: 1, backgroundColor: tokens.bgBase }}>
