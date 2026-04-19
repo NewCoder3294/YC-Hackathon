@@ -38,8 +38,8 @@ final class ModelInstaller: NSObject, URLSessionDownloadDelegate {
 
     override init() {
         let env = ProcessInfo.processInfo.environment
-        self.modelName = env["BROADCASTBRAIN_MODEL_NAME"] ?? "gemma-3-1b-it"
-        self.precision = env["BROADCASTBRAIN_MODEL_PRECISION"] ?? "int4"
+        self.modelName = env["BROADCASTBRAIN_MODEL_NAME"] ?? "gemma-4-E4B-it"
+        self.precision = env["BROADCASTBRAIN_MODEL_PRECISION"] ?? "int4-apple"
 
         let appSupport = FileManager.default
             .urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
@@ -60,7 +60,12 @@ final class ModelInstaller: NSObject, URLSessionDownloadDelegate {
     }
 
     private var weightsURL: URL {
-        URL(string: "https://huggingface.co/Cactus-Compute/\(modelName)/resolve/main/weights/\(modelName)-\(precision).zip")!
+        // Cactus-Compute stores weights under an all-lowercase filename even
+        // when the repo name is mixed-case (e.g. `gemma-4-E4B-it` ⇒
+        // `gemma-4-e4b-it-int4-apple.zip`). Lowercase the filename portion so
+        // the URL lines up with what HuggingFace actually serves.
+        let fileName = "\(modelName.lowercased())-\(precision).zip"
+        return URL(string: "https://huggingface.co/Cactus-Compute/\(modelName)/resolve/main/weights/\(fileName)")!
     }
 
     /// Kick off install. Idempotent — noop if already running or installed.

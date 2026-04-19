@@ -918,10 +918,11 @@ struct LivePaneView: View {
         // Grounding sources, strongest first:
         //   (a) live ESPN play-by-play — cached to
         //       ~/Library/Application Support/BroadcastBrain/playbyplay/<league>/<gameId>.json
-        //       via PlayByPlayKit's LiveSession. We read the last 30 from the
-        //       in-memory mirror, which is kept in sync with that JSON on each poll.
-        //   (b) bundled match_cache.json — only when its teams match this session.
-        let livePlays = Array(store.playByPlayStore.plays.suffix(30))
+        //       via PlayByPlayKit's LiveSession. PlayByPlayStore.plays mirrors
+        //       that JSON; we feed the whole thing to Gemma so score + minute
+        //       questions can be answered off the disk cache even for games
+        //       that have already finished polling.
+        let livePlays = store.playByPlayStore.plays
         let compact = store.playByPlayStore.currentCompact
         let playsBlock = WhisperEngine.renderPlays(livePlays, compact: compact)
         let havePlays = !playsBlock.isEmpty
@@ -988,7 +989,7 @@ struct LivePaneView: View {
         let user = """
         Match: \(store.currentSession.title).
 
-        Recent plays (most recent last, \(livePlays.count) of last 30):
+        Recent plays (most recent last, \(livePlays.count) total from ESPN feed):
         \(playsRendered)
 
         Match facts:

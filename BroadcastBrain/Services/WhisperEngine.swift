@@ -71,7 +71,7 @@ final class WhisperEngine {
     private func tickOnce() async {
         guard let store else { return }
 
-        let plays = Array(store.playByPlayStore.plays.suffix(50))
+        let plays = store.playByPlayStore.plays
         let compact = store.playByPlayStore.currentCompact
         let transcriptTail = Self.tailLines(of: store.currentSession.transcript, limit: 10)
 
