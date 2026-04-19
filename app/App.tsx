@@ -1,5 +1,9 @@
 import '@expo/metro-runtime';
+import matchCacheJson from './assets/match_cache.json';
+import { loadMatchCache } from './src/cactus/state/matchCache';
 import 'react-native-gesture-handler';
+
+loadMatchCache(matchCacheJson);
 import React, { useState } from 'react';
 import {
   IBMPlexMono_400Regular,

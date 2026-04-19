@@ -1,4 +1,5 @@
 import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { useEventBus, BusEvent } from '../cactus/state/eventBus';
 
 export type AgentPoint = {
   id: string;
@@ -52,19 +53,6 @@ const Ctx = createContext<AgentState>({
   updateNote: () => {}, deleteNote: () => {}, addUserNote: () => {},
 });
 
-const DEMO_POINTS: Omit<AgentPoint, 'id' | 'at'>[] = [
-  { text: 'Messi arriving into the box — watch the right channel.',                                        category: 'tactic',  source: 'inferred' },
-  { text: 'Messi\'s WC knockout penalty conversion: 98% since 2014.',                                      category: 'stat',    source: 'Sportradar' },
-  { text: 'Streak alert: Mbappé has scored in both of his WC Final appearances (2018 + 2022).',           category: 'streak',  source: 'Sportradar' },
-  { text: 'Story reminder: Peter Drury\'s "Messi ascends to football heaven" clip is pre-queued.',        category: 'story',   source: 'inferred' },
-  { text: 'France set-piece conversion this tournament: 38% — top-3 at the WC.',                          category: 'stat',    source: 'StatsBomb' },
-  { text: 'Tchouaméni is pressing Messi\'s half-space drops — first sign of Deschamps\' tactical shift.',  category: 'tactic',  source: 'inferred' },
-  { text: 'Giroud passed Henry in R16. One more goal here = solo France all-time record.',                 category: 'streak',  source: 'Sportradar' },
-  { text: 'Di María has 2.1 xA this tournament — top 5 globally among wingers.',                          category: 'stat',    source: 'StatsBomb' },
-  { text: 'Stay on Emi Martínez: 1 shootout win already (NL 2021 final vs Suárez).',                      category: 'alert',   source: 'Sportradar' },
-  { text: 'Teams leading 2-0 in WC Finals have won 19 of 22 since 1970. Two went to extra time.',         category: 'stat',    source: 'Sportradar' },
-];
-
 const CURRENT_MATCH = 'ARG vs FRA · 2022 WC Final';
 let counter = 0;
 
@@ -75,35 +63,37 @@ export function AgentProvider({ children }: { children: React.ReactNode }) {
   const [saving, setSaving]     = useState(false);
   const [sessions, setSessions] = useState<ArchivedSession[]>([]);
   const [notes, setNotes]       = useState<MatchNote[]>([]);
-  const timerRef  = useRef<ReturnType<typeof setInterval> | null>(null);
-  const idxRef    = useRef(0);
   const startedRef = useRef<number>(0);
 
-  const clearTimer = () => {
-    if (timerRef.current) clearInterval(timerRef.current);
-    timerRef.current = null;
-  };
-
   const start = useCallback(() => {
-    if (timerRef.current) return;
     setActive(true);
     setPipV(true);
     setPoints([]);
-    idxRef.current = 0;
     startedRef.current = Date.now();
-    const push = () => {
-      const src = DEMO_POINTS[idxRef.current % DEMO_POINTS.length];
-      idxRef.current += 1;
-      counter += 1;
-      setPoints((prev) => [{ id: `p-${counter}`, at: Date.now(), ...src }, ...prev].slice(0, 50));
-    };
-    push();
-    timerRef.current = setInterval(push, 4500);
   }, []);
+
+  useEffect(() => {
+    if (!active) return;
+    let prevEvents: BusEvent[] = useEventBus.getState().events;
+    const unsub = useEventBus.subscribe((s) => {
+      const nextEvents = s.events;
+      if (nextEvents === prevEvents) return;
+      const added = nextEvents.slice(prevEvents.length);
+      prevEvents = nextEvents;
+      for (const e of added) {
+        const mapped = mapBusEventToPoint(e);
+        if (!mapped) continue;
+        counter += 1;
+        const id = `p-${counter}`;
+        const at = Date.now();
+        setPoints((p) => [{ id, at, ...mapped }, ...p].slice(0, 50));
+      }
+    });
+    return unsub;
+  }, [active]);
 
   // Stop drives the "saving to archive" animation before it actually commits.
   const stop = useCallback(() => {
-    clearTimer();
     setActive(false);
     setSaving(true);
     const startedAt = startedRef.current;
@@ -158,8 +148,6 @@ export function AgentProvider({ children }: { children: React.ReactNode }) {
       ...prev,
     ]);
   }, []);
-
-  useEffect(() => () => clearTimer(), []);
 
   return (
     <Ctx.Provider
@@ -216,3 +204,15 @@ function synthesizeNote(
 }
 
 export const useAgent = () => useContext(Ctx);
+
+function mapBusEventToPoint(e: BusEvent): Omit<AgentPoint, 'id' | 'at'> | null {
+  switch (e.type) {
+    case 'stat_card':         return { text: e.stat_text,    source: e.source,  category: 'stat' };
+    case 'precedent':         return { text: e.stat_text,    source: 'inferred', category: 'stat' };
+    case 'counter_narrative': return { text: e.text,         source: 'inferred', category: 'tactic' };
+    case 'streak_alert':      return { text: e.streak_text,  source: 'Sportradar', category: 'streak' };
+    case 'answer_card':       return { text: e.answer,       source: e.source,  category: 'stat' };
+    case 'no_data':           return { text: "I don't have verified data on that.", source: 'inferred', category: 'alert' };
+    default:                  return null;
+  }
+}
