@@ -9,6 +9,18 @@ import { getMatchCache } from '../state/matchCache';
 
 const MODEL_ID = 'google/functiongemma-270m-it';
 
+const TOOLS = {
+  get_player_stat: functions.get_player_stat,
+  get_team_stat: functions.get_team_stat,
+  get_match_context: functions.get_match_context,
+  get_historical: functions.get_historical,
+  get_commentator_profile: functions.get_commentator_profile,
+};
+
+function isAbort(err: unknown): boolean {
+  return err instanceof Error && /abort/i.test(err.message);
+}
+
 export class Orchestrator {
   private client = new CactusClient();
   private gate   = new Gate();
@@ -16,9 +28,17 @@ export class Orchestrator {
   private inflight: AbortController | null = null;
 
   async processAutonomousChunk(chunk: Chunk): Promise<void> {
+    try {
+      await this.processAutonomousChunkInner(chunk);
+    } catch (err) {
+      if (isAbort(err)) return;
+      throw err;
+    }
+  }
+
+  private async processAutonomousChunkInner(chunk: Chunk): Promise<void> {
     if (!this.gate.vadAccept(chunk.stats)) return;
 
-    // Cancel any in-flight inference — newest wins.
     if (this.inflight) this.inflight.abort();
     const ac = new AbortController();
     this.inflight = ac;
@@ -53,8 +73,8 @@ export class Orchestrator {
       this.dedupe.ingestTranscript(classify.transcript, chunk.at);
     }
 
-    const prompt = buildGeneratePrompt(classify, functions);
-    const raw = await this.client.generate({ prompt, signal: ac.signal });
+    const prompt = buildGeneratePrompt(classify);
+    const raw = await this.client.generate({ prompt, tools: TOOLS, signal: ac.signal });
     const parsed = safeJson(raw);
     if (!parsed || parsed.trust_escape) return;
 
@@ -91,14 +111,23 @@ export class Orchestrator {
   }
 
   async processPressToTalk(audio: ArrayBuffer): Promise<void> {
+    try {
+      await this.processPressToTalkInner(audio);
+    } catch (err) {
+      if (isAbort(err)) return;
+      throw err;
+    }
+  }
+
+  private async processPressToTalkInner(audio: ArrayBuffer): Promise<void> {
     await this.client.ensureLoaded(MODEL_ID);
     const t0 = Date.now();
-    const raw = await this.client.generate({ prompt: QUERY_OR_COMMAND_PROMPT, audio });
+    const raw = await this.client.generate({ prompt: QUERY_OR_COMMAND_PROMPT, audio, tools: TOOLS });
     const parsed = safeJson(raw);
     const latency_ms = Date.now() - t0;
     const question = parsed?.transcript ?? '';
 
-    if (!parsed || parsed.trust_escape) {
+    if (!parsed || parsed.trust_escape || parsed.intent === 'ungrounded') {
       useEventBus.getState().emit({ type: 'no_data', question });
       return;
     }
@@ -119,11 +148,13 @@ export class Orchestrator {
   }
 }
 
-function buildGeneratePrompt(classify: { event_type?: string | null; players_mentioned?: string[] }, _fns: typeof functions): string {
+function buildGeneratePrompt(classify: { event_type?: string | null; players_mentioned?: string[] }): string {
+  const ctx = functions.get_match_context('arg-vs-fra-2022-wc-final');
   return [
     GENERATE_PROMPT,
     `EVENT_TYPE=${classify.event_type ?? 'unknown'}`,
     `PLAYERS=${(classify.players_mentioned ?? []).join(',')}`,
+    `MATCH_STATE=${JSON.stringify({ score: ctx.score, minute: ctx.minute, phase: ctx.phase })}`,
   ].join('\n');
 }
 

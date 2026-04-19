@@ -65,9 +65,9 @@ function labelFor(key: string, scope: string): string {
   return `${scope.replace('_', ' ')} ${key}`;
 }
 
-export function get_team_stat(team: 'arg' | 'fra', metric: string): FunctionResult {
+export function get_team_stat(team: 'arg' | 'fra' | 'home' | 'away', metric: string): FunctionResult {
   const cache = getMatchCache();
-  const t = team === 'arg' ? cache.teams.home : cache.teams.away;
+  const t = team === 'arg' || team === 'home' ? cache.teams.home : cache.teams.away;
 
   if (metric === 'record') {
     const r = t.tournament_record;

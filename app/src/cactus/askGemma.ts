@@ -4,6 +4,7 @@ import * as functions from './functions';
 import type { MatchContext } from './functions';
 import type { WidgetSpec } from './state/eventBus';
 import type { PrecedentPattern } from './schema';
+import { getMatchCache } from './state/matchCache';
 
 const MODEL_ID = 'google/functiongemma-270m-it';
 
@@ -71,6 +72,15 @@ export async function askGemma(
     };
   }
 
+  let precedent: PrecedentPattern | undefined;
+  if (parsed.precedent_id) {
+    try {
+      precedent = getMatchCache().precedent_index.find((p) => p.id === parsed.precedent_id);
+    } catch {
+      precedent = undefined;
+    }
+  }
+
   return {
     stat_text: String(parsed.answer ?? parsed.stat_text ?? ''),
     source: String(parsed.source ?? 'Sportradar'),
@@ -78,6 +88,8 @@ export async function askGemma(
     player_id: parsed.player_id ?? undefined,
     transcript: parsed.transcript,
     widget_spec: parsed.widget_spec ?? undefined,
+    precedent,
+    counter_narrative: parsed.counter_narrative ?? undefined,
     latency_ms,
   };
 }
