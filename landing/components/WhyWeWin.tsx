@@ -20,7 +20,7 @@ const PILLARS = [
   {
     tag: "VOICE → ACTION LATENCY",
     title: "Under one second, measured end-to-end.",
-    body: "Mic capture → Apple STT → Gemma tool call → rendered card. P50 in the hundreds of milliseconds on an iPad Pro. The broadcaster glances and reads before the moment passes.",
+    body: "Mic capture → Gemma 4 (native audio in) → tool call → rendered card. P50 in the hundreds of milliseconds on an iPad Pro. The broadcaster glances and reads before the moment passes.",
     metric: "<1s",
     metricLabel: "P50 END-TO-END",
     accent: "live",
