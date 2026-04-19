@@ -128,7 +128,8 @@ private struct BrandHeader: View {
         .frame(maxWidth: .infinity, alignment: collapsed ? .center : .leading)
         .padding(.horizontal, collapsed ? 0 : 16)
         .padding(.top, 34)
-        .padding(.bottom, 14)
+        .padding(.bottom, 8)
+        .frame(height: 72, alignment: .bottom)
         .overlay(alignment: .bottom) {
             Rectangle().fill(Color.borderSoft).frame(height: 1)
         }

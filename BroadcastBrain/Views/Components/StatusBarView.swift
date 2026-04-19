@@ -22,7 +22,8 @@ struct StatusBarView: View {
         }
         .padding(.horizontal, 16)
         .padding(.top, 34)
-        .padding(.bottom, 12)
+        .padding(.bottom, 14)
+        .frame(height: 72, alignment: .bottom)
         .background(Color.bgRaised)
         .overlay(alignment: .bottom) {
             Rectangle().fill(Color.bbBorder).frame(height: 1)
