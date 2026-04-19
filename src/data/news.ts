@@ -1,11 +1,26 @@
 import fetch from "node-fetch";
-import { LEAGUES } from "../playbyplay/src/sports";
 
 const HEADERS = {
   "User-Agent":
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/124.0.0.0 Safari/537.36",
   "Accept-Language": "en-US,en;q=0.9",
 };
+
+const LEAGUES = [
+  { key: "mlb",        sport: "baseball",    league: "mlb",                      label: "MLB" },
+  { key: "nba",        sport: "basketball",  league: "nba",                      label: "NBA" },
+  { key: "wnba",       sport: "basketball",  league: "wnba",                     label: "WNBA" },
+  { key: "nfl",        sport: "football",    league: "nfl",                      label: "NFL" },
+  { key: "ncaaf",      sport: "football",    league: "college-football",         label: "NCAAF" },
+  { key: "nhl",        sport: "hockey",      league: "nhl",                      label: "NHL" },
+  { key: "epl",        sport: "soccer",      league: "eng.1",                    label: "EPL" },
+  { key: "laliga",     sport: "soccer",      league: "esp.1",                    label: "La Liga" },
+  { key: "seriea",     sport: "soccer",      league: "ita.1",                    label: "Serie A" },
+  { key: "bundesliga", sport: "soccer",      league: "ger.1",                    label: "Bundesliga" },
+  { key: "ligue1",     sport: "soccer",      league: "fra.1",                    label: "Ligue 1" },
+  { key: "ucl",        sport: "soccer",      league: "uefa.champions",           label: "UCL" },
+  { key: "mls",        sport: "soccer",      league: "usa.1",                    label: "MLS" },
+] as const;
 
 export interface NewsItem {
   id: string;
@@ -34,7 +49,7 @@ export async function fetchLeagueNews(leagueKey: string, limit = 20): Promise<Ne
     const res = await fetch(url, { headers: HEADERS });
     if (!res.ok) return [];
     const data = (await res.json()) as { articles?: ESPNArticle[] };
-    return (data.articles ?? []).map((a) => espnArticleToNewsItem(a, league.key, league.displayName.split(" — ")[0]));
+    return (data.articles ?? []).map((a) => espnArticleToNewsItem(a, league.key, league.label));
   } catch {
     return [];
   }
@@ -113,10 +128,21 @@ function parseGoogleNewsRSS(xml: string, limit: number, source: "google_news"): 
 }
 
 function extractTag(xml: string, tag: string): string | undefined {
-  const m = xml.match(new RegExp(`<${tag}[^>]*>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/${tag}>`, "i"));
-  return m?.[1]?.trim();
+  // Handles both plain text and CDATA-wrapped values
+  const open = `<${tag}`;
+  const close = `</${tag}>`;
+  const start = xml.indexOf(open);
+  if (start === -1) return undefined;
+  const contentStart = xml.indexOf(">", start) + 1;
+  const end = xml.indexOf(close, contentStart);
+  if (end === -1) return undefined;
+  let value = xml.slice(contentStart, end).trim();
+  if (value.startsWith("<![CDATA[") && value.endsWith("]]>")) {
+    value = value.slice(9, -3).trim();
+  }
+  return value || undefined;
 }
 
 function stripHtml(html: string): string {
-  return html.replace(/<[^>]+>/g, "").trim();
+  return html.replace(/<[^>]+>/g, "").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&").trim();
 }
