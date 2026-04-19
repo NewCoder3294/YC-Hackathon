@@ -9,6 +9,7 @@ struct LivePaneView: View {
     @State private var permState: PermissionState = .unknown
     @State private var debounceTask: Task<Void, Never>?
     @State private var lastHandledSegment: String = ""
+    @State private var showEndConfirm: Bool = false
 
     enum PermissionState: Equatable {
         case unknown
@@ -45,14 +46,31 @@ struct LivePaneView: View {
 
             Divider().background(Color.bbBorder)
 
-            PressToTalkButton(
-                isListening: store.liveState == .listening,
-                onToggle: toggleListening
-            )
+            HStack(spacing: 20) {
+                Spacer()
+                PressToTalkButton(
+                    isListening: store.liveState == .listening,
+                    onToggle: toggleListening
+                )
+                Spacer()
+                    .frame(width: 40)
+                endMatchButton
+                Spacer()
+            }
             .padding(.vertical, 20)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.bgBase)
+        .confirmationDialog(
+            "End this recording?",
+            isPresented: $showEndConfirm,
+            titleVisibility: .visible
+        ) {
+            Button("End & save to Archive", role: .destructive) { endMatch() }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("Transcript, stat cards and whispers from this session will be saved and loaded in the Archive tab.")
+        }
         .task { refreshPermissionState() }
         .onDisappear {
             if store.liveState == .listening {
@@ -230,6 +248,67 @@ struct LivePaneView: View {
                 }
                 Spacer(minLength: 0)
             }
+        }
+    }
+
+    private var endMatchButton: some View {
+        let hasContent = !store.currentSession.transcript.isEmpty
+            || !store.currentSession.statCards.isEmpty
+        let canEnd = hasContent || store.liveState == .listening
+
+        return VStack(spacing: 10) {
+            Button(action: { showEndConfirm = true }) {
+                HStack(spacing: 8) {
+                    Image(systemName: "stop.fill")
+                        .font(.system(size: 14, weight: .medium))
+                    Text("END MATCH")
+                        .font(Typography.chip)
+                        .tracking(0.5)
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 12)
+                .foregroundStyle(canEnd ? Color.textPrimary : Color.textSubtle)
+                .background(canEnd ? Color.live.opacity(0.15) : Color.bgRaised)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 6)
+                        .stroke(canEnd ? Color.live : Color.bbBorder, lineWidth: 1)
+                )
+                .clipShape(RoundedRectangle(cornerRadius: 6))
+            }
+            .buttonStyle(.plain)
+            .disabled(!canEnd)
+
+            Text(canEnd ? "FINALIZE · SAVE TO ARCHIVE" : "NO SESSION YET")
+                .font(Typography.chip)
+                .foregroundStyle(Color.textSubtle)
+        }
+    }
+
+    private func endMatch() {
+        // 1. Stop mic cleanly
+        audio.stop()
+        debounceTask?.cancel()
+        lastHandledSegment = ""
+        store.liveState = .idle
+        store.partialTranscript = ""
+
+        // 2. Save any final transcript progress
+        store.sessionStore.save(store.currentSession)
+
+        // 3. Navigate to Archive tab showing this just-ended session
+        let finishedId = store.currentSession.id
+        store.selectedSurface = .archive
+        store.selectedArchiveId = finishedId
+
+        // 4. Start a fresh session for the next match so the user has a clean slate
+        //    when they come back to Live. Only create one if current had content.
+        let hadContent = !store.currentSession.transcript.isEmpty
+            || !store.currentSession.statCards.isEmpty
+        if hadContent {
+            store.newSession()
+            // newSession flips us back to Live — reroute to archive detail
+            store.selectedSurface = .archive
+            store.selectedArchiveId = finishedId
         }
     }
 
