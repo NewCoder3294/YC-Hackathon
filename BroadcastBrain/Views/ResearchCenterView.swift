@@ -40,6 +40,7 @@ struct ResearchCenterView: View {
         if store.spottingMode == nil {
             ZStack {
                 Color.bgBase
+                DottedGrid()
                 CommentatorStylePickerView()
             }
         } else if store.spottingMode == .stats {
