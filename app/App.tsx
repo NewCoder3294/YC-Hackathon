@@ -11,7 +11,7 @@ import {
   IBMPlexMono_700Bold,
   useFonts,
 } from '@expo-google-fonts/ibm-plex-mono';
-import { Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { StatusBar } from 'expo-status-bar';
 import { FONT_MONO, tokens } from './src/theme/tokens';
@@ -82,6 +82,13 @@ function AppShell() {
       {active && screen !== 'AGENT' && pipVisible && (
         <AgentPiP onExpand={() => setScreen('AGENT')} />
       )}
+
+      {/* Hidden dev-tools activator — long-press 1.5s in the bottom-right pixel zone. */}
+      <Pressable
+        onLongPress={() => setShowDevtools(true)}
+        delayLongPress={1500}
+        style={{ position: 'absolute', right: 0, bottom: 0, width: 28, height: 28, opacity: 0.04, backgroundColor: tokens.text }}
+      />
 
       {showDevtools && <DevToolsOverlay onClose={() => setShowDevtools(false)} />}
     </View>
