@@ -12,17 +12,15 @@ enum SpottingMode: String, CaseIterable, Identifiable {
 
     var label: String {
         switch self {
-        case .stats: return "STATS"
-        case .story: return "STORY"
+        case .stats:    return "STATS"
+        case .story:    return "STORY"
         case .tactical: return "TACTICAL"
         }
     }
 }
 
 enum LiveState: Equatable {
-    case idle
-    case listening
-    case processing
+    case idle, listening, processing
     case error(String)
 }
 
@@ -34,27 +32,28 @@ final class AppStore {
     var liveState: LiveState = .idle
     var partialTranscript: String = ""
     var lastLatencyMs: Int?
+    var spottingMode: SpottingMode? = nil
+    var showingSetup: Bool = false
+    private(set) var matchCache: MatchCache?
 
     let sessionStore: SessionStore
     let cactus: CactusService
-    let matchCache: MatchCache?
+
+    // Saved cache location — overrides bundled resource after first user fetch
+    private static let savedCacheURL: URL = FileManager.default
+        .urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+        .appendingPathComponent("BroadcastBrain/match_cache.json")
 
     init(sessionStore: SessionStore, cactus: CactusService) {
         self.sessionStore = sessionStore
         self.cactus = cactus
 
-        if let url = Bundle.main.url(forResource: "match_cache", withExtension: "json"),
-           let data = try? Data(contentsOf: url),
-           let cache = try? JSONDecoder().decode(MatchCache.self, from: data) {
-            self.matchCache = cache
-        } else {
-            self.matchCache = nil
-        }
+        // Prefer the user-saved cache, fall back to bundled resource
+        let initialCache = Self.loadSavedCache() ?? Self.loadBundledCache()
+        self.matchCache = initialCache
 
-        let title = matchCache?.title ?? "Argentina vs France · 2022 WC Final"
+        let title = initialCache?.title ?? "New Match"
 
-        // Reuse an empty session for today's match if one already exists.
-        // Prevents the archives list from accumulating one empty entry per launch.
         let cal = Calendar.current
         if let reusable = sessionStore.sessions.first(where: { s in
             s.title == title
@@ -71,8 +70,30 @@ final class AppStore {
             sessionStore.save(fresh)
         }
 
-        // Sweep any stray empty duplicate sessions (from pre-fix launches)
         sessionStore.purgeEmptyDuplicates(except: self.currentSession.id)
+
+        // Show setup screen if there's no cache at all
+        if self.matchCache == nil {
+            self.showingSetup = true
+        }
+    }
+
+    // Called by TeamSetupView after a successful fetch
+    func loadMatchCache(_ cache: MatchCache) {
+        matchCache = cache
+        spottingMode = nil
+        showingSetup = false
+        Self.persistCache(cache)
+
+        // Start a fresh session for the new match
+        let fresh = Session(title: cache.title)
+        sessionStore.save(fresh)
+        currentSession = fresh
+        selectedSurface = .research
+    }
+
+    func presentSetup() {
+        showingSetup = true
     }
 
     func appendStatCard(_ card: StatCard) {
@@ -103,5 +124,26 @@ final class AppStore {
         currentSession = s
         selectedArchiveId = nil
         selectedSurface = .live
+    }
+
+    // MARK: - Cache persistence
+
+    private static func loadSavedCache() -> MatchCache? {
+        guard FileManager.default.fileExists(atPath: savedCacheURL.path),
+              let data = try? Data(contentsOf: savedCacheURL) else { return nil }
+        return try? JSONDecoder().decode(MatchCache.self, from: data)
+    }
+
+    private static func loadBundledCache() -> MatchCache? {
+        guard let url  = Bundle.main.url(forResource: "match_cache", withExtension: "json"),
+              let data = try? Data(contentsOf: url) else { return nil }
+        return try? JSONDecoder().decode(MatchCache.self, from: data)
+    }
+
+    private static func persistCache(_ cache: MatchCache) {
+        let dir = savedCacheURL.deletingLastPathComponent()
+        try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        let enc = JSONEncoder(); enc.outputFormatting = [.prettyPrinted, .sortedKeys]
+        try? enc.encode(cache).write(to: savedCacheURL, options: .atomic)
     }
 }

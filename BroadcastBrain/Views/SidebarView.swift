@@ -19,6 +19,29 @@ struct SidebarView: View {
 
             Divider().background(Color.bbBorder)
 
+            Button(action: { store.presentSetup() }) {
+                HStack(spacing: 8) {
+                    Image(systemName: "arrow.trianglehead.2.clockwise")
+                        .foregroundStyle(Color.textMuted)
+                        .font(.system(size: 12))
+                    VStack(alignment: .leading, spacing: 1) {
+                        Text("NEW MATCH")
+                            .font(Typography.chip)
+                            .foregroundStyle(Color.textPrimary)
+                        if let title = store.matchCache?.title {
+                            Text(title.components(separatedBy: " · ").first ?? title)
+                                .font(.system(size: 9, design: .monospaced))
+                                .foregroundStyle(Color.textSubtle)
+                                .lineLimit(1)
+                        }
+                    }
+                    Spacer()
+                }
+                .padding(12)
+            }
+            .buttonStyle(.plain)
+            .background(Color.bgBase)
+
             Button(action: { store.newSession() }) {
                 HStack {
                     Image(systemName: "plus.circle")

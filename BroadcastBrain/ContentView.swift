@@ -4,13 +4,21 @@ struct ContentView: View {
     @Environment(AppStore.self) private var store
 
     var body: some View {
-        NavigationSplitView {
-            SidebarView()
-                .navigationSplitViewColumnWidth(min: 220, ideal: 260)
-        } detail: {
-            detailView
+        ZStack {
+            NavigationSplitView {
+                SidebarView()
+                    .navigationSplitViewColumnWidth(min: 220, ideal: 260)
+            } detail: {
+                detailView
+            }
+            .background(Color.bgBase)
+
+            if store.showingSetup {
+                TeamSetupView()
+                    .transition(.opacity)
+            }
         }
-        .background(Color.bgBase)
+        .animation(.easeInOut(duration: 0.2), value: store.showingSetup)
     }
 
     @ViewBuilder

@@ -21,6 +21,12 @@
 		4888A82003BDA03F00D954CD /* LivePill.swift in Sources */ = {isa = PBXBuildFile; fileRef = B79E4BA0F9248D3466873BBE /* LivePill.swift */; };
 		5982407B776A2A4BF04125BA /* StatCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE64AD9C32691F3111C8595F /* StatCardView.swift */; };
 		67EED72EDEC3D8621574A4BC /* ResearchCenterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2268C5BB146969E1B046A49E /* ResearchCenterView.swift */; };
+		AA1B2C3D4E5F6A7B8C9D0E1F /* CommentatorStylePickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB2C3D4E5F6A7B8C9D0E1F2A /* CommentatorStylePickerView.swift */; };
+		CC3D4E5F6A7B8C9D0E1F2A3B /* StatsFirstSpottingBoardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD4E5F6A7B8C9D0E1F2A3B4C /* StatsFirstSpottingBoardView.swift */; };
+		EE5F6A7B8C9D0E1F2A3B4C5D /* StoryFirstSpottingBoardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF6A7B8C9D0E1F2A3B4C5D6E /* StoryFirstSpottingBoardView.swift */; };
+		A1B2C3D4E5F60718293A4B5C /* TacticalSpottingBoardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2C3D4E5F60718293A4B5C6D /* TacticalSpottingBoardView.swift */; };
+		F1A2B3C4D5E6F7081929A0B1 /* GameFetchService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0F1A2B3C4D5E6F708192930 /* GameFetchService.swift */; };
+		A2B3C4D5E6F708192930A1B2 /* TeamSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3C4D5E6F708192930A1B2C3 /* TeamSetupView.swift */; };
 		70BA18D24CCC880D502CADD7 /* SquadsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F4CA2B25FE5241CA80B742B /* SquadsView.swift */; };
 		70BC25E15A41151CA931A4B9 /* cactus-macos.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4132AE323E5FEB98D3E225B8 /* cactus-macos.xcframework */; };
 		73474C0EE14E2A4A9B79742C /* LivePaneView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01550DE4B92113B1173C6B2F /* LivePaneView.swift */; };
@@ -80,6 +86,12 @@
 		154FDBDC815FD074D17C258E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		1BDB3FB2A46D89FB8F6E528D /* BroadcastBrain.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BroadcastBrain.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2268C5BB146969E1B046A49E /* ResearchCenterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResearchCenterView.swift; sourceTree = "<group>"; };
+		BB2C3D4E5F6A7B8C9D0E1F2A /* CommentatorStylePickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentatorStylePickerView.swift; sourceTree = "<group>"; };
+		DD4E5F6A7B8C9D0E1F2A3B4C /* StatsFirstSpottingBoardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatsFirstSpottingBoardView.swift; sourceTree = "<group>"; };
+		FF6A7B8C9D0E1F2A3B4C5D6E /* StoryFirstSpottingBoardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryFirstSpottingBoardView.swift; sourceTree = "<group>"; };
+		B2C3D4E5F60718293A4B5C6D /* TacticalSpottingBoardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TacticalSpottingBoardView.swift; sourceTree = "<group>"; };
+		E0F1A2B3C4D5E6F708192930 /* GameFetchService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameFetchService.swift; sourceTree = "<group>"; };
+		B3C4D5E6F708192930A1B2C3 /* TeamSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TeamSetupView.swift; sourceTree = "<group>"; };
 		4132AE323E5FEB98D3E225B8 /* cactus-macos.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = "cactus-macos.xcframework"; path = "BroadcastBrain/Frameworks/cactus-macos.xcframework"; sourceTree = "<group>"; };
 		46EAD55D55FDE50021FA38E3 /* SportradarBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SportradarBadge.swift; sourceTree = "<group>"; };
 		51919B20535309C89D4E15B9 /* Tokens.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tokens.swift; sourceTree = "<group>"; };
@@ -132,6 +144,11 @@
 			children = (
 				05EF9474EB26DF74B8D7FDAA /* ArchiveDetailView.swift */,
 				8CC045EB8451818A6CD5A1ED /* ArchivesListView.swift */,
+				BB2C3D4E5F6A7B8C9D0E1F2A /* CommentatorStylePickerView.swift */,
+				DD4E5F6A7B8C9D0E1F2A3B4C /* StatsFirstSpottingBoardView.swift */,
+				FF6A7B8C9D0E1F2A3B4C5D6E /* StoryFirstSpottingBoardView.swift */,
+				B2C3D4E5F60718293A4B5C6D /* TacticalSpottingBoardView.swift */,
+				B3C4D5E6F708192930A1B2C3 /* TeamSetupView.swift */,
 				01550DE4B92113B1173C6B2F /* LivePaneView.swift */,
 				2268C5BB146969E1B046A49E /* ResearchCenterView.swift */,
 				FD1F4DAD40C5C4BFB52EA58D /* SidebarView.swift */,
@@ -220,6 +237,7 @@
 			isa = PBXGroup;
 			children = (
 				B83E5A0C129A26A3CC625311 /* AudioCaptureService.swift */,
+				E0F1A2B3C4D5E6F708192930 /* GameFetchService.swift */,
 				82B9451069B6343C41C337AC /* Cactus.swift */,
 				90AFD39809B3E0BE8DF8644B /* CactusService.swift */,
 				7CE728CE31ACC8F9DB7324B9 /* MockResponder.swift */,
@@ -370,6 +388,12 @@
 				B6F4346E4C192BF816F68EAA /* Cactus.swift in Sources */,
 				D2F4BB6524F4500D144AF80C /* CactusService.swift in Sources */,
 				30702CFDAB6E91475D9965F5 /* ChatMessageRow.swift in Sources */,
+				AA1B2C3D4E5F6A7B8C9D0E1F /* CommentatorStylePickerView.swift in Sources */,
+				CC3D4E5F6A7B8C9D0E1F2A3B /* StatsFirstSpottingBoardView.swift in Sources */,
+				EE5F6A7B8C9D0E1F2A3B4C5D /* StoryFirstSpottingBoardView.swift in Sources */,
+				A1B2C3D4E5F60718293A4B5C /* TacticalSpottingBoardView.swift in Sources */,
+				F1A2B3C4D5E6F7081929A0B1 /* GameFetchService.swift in Sources */,
+				A2B3C4D5E6F708192930A1B2 /* TeamSetupView.swift in Sources */,
 				B28DD1DE6BE6197370BB602C /* ContentView.swift in Sources */,
 				43DB7EFEFC8C19A84E734EF6 /* DottedGrid.swift in Sources */,
 				E05C57FFDF0F3B9977139753 /* LatencyTag.swift in Sources */,

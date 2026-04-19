@@ -23,6 +23,7 @@ extension Color {
     static let live        = Color(hex: "#EF4444")
     static let verified    = Color(hex: "#10B981")
     static let esoteric    = Color(hex: "#F59E0B")
+    static let tactical    = Color(hex: "#F97316")
 }
 
 enum Typography {

@@ -13,9 +13,22 @@ struct ResearchCenterView: View {
                 latencyMs: store.lastLatencyMs
             )
 
-            HSplitView {
-                notesColumn
-                chatColumn
+            if store.spottingMode == nil {
+                ZStack {
+                    Color.bgBase
+                    CommentatorStylePickerView()
+                }
+            } else if store.spottingMode == .stats {
+                StatsFirstSpottingBoardView()
+            } else if store.spottingMode == .story {
+                StoryFirstSpottingBoardView()
+            } else if store.spottingMode == .tactical {
+                TacticalSpottingBoardView()
+            } else {
+                HSplitView {
+                    notesColumn
+                    chatColumn
+                }
             }
         }
         .background(Color.bgBase)
