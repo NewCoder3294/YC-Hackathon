@@ -22,7 +22,7 @@ export function Features() {
             number="01"
             title="Pre-match auto spotting board"
             body="Overnight at T-12h, BroadcastBrain ingests squads, tournament stats, match history, injuries, and news from Sportradar — then Gemma 4 writes the storylines, head-to-heads, and matchup notes. Opens offline. Works in airplane mode from load onward."
-            preview="/assets/product/spotting-board-preview.svg"
+            preview="/assets/product/spotting-board-preview.png"
             tag="FEATURE 01"
             accent="verified"
           />
@@ -30,7 +30,7 @@ export function Features() {
             number="02"
             title="Live co-pilot"
             body="The booth device listens. Gemma 4 on Cactus takes audio natively, decides which stat to surface, and the card lands in under a second. Ask anything by voice — career splits, head-to-head, streaks — and get a sourced answer instantly."
-            preview="/assets/product/live-dashboard-mockup.svg"
+            preview="/assets/product/live-dashboard-mockup.png"
             tag="FEATURE 02"
             accent="live"
           />
