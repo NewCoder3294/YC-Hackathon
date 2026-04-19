@@ -51,6 +51,20 @@ final class SessionStore {
         sessions.removeAll { $0.id == session.id }
     }
 
+    /// Remove empty sessions (no transcript, no cards, no notes, no messages)
+    /// except the given id. Used on app init to clean up the "one empty session
+    /// per launch" clutter from earlier versions.
+    func purgeEmptyDuplicates(except keepId: UUID) {
+        let empties = sessions.filter { s in
+            s.id != keepId
+                && s.transcript.isEmpty
+                && s.statCards.isEmpty
+                && s.notes.isEmpty
+                && s.researchMessages.isEmpty
+        }
+        for s in empties { delete(s) }
+    }
+
     private func loadAllFromDisk() -> [Session] {
         guard let urls = try? FileManager.default.contentsOfDirectory(
             at: storageDir, includingPropertiesForKeys: nil

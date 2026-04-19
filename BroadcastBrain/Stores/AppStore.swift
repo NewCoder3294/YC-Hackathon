@@ -39,8 +39,27 @@ final class AppStore {
         }
 
         let title = matchCache?.title ?? "Argentina vs France · 2022 WC Final"
-        self.currentSession = Session(title: title)
-        sessionStore.save(self.currentSession)
+
+        // Reuse an empty session for today's match if one already exists.
+        // Prevents the archives list from accumulating one empty entry per launch.
+        let cal = Calendar.current
+        if let reusable = sessionStore.sessions.first(where: { s in
+            s.title == title
+                && s.transcript.isEmpty
+                && s.statCards.isEmpty
+                && s.notes.isEmpty
+                && s.researchMessages.isEmpty
+                && cal.isDateInToday(s.createdAt)
+        }) {
+            self.currentSession = reusable
+        } else {
+            let fresh = Session(title: title)
+            self.currentSession = fresh
+            sessionStore.save(fresh)
+        }
+
+        // Sweep any stray empty duplicate sessions (from pre-fix launches)
+        sessionStore.purgeEmptyDuplicates(except: self.currentSession.id)
     }
 
     func appendStatCard(_ card: StatCard) {
