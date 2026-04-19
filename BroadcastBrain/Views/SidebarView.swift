@@ -460,8 +460,6 @@ private struct SidebarFooterControls: View {
     let collapsed: Bool
     @Environment(ThemeStore.self) private var theme
 
-    private static let landingURL = URL(string: "http://localhost:3000")!
-
     var body: some View {
         VStack(spacing: 8) {
             if collapsed {
@@ -469,8 +467,8 @@ private struct SidebarFooterControls: View {
                            help: theme.mode == .dark ? "Light mode" : "Dark mode") {
                     theme.toggleMode()
                 }
-                IconButton(systemImage: "globe", help: "View landing page") {
-                    NSWorkspace.shared.open(Self.landingURL)
+                IconButton(systemImage: "sidebar.left", help: "Expand sidebar") {
+                    theme.toggleSidebar()
                 }
             } else {
                 FooterPillButton(
@@ -478,12 +476,6 @@ private struct SidebarFooterControls: View {
                     label: theme.mode == .dark ? "LIGHT MODE" : "DARK MODE"
                 ) {
                     theme.toggleMode()
-                }
-                FooterPillButton(
-                    systemImage: "arrow.up.right.square",
-                    label: "LANDING PAGE"
-                ) {
-                    NSWorkspace.shared.open(Self.landingURL)
                 }
             }
         }
