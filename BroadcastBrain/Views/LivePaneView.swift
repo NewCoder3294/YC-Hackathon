@@ -688,29 +688,20 @@ struct LivePaneView: View {
                         guard store.liveState == .listening else { return }
                         store.partialTranscript = partial
 
-                        // Debounce: if partial stays the same for 1.2s, treat it
-                        // as a complete segment and ship to Gemma. Protects us
-                        // from SFSpeechRecognizer taking 3-5+ seconds to fire isFinal.
-                        debounceTask?.cancel()
-                        let snapshot = partial
-                        debounceTask = Task { @MainActor in
-                            try? await Task.sleep(nanoseconds: 1_200_000_000)
-                            guard !Task.isCancelled else { return }
-                            guard store.liveState == .listening else { return }
-                            guard store.partialTranscript == snapshot, !snapshot.isEmpty else { return }
-                            guard snapshot != lastHandledSegment else { return }
-                            // handleSegment updates lastHandledSegment AFTER it
-                            // strips the cumulative prefix — do NOT set it here
-                            // or the prefix-strip collapses to empty.
-                            await handleSegment(snapshot)
-                        }
+                        // Extract any COMPLETE sentences that ended since last
+                        // check, and ship each as its own transcript line + Gemma
+                        // call. Incomplete tail stays in partial (italic).
+                        await emitCompleteSentences(fromCumulative: partial, forceFinal: false)
                     }
                 }
                 audio.onSegment = { segment in
                     Task { @MainActor in
-                        debounceTask?.cancel()
-                        guard segment != lastHandledSegment else { return }
-                        await handleSegment(segment)
+                        // SFSpeechRecognizer fired isFinal — treat whatever remains
+                        // as a final sentence even if it doesn't end in punctuation.
+                        await emitCompleteSentences(fromCumulative: segment, forceFinal: true)
+                        // Reset cumulative tracking; the next recognition task
+                        // starts fresh from char 0.
+                        lastHandledSegment = ""
                     }
                 }
                 audio.onError = { err in
@@ -747,44 +738,78 @@ struct LivePaneView: View {
         recordingStartedAt = nil
     }
 
+    /// Extract any complete sentences from the current cumulative transcript
+    /// and ship each as its own transcript line + Gemma call. Incomplete tail
+    /// stays unhandled until more audio completes the sentence — or, on
+    /// `forceFinal`, is emitted as-is.
     @MainActor
-    private func handleSegment(_ segment: String) async {
-        let rawFull = segment.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !rawFull.isEmpty else { return }
+    private func emitCompleteSentences(fromCumulative cumulative: String, forceFinal: Bool) async {
+        // Advance past whatever was already handled within this cumulative text.
+        var workingTail: String
+        if !lastHandledSegment.isEmpty, cumulative.hasPrefix(lastHandledSegment) {
+            workingTail = String(cumulative.dropFirst(lastHandledSegment.count))
+        } else {
+            workingTail = cumulative
+        }
+        workingTail = workingTail.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !workingTail.isEmpty else { return }
 
-        // SFSpeechRecognizer emits CUMULATIVE text within a recognition task
-        // ("hello" → "hello world" → "hello world goodbye"). If the new text starts
-        // with what we already processed, strip the prefix so each transcript line
-        // is a fresh sentence.
-        let transcript: String = {
-            if !lastHandledSegment.isEmpty,
-               rawFull.hasPrefix(lastHandledSegment) {
-                let suffix = String(rawFull.dropFirst(lastHandledSegment.count))
-                    .trimmingCharacters(in: .whitespacesAndNewlines)
-                return suffix.isEmpty ? rawFull : suffix
-            }
-            // Fuzzier case — new text shares a long prefix but not exact (casing,
-            // punctuation drift). Walk word-by-word to find the common prefix length.
-            if !lastHandledSegment.isEmpty {
-                let overlap = Self.overlapWords(
-                    prev: lastHandledSegment.lowercased(),
-                    curr: rawFull.lowercased()
-                )
-                if overlap > 2 { // at least 3 overlapping words to trust it
-                    let words = rawFull.split(whereSeparator: { $0.isWhitespace })
-                    if overlap < words.count {
-                        return words.suffix(words.count - overlap).joined(separator: " ")
+        // Pull off each complete sentence (text up to `.`, `!`, or `?` followed
+        // by whitespace/end). The remainder is the incomplete tail.
+        var emitted: [String] = []
+        var buffer = ""
+        var chars = Array(workingTail)
+        var i = 0
+        while i < chars.count {
+            let ch = chars[i]
+            buffer.append(ch)
+            if ch == "." || ch == "!" || ch == "?" {
+                // Consume any trailing punctuation (e.g. "?!")
+                while i + 1 < chars.count, ["!", "?", "."].contains(chars[i + 1]) {
+                    i += 1
+                    buffer.append(chars[i])
+                }
+                // Sentence boundary only if followed by whitespace or end of text
+                let next = i + 1 < chars.count ? chars[i + 1] : nil
+                let boundary = next == nil || next!.isWhitespace
+                if boundary {
+                    let sentence = buffer.trimmingCharacters(in: .whitespacesAndNewlines)
+                    if sentence.count > 1 {
+                        emitted.append(sentence)
                     }
+                    buffer = ""
                 }
             }
-            return rawFull
-        }()
+            i += 1
+        }
 
+        if forceFinal {
+            let tail = buffer.trimmingCharacters(in: .whitespacesAndNewlines)
+            if tail.count > 1 { emitted.append(tail) }
+            buffer = ""
+        }
+
+        guard !emitted.isEmpty else { return }
+
+        // Track the new cumulative position: everything in `cumulative` minus
+        // any still-incomplete trailing buffer. We advance lastHandledSegment so
+        // the next partial skips what we already emitted.
+        let incompleteTailLen = buffer.trimmingCharacters(in: .whitespacesAndNewlines).count
+        let totalLen = cumulative.count
+        let keepLen = max(0, totalLen - incompleteTailLen)
+        let prefixEnd = cumulative.index(cumulative.startIndex, offsetBy: keepLen)
+        lastHandledSegment = String(cumulative[..<prefixEnd])
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+
+        for sentence in emitted {
+            await handleSegment(sentence)
+        }
+    }
+
+    @MainActor
+    private func handleSegment(_ segment: String) async {
+        let transcript = segment.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !transcript.isEmpty else { return }
-
-        // Track the full cumulative transcript so the next debounce pass can
-        // subtract this one.
-        lastHandledSegment = rawFull
 
         // Consume whisper-armed flag: next segment is forced as a whisper answer.
         let forceWhisper = whisperArmed
