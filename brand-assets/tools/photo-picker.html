@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>BroadcastBrain — Photo Sourcing Helper</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #050505;
+    color: #FAFAFA;
+    font-family: 'IBM Plex Mono', 'JetBrains Mono', ui-monospace, monospace;
+    padding: 48px 24px;
+    line-height: 1.6;
+  }
+  .container { max-width: 1100px; margin: 0 auto; }
+  .eyebrow {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: #525252;
+    font-weight: 700;
+    margin-bottom: 12px;
+  }
+  h1 {
+    font-size: 32px;
+    letter-spacing: -0.02em;
+    margin-bottom: 8px;
+    font-weight: 700;
+  }
+  .lede { color: #A3A3A3; font-size: 14px; max-width: 640px; margin-bottom: 48px; }
+  h2 {
+    font-size: 13px;
+    letter-spacing: 0.15em;
+    color: #737373;
+    font-weight: 700;
+    margin: 48px 0 16px 0;
+    padding-top: 24px;
+    border-top: 1px solid #1A1A1A;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 12px;
+  }
+  .card {
+    background: #0A0A0A;
+    border: 1px solid #262626;
+    border-radius: 8px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    transition: border-color 120ms;
+  }
+  .card:hover { border-color: #404040; }
+  .card .row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .card .priority {
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    color: #525252;
+  }
+  .card .priority.hi { color: #EF4444; }
+  .card .priority.md { color: #F59E0B; }
+  .card .title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #FAFAFA;
+  }
+  .card .use {
+    font-size: 11px;
+    color: #A3A3A3;
+  }
+  .card .query {
+    font-size: 11px;
+    color: #737373;
+    background: #141414;
+    padding: 6px 10px;
+    border-radius: 4px;
+    border: 1px solid #1F1F1F;
+  }
+  .card .actions {
+    display: flex;
+    gap: 6px;
+    margin-top: auto;
+    padding-top: 8px;
+  }
+  .btn {
+    flex: 1;
+    padding: 10px 12px;
+    font-family: inherit;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-decoration: none;
+    text-align: center;
+    border-radius: 4px;
+    border: 1px solid #262626;
+    color: #A3A3A3;
+    background: #0F0F0F;
+    cursor: pointer;
+    transition: all 120ms;
+  }
+  .btn:hover { background: #141414; color: #FAFAFA; border-color: #404040; }
+  .btn.primary {
+    background: #FAFAFA;
+    color: #0A0A0A;
+    border-color: #FAFAFA;
+  }
+  .btn.primary:hover { background: #E5E5E5; border-color: #E5E5E5; }
+  .footer {
+    margin-top: 80px;
+    padding-top: 24px;
+    border-top: 1px solid #1A1A1A;
+    font-size: 11px;
+    color: #525252;
+    line-height: 1.8;
+  }
+  .footer code { color: #A3A3A3; background: #141414; padding: 2px 6px; border-radius: 3px; }
+  .live-dot {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    background: #EF4444;
+    border-radius: 50%;
+    margin-right: 6px;
+    animation: blink 1.4s ease-in-out infinite;
+  }
+  @keyframes blink { 0%,100%{opacity:0.4} 50%{opacity:1} }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="eyebrow"><span class="live-dot"></span>ASSET SOURCING · UNSPLASH</div>
+  <h1>BroadcastBrain — Photo Picker</h1>
+  <p class="lede">Curated Unsplash queries for every website section. Click "Open" to search, download the shot that fits, drop into the matching <code>assets/photos/*/</code> folder. All results are commercial-use-free, no attribution required.</p>
+
+  <h2>HERO · ATMOSPHERIC BACKDROP</h2>
+  <div class="grid" id="hero"></div>
+
+  <h2>VENUES · MULTI-SPORT STRIP</h2>
+  <div class="grid" id="venues"></div>
+
+  <h2>BROADCASTERS · BUILT FOR THE BOOTH</h2>
+  <div class="grid" id="broadcasters"></div>
+
+  <h2>PRODUCTION · CONTROL ROOMS + CAMERAS</h2>
+  <div class="grid" id="production"></div>
+
+  <h2>GAMEPLAY · THE 4-SECOND WINDOW</h2>
+  <div class="grid" id="gameplay"></div>
+
+  <h2>CROWD · ATMOSPHERE</h2>
+  <div class="grid" id="crowd"></div>
+
+  <h2>TECH · ON-DEVICE STORY</h2>
+  <div class="grid" id="tech"></div>
+
+  <div class="footer">
+    <p><strong style="color:#A3A3A3">Workflow:</strong> Click "Open" → download largest available resolution → save to <code>assets/photos/[folder]/</code> → run WebP optimization (see PHOTO-GUIDE.md).</p>
+    <p style="margin-top:12px"><strong style="color:#A3A3A3">Avoid:</strong> photos with visible NFL/NBA/MLB logos, recognizable players, or league-branded equipment. Crop out logos or pick a different shot.</p>
+  </div>
+</div>
+
+<script>
+const data = {
+  hero: [
+    { title: "Stadium at night", use: "Full-bleed hero backdrop behind SVG composite", q: "stadium lights night", pri: "hi" },
+    { title: "Stadium lights closeup", use: "Floodlight rig, texture, hero accent", q: "stadium floodlights", pri: "md" },
+    { title: "Empty stadium dusk", use: "Atmospheric, blue-hour", q: "empty stadium dusk", pri: "md" },
+  ],
+  venues: [
+    { title: "Baseball stadium", use: "Mets angle, MLB demo", q: "baseball stadium night", pri: "hi" },
+    { title: "Football field aerial", use: "NFL angle", q: "football field aerial view", pri: "md" },
+    { title: "Basketball arena", use: "NBA angle, Nets angle", q: "basketball arena interior", pri: "md" },
+    { title: "Soccer pitch", use: "Global appeal", q: "soccer pitch wide", pri: "md" },
+    { title: "Hockey rink", use: "Multi-sport story", q: "hockey rink ice", pri: "md" },
+  ],
+  broadcasters: [
+    { title: "Radio microphone", use: "Your Rich Ackerman (WFAN) angle", q: "radio microphone studio", pri: "hi" },
+    { title: "Broadcast headset", use: "Over-ear + boom mic closeup", q: "broadcast headset professional", pri: "hi" },
+    { title: "Podcast studio dark", use: "Similar visual language, more available", q: "podcast studio dark", pri: "md" },
+    { title: "Announcer silhouette", use: "Faceless, safe", q: "radio host silhouette", pri: "md" },
+  ],
+  production: [
+    { title: "Broadcast control room", use: "Producer dashboard section backdrop", q: "broadcast control room monitors", pri: "hi" },
+    { title: "TV production studio", use: "Behind-the-scenes vibe", q: "tv production studio", pri: "md" },
+    { title: "Sideline camera operator", use: "Phase 2 OBS section", q: "sports camera sideline", pri: "md" },
+    { title: "Multi-monitor setup", use: "Mission-control aesthetic", q: "video production monitors dark", pri: "md" },
+  ],
+  gameplay: [
+    { title: "Baseball swing", use: "The split-second your product serves", q: "baseball swing action", pri: "hi" },
+    { title: "Football catch", use: "Motion, energy", q: "football catch action", pri: "md" },
+    { title: "Basketball dunk", use: "Iconic moment", q: "basketball dunk action", pri: "md" },
+    { title: "Pickup game", use: "Safer licensing (no pro leagues)", q: "pickup basketball game", pri: "md" },
+  ],
+  crowd: [
+    { title: "Stadium crowd night", use: "Backlit, silhouetted, no faces readable", q: "stadium crowd night silhouette", pri: "hi" },
+    { title: "Fans celebrating", use: "Emotional beat", q: "sports fans celebrating", pri: "md" },
+    { title: "Empty stands closeup", use: "Architectural, moody", q: "empty stadium seats", pri: "md" },
+  ],
+  tech: [
+    { title: "MacBook dark desk", use: "On-device inference story", q: "macbook dark desk code", pri: "hi" },
+    { title: "iPhone dark", use: "Mobile Cactus SDK angle", q: "iphone dark minimal", pri: "md" },
+    { title: "Code editor terminal", use: "Dev/build story", q: "code editor dark terminal", pri: "md" },
+  ],
+};
+
+function renderCard(item) {
+  const url = `https://unsplash.com/s/photos/${encodeURIComponent(item.q)}?orientation=landscape`;
+  const pexelsUrl = `https://www.pexels.com/search/${encodeURIComponent(item.q)}/`;
+  const priClass = item.pri === 'hi' ? 'hi' : 'md';
+  const priLabel = item.pri === 'hi' ? '★★★ ESSENTIAL' : '★★ RECOMMENDED';
+  return `
+    <div class="card">
+      <div class="row">
+        <div class="title">${item.title}</div>
+        <div class="priority ${priClass}">${priLabel}</div>
+      </div>
+      <div class="use">${item.use}</div>
+      <div class="query">${item.q}</div>
+      <div class="actions">
+        <a class="btn primary" href="${url}" target="_blank" rel="noopener">UNSPLASH →</a>
+        <a class="btn" href="${pexelsUrl}" target="_blank" rel="noopener">PEXELS</a>
+      </div>
+    </div>
+  `;
+}
+
+for (const [section, items] of Object.entries(data)) {
+  document.getElementById(section).innerHTML = items.map(renderCard).join('');
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,87 @@
+{
+  "match": {
+    "id": "arg-vs-fra-2022-wc-final",
+    "competition": "FIFA World Cup 2022 Final",
+    "venue": "Lusail Stadium",
+    "capacity": 88966,
+    "kickoff_iso": "2022-12-18T15:00:00Z",
+    "referee": { "name": "Szymon Marciniak", "federation": "POL", "tournament_yellows": 14 },
+    "weather": { "temp_c": 24, "condition": "clear" }
+  },
+  "teams": {
+    "home": {
+      "id": "arg", "name": "Argentina", "flag_svg_path": "flags/arg.svg", "color_hex": "#75AADB",
+      "tournament_record": { "w": 5, "d": 1, "l": 1, "gf": 12, "ga": 5 },
+      "h2h": { "all_time": { "w": 6, "d": 2, "l": 3 }, "last_wc_meeting": "2018 R16: FRA 4-3 (Mbappé x2)" }
+    },
+    "away": {
+      "id": "fra", "name": "France", "flag_svg_path": "flags/fra.svg", "color_hex": "#0055A4",
+      "tournament_record": { "w": 5, "d": 0, "l": 1, "gf": 13, "ga": 5 },
+      "h2h": { "all_time": { "w": 3, "d": 2, "l": 6 }, "last_wc_meeting": "2018 R16: FRA 4-3 (Mbappé x2)" }
+    }
+  },
+  "players": [
+    {
+      "id": "arg-10", "team_id": "arg", "shirt_number": 10, "name": "Lionel Messi",
+      "position": "FW", "age": 35, "club": "Paris Saint-Germain",
+      "stats": {
+        "tournament": { "goals": 5, "assists": 3, "xg": 4.1, "min": 570 },
+        "career": { "wc_goals": 11, "wc_apps": 25, "wc_assists": 8 },
+        "form_last_5": { "goals": 5, "assists": 2 }
+      },
+      "role_tags": ["CAPTAIN", "TOP SCORER", "THE 10"],
+      "storyline_ids": ["s-messi-last-dance"],
+      "h2h_notes": ["Scored in every WC knockout round this tournament"],
+      "didnt_know": ["98% conversion from the spot in WC knockouts since 2014"],
+      "status": "fit"
+    },
+    {
+      "id": "fra-10", "team_id": "fra", "shirt_number": 10, "name": "Kylian Mbappé",
+      "position": "FW", "age": 23, "club": "Paris Saint-Germain",
+      "stats": {
+        "tournament": { "goals": 5, "assists": 2, "xg": 4.4, "min": 572 },
+        "career": { "wc_goals": 9, "wc_apps": 11, "wc_assists": 4 },
+        "form_last_5": { "goals": 5, "assists": 1 }
+      },
+      "role_tags": ["TOP SCORER", "GOLDEN BOOT WATCH", "THE 10"],
+      "storyline_ids": ["s-mbappe-golden-boot"],
+      "h2h_notes": ["Scored in the 2018 WC Final vs Croatia"],
+      "didnt_know": ["Youngest player to reach 10 WC goals since Pelé"],
+      "status": "fit"
+    }
+  ],
+  "storylines": [
+    {
+      "id": "s-messi-last-dance",
+      "player_ids": ["arg-10"],
+      "text": "LAST DANCE — 5th & final WC at 35",
+      "category": "last_dance",
+      "priority_by_mode": { "stats_first": 2, "story_first": 10, "tactical": 1 }
+    },
+    {
+      "id": "s-mbappe-golden-boot",
+      "player_ids": ["fra-10"],
+      "text": "GOLDEN BOOT — tied with Messi at 5 goals",
+      "category": "record_watch",
+      "priority_by_mode": { "stats_first": 8, "story_first": 6, "tactical": 2 }
+    }
+  ],
+  "precedent_index": [
+    {
+      "id": "p-2goal-lead-wc-final",
+      "trigger": { "event_type": "goal", "score_state": "2-0" },
+      "stat_text": "Teams leading 2-0 in WC Finals have won 19 of 22 since 1970.",
+      "counter_narrative": "BUT 1966 ENG and 1994 BRA came back from 2-0 down.",
+      "category": "historical",
+      "sources": ["FIFA", "Sportradar"]
+    },
+    {
+      "id": "p-score-first-wc-final",
+      "trigger": { "event_type": "goal", "score_state": "1-0" },
+      "stat_text": "Teams scoring first in WC Finals have won 12 of 14 since 1970.",
+      "counter_narrative": "1994 BRA vs ITA (pens) and 2006 ITA vs FRA (pens) are the exceptions.",
+      "category": "historical",
+      "sources": ["FIFA"]
+    }
+  ]
+}
