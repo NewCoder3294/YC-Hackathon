@@ -92,6 +92,14 @@ final class AudioCaptureService {
         }
 
         let input = engine.inputNode
+
+        // Prepare BEFORE querying `outputFormat(forBus:)`. On macOS, reading
+        // the input node's format before the engine graph is initialized
+        // triggers two stderr `throwing -10877` lines (kAudioUnitErr_...).
+        // They're benign but they're the first thing you see in the console
+        // when debugging; silencing them makes the real logs readable.
+        engine.prepare()
+
         let format = input.outputFormat(forBus: 0)
         log.info("input format: sr=\(format.sampleRate) ch=\(format.channelCount)")
 
@@ -100,7 +108,6 @@ final class AudioCaptureService {
             self?.request?.append(buffer)
         }
 
-        engine.prepare()
         do {
             try engine.start()
             log.info("audio engine started")

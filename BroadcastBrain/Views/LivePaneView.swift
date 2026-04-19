@@ -253,10 +253,17 @@ struct LivePaneView: View {
                     }
                     .padding(18)
                 }
-                .onChange(of: store.partialTranscript) { _, _ in
-                    withAnimation { proxy.scrollTo("__bottom__", anchor: .bottom) }
-                }
-                .onChange(of: store.currentSession.transcript) { _, _ in
+                // Both transcripts change together when a sentence commits
+                // (handleSegment appends to `transcript` and clears
+                // `partialTranscript`). Two separate onChange modifiers each
+                // firing a `withAnimation { scrollTo }` in the same frame
+                // triggers SwiftUI's "action tried to update multiple times
+                // per frame" warning. Collapse into a single signal keyed on
+                // the two lengths — one change → one animation.
+                .onChange(of: [
+                    store.currentSession.transcript.count,
+                    store.partialTranscript.count
+                ]) { _, _ in
                     withAnimation { proxy.scrollTo("__bottom__", anchor: .bottom) }
                 }
             }
