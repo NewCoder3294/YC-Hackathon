@@ -1,6 +1,9 @@
 import AVFoundation
 import Foundation
 import Speech
+import os
+
+private let log = Logger(subsystem: "com.broadcastbrain.mac", category: "audio")
 
 enum AudioError: Error, LocalizedError {
     case micPermissionDenied
@@ -20,16 +23,10 @@ enum AudioError: Error, LocalizedError {
 
 /// Always-on mic capture with on-device STT via Apple's Speech framework.
 ///
-/// Why Apple Speech and not cactusStreamTranscribe: reliability + segment-restart
-/// is natively supported. Apple's recognizer emits `isFinal=true` on natural pauses
-/// in speech; we use that as a segment boundary. After each final, we restart the
-/// recognition task with a fresh request so the mic keeps listening continuously.
-/// Cactus is freed to focus on text completion.
-///
-/// Contract:
-///   - `onPartial(text)`: fires frequently during a segment with the running transcript
-///   - `onSegment(text)`: fires once per completed utterance (natural pause / end-of-segment)
-///   - `onError(err)`: fires on unrecoverable errors
+/// Emits:
+///   - onPartial(text): the running in-segment transcript (fires frequently)
+///   - onSegment(text): once per completed utterance (natural pause)
+///   - onError(err): unrecoverable errors only
 final class AudioCaptureService {
     private let engine = AVAudioEngine()
     private let recognizer: SFSpeechRecognizer?
@@ -43,18 +40,39 @@ final class AudioCaptureService {
 
     init(locale: Locale = Locale(identifier: "en-US")) {
         self.recognizer = SFSpeechRecognizer(locale: locale)
+        log.info("recognizer=\(String(describing: self.recognizer)) available=\(self.recognizer?.isAvailable ?? false) onDevice=\(self.recognizer?.supportsOnDeviceRecognition ?? false)")
     }
 
     func requestPermissions() async throws {
-        let speechStatus = await Self.requestSpeechAuth()
+        let currentSpeech = SFSpeechRecognizer.authorizationStatus()
+        log.info("speech auth status (pre): \(currentSpeech.rawValue)")
+
+        let speechStatus: SFSpeechRecognizerAuthorizationStatus
+        if currentSpeech == .authorized {
+            speechStatus = .authorized
+        } else {
+            speechStatus = await Self.requestSpeechAuth()
+        }
+        log.info("speech auth status (post): \(speechStatus.rawValue)")
         guard speechStatus == .authorized else { throw AudioError.speechPermissionDenied }
 
-        let micGranted = await withCheckedContinuation { (cont: CheckedContinuation<Bool, Never>) in
-            AVCaptureDevice.requestAccess(for: .audio) { cont.resume(returning: $0) }
+        let currentMic = AVCaptureDevice.authorizationStatus(for: .audio)
+        log.info("mic auth status (pre): \(currentMic.rawValue)")
+
+        let micGranted: Bool
+        if currentMic == .authorized {
+            micGranted = true
+        } else {
+            micGranted = await withCheckedContinuation { (cont: CheckedContinuation<Bool, Never>) in
+                AVCaptureDevice.requestAccess(for: .audio) { cont.resume(returning: $0) }
+            }
         }
+        log.info("mic granted: \(micGranted)")
         guard micGranted else { throw AudioError.micPermissionDenied }
 
-        guard let r = recognizer, r.isAvailable else { throw AudioError.recognizerUnavailable }
+        guard let r = recognizer else { throw AudioError.recognizerUnavailable }
+        log.info("recognizer available after perms: \(r.isAvailable)")
+        guard r.isAvailable else { throw AudioError.recognizerUnavailable }
     }
 
     private static func requestSpeechAuth() async -> SFSpeechRecognizerAuthorizationStatus {
@@ -63,13 +81,19 @@ final class AudioCaptureService {
         }
     }
 
-    /// Start capture + continuous STT. Calls `onSegment` for every natural pause.
     func start() throws {
-        guard let recognizer else { throw AudioError.recognizerUnavailable }
-        guard !isRunning else { return }
+        guard let recognizer else {
+            log.error("start: no recognizer")
+            throw AudioError.recognizerUnavailable
+        }
+        guard !isRunning else {
+            log.info("start: already running, ignoring")
+            return
+        }
 
         let input = engine.inputNode
         let format = input.outputFormat(forBus: 0)
+        log.info("input format: sr=\(format.sampleRate) ch=\(format.channelCount)")
 
         input.removeTap(onBus: 0)
         input.installTap(onBus: 0, bufferSize: 1024, format: format) { [weak self] buffer, _ in
@@ -79,7 +103,9 @@ final class AudioCaptureService {
         engine.prepare()
         do {
             try engine.start()
+            log.info("audio engine started")
         } catch {
+            log.error("engine.start failed: \(error.localizedDescription)")
             input.removeTap(onBus: 0)
             throw AudioError.engineStartFailed(error)
         }
@@ -88,8 +114,8 @@ final class AudioCaptureService {
         startRecognitionSegment(recognizer: recognizer)
     }
 
-    /// Stop everything. Call when user toggles mic off.
     func stop() {
+        log.info("stop()")
         isRunning = false
         request?.endAudio()
         task?.cancel()
@@ -102,13 +128,16 @@ final class AudioCaptureService {
     private func startRecognitionSegment(recognizer: SFSpeechRecognizer) {
         let req = SFSpeechAudioBufferRecognitionRequest()
         req.shouldReportPartialResults = true
-        if recognizer.supportsOnDeviceRecognition {
-            req.requiresOnDeviceRecognition = true
-        }
+        // Do NOT force on-device. On macOS the on-device path is flaky and will
+        // silently fail if the model isn't downloaded yet. We allow server-based
+        // fallback (network.client entitlement is now true). For real airplane
+        // demos, once Apple's on-device model is warm it works offline anyway.
         if #available(macOS 13.0, *) {
             req.addsPunctuation = true
         }
         self.request = req
+
+        log.info("starting recognition segment")
 
         task = recognizer.recognitionTask(with: req) { [weak self] result, error in
             guard let self else { return }
@@ -116,10 +145,10 @@ final class AudioCaptureService {
             if let result {
                 let text = result.bestTranscription.formattedString
                 if result.isFinal {
+                    log.info("segment final: \(text, privacy: .public)")
                     if !text.isEmpty {
                         self.onSegment?(text)
                     }
-                    // Segment ended (natural pause) — restart immediately to keep listening.
                     self.request = nil
                     self.task = nil
                     if self.isRunning, let rec = self.recognizer {
@@ -130,23 +159,18 @@ final class AudioCaptureService {
                 }
             }
 
-            if let _ = error {
+            if let error {
+                let nsError = error as NSError
+                log.error("recog error: domain=\(nsError.domain) code=\(nsError.code) desc=\(error.localizedDescription, privacy: .public)")
                 self.request = nil
                 self.task = nil
-                // While we're still supposed to be listening, silently restart
-                // on ANY recognition error — no-speech timeouts, cancellations,
-                // on-device-recognizer hiccups, Apple's undocumented codes, etc.
-                // Engine-level failures (mic access, AVAudioEngine start) already
-                // throw from `start()` before we get here, so anything reaching
-                // this callback during active listening is recoverable.
+                // While listening, silently restart on any recognition error.
                 if self.isRunning, let rec = self.recognizer {
-                    // Small delay avoids tight spin loops if errors fire immediately
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) { [weak self] in
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
                         guard let self, self.isRunning else { return }
                         self.startRecognitionSegment(recognizer: rec)
                     }
                 }
-                // else: we're stopping, error is expected — ignore
             }
         }
     }

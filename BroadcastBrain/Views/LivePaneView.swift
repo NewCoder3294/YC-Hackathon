@@ -33,45 +33,12 @@ struct LivePaneView: View {
                 latencyMs: store.lastLatencyMs
             )
 
-            ScrollView {
-                VStack(spacing: 12) {
-                    if let banner = permState.bannerText {
-                        permissionBanner(banner)
-                    }
+            HSplitView {
+                // Left: running transcript
+                transcriptColumn
 
-                    if !store.partialTranscript.isEmpty && store.liveState == .listening {
-                        TranscriptOverlay(text: store.partialTranscript)
-                    }
-
-                    ForEach(store.currentSession.statCards.reversed()) { card in
-                        StatCardView(card: card)
-                    }
-
-                    if store.currentSession.statCards.isEmpty && store.liveState == .idle && permState != .micDenied && permState != .speechDenied && permState != .bothDenied {
-                        StackCard(kind: .empty) {
-                            VStack(alignment: .leading, spacing: 6) {
-                                Text("Tap the mic to go live.")
-                                    .font(Typography.body)
-                                    .foregroundStyle(Color.textMuted)
-                                Text("BroadcastBrain will listen continuously and surface a stat card when it hears something worth surfacing.")
-                                    .font(Typography.chip)
-                                    .foregroundStyle(Color.textSubtle)
-                                Text("Try: \"Mbappé just scored his second\" or \"Messi steps up for the penalty\"")
-                                    .font(Typography.chip)
-                                    .foregroundStyle(Color.textSubtle)
-                            }
-                        }
-                    }
-
-                    if case .error(let msg) = store.liveState {
-                        StackCard(kind: .counter) {
-                            Text("Error: \(msg)")
-                                .font(Typography.body)
-                                .foregroundStyle(Color.live)
-                        }
-                    }
-                }
-                .padding(20)
+                // Right: stat cards surfaced
+                statCardsColumn
             }
 
             Divider().background(Color.bbBorder)
@@ -91,6 +58,129 @@ struct LivePaneView: View {
                 store.liveState = .idle
             }
         }
+    }
+
+    private var transcriptColumn: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Text("LIVE TRANSCRIPT")
+                    .font(Typography.sectionHead)
+                    .foregroundStyle(Color.textSubtle)
+                Spacer()
+                if store.liveState == .listening {
+                    HStack(spacing: 6) {
+                        ListeningDot()
+                        Text("LISTENING")
+                            .font(Typography.chip)
+                            .foregroundStyle(Color.live)
+                    }
+                } else if case .error = store.liveState {
+                    Text("ERROR")
+                        .font(Typography.chip)
+                        .foregroundStyle(Color.live)
+                }
+            }
+
+            if let banner = permState.bannerText {
+                permissionBanner(banner)
+            }
+
+            if case .error(let msg) = store.liveState {
+                StackCard(kind: .counter) {
+                    Text(msg)
+                        .font(Typography.body)
+                        .foregroundStyle(Color.live)
+                }
+            }
+
+            ScrollViewReader { proxy in
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 14) {
+                        if store.currentSession.transcript.isEmpty && store.partialTranscript.isEmpty {
+                            Text(permState.bannerText != nil
+                                 ? "Grant permissions above, then tap the mic."
+                                 : "Tap the mic to start listening. Everything you say will appear here live.")
+                                .font(Typography.body)
+                                .foregroundStyle(Color.textSubtle)
+                        }
+
+                        if !store.currentSession.transcript.isEmpty {
+                            ForEach(Array(store.currentSession.transcript.split(separator: "\n").enumerated()), id: \.offset) { _, line in
+                                Text(String(line))
+                                    .font(.system(size: 16, weight: .regular, design: .monospaced))
+                                    .foregroundStyle(Color.textPrimary)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                    .fixedSize(horizontal: false, vertical: true)
+                            }
+                        }
+
+                        if !store.partialTranscript.isEmpty && store.liveState == .listening {
+                            Text(store.partialTranscript)
+                                .font(.system(size: 16, weight: .regular, design: .monospaced))
+                                .foregroundStyle(Color.textMuted)
+                                .italic()
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .fixedSize(horizontal: false, vertical: true)
+                                .id("__partial__")
+                        }
+
+                        Color.clear.frame(height: 1).id("__bottom__")
+                    }
+                    .padding(14)
+                }
+                .onChange(of: store.partialTranscript) { _, _ in
+                    withAnimation { proxy.scrollTo("__bottom__", anchor: .bottom) }
+                }
+                .onChange(of: store.currentSession.transcript) { _, _ in
+                    withAnimation { proxy.scrollTo("__bottom__", anchor: .bottom) }
+                }
+            }
+            .background(Color.bgRaised, in: RoundedRectangle(cornerRadius: 6))
+            .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.bbBorder, lineWidth: 1))
+        }
+        .padding(20)
+        .frame(minWidth: 360)
+        .background(Color.bgBase)
+    }
+
+    private var statCardsColumn: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Text("STAT CARDS")
+                    .font(Typography.sectionHead)
+                    .foregroundStyle(Color.textSubtle)
+                Spacer()
+                if !store.currentSession.statCards.isEmpty {
+                    Text("\(store.currentSession.statCards.count)")
+                        .font(Typography.chip)
+                        .foregroundStyle(Color.verified)
+                }
+            }
+
+            ScrollView {
+                VStack(spacing: 12) {
+                    if store.currentSession.statCards.isEmpty {
+                        StackCard(kind: .empty) {
+                            VStack(alignment: .leading, spacing: 6) {
+                                Text("Cards surface here as you speak.")
+                                    .font(Typography.body)
+                                    .foregroundStyle(Color.textMuted)
+                                Text("Try: \"Mbappé just scored his second\" · \"Messi takes the penalty\" · \"Di María finishes\"")
+                                    .font(Typography.chip)
+                                    .foregroundStyle(Color.textSubtle)
+                            }
+                        }
+                    }
+
+                    ForEach(store.currentSession.statCards.reversed()) { card in
+                        StatCardView(card: card)
+                    }
+                }
+            }
+        }
+        .padding(20)
+        .frame(minWidth: 360)
+        .background(Color.bgBase)
     }
 
     private func permissionBanner(_ text: String) -> some View {
