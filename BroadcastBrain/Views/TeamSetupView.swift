@@ -33,7 +33,7 @@ struct TeamSetupView: View {
         VStack(alignment: .leading, spacing: 0) {
             // Header
             HStack(spacing: 8) {
-                Text("BROADCASTBRAIN")
+                Text("KLEOS")
                     .font(.system(size: 11, weight: .bold, design: .monospaced))
                     .foregroundStyle(Color.textSubtle)
                 Spacer()

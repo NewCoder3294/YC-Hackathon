@@ -111,16 +111,10 @@ private struct BrandHeader: View {
                 HStack(spacing: 10) {
                     LogoMark()
                         .frame(width: 30, height: 30)
-                    VStack(alignment: .leading, spacing: 1) {
-                        Text("BROADCAST")
-                            .font(.system(size: 11, weight: .bold, design: .monospaced))
-                            .tracking(1.6)
-                            .foregroundStyle(Color.textPrimary)
-                        Text("BRAIN")
-                            .font(.system(size: 11, weight: .bold, design: .monospaced))
-                            .tracking(1.6)
-                            .foregroundStyle(Color.textPrimary)
-                    }
+                    Text("KLEOS")
+                        .font(.system(size: 15, weight: .bold, design: .monospaced))
+                        .tracking(2.0)
+                        .foregroundStyle(Color.textPrimary)
                     Spacer()
                     CollapseChevron(collapsed: false) { theme.toggleSidebar() }
                 }
