@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:site.api.espn.com)",
+      "Bash(npm --version)",
+      "Bash(npx tsx *)",
+      "Bash(npx tsc *)",
+      "Bash(npm install *)",
+      "WebFetch(domain:sports.core.api.espn.com)",
+      "Bash(timeout 5 npm start)",
+      "Bash(cat)",
+      "Bash(node /tmp/test-espn.js)"
+    ]
+  }
+}
